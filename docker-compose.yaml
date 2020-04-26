@@ -1,0 +1,36 @@
+version: '3.1'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./api.dockerfile
+    ports:
+      - "50051:50051"
+    links:
+      - db
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+    - "5432:5432"
+    volumes:
+    - db:/var/lib/postgresql/data:Z
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  flyway-db:
+    image: boxfuse/flyway:6
+    command: -url=jdbc:postgresql://db:5432/postgres -user=postgres -password=example -connectRetries=60 migrate
+    volumes:
+      - ./src/main/resources/migration:/flyway/sql:Z
+    depends_on:
+      - db
+
+volumes:
+  db:
