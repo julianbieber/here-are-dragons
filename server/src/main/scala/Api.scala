@@ -1,7 +1,6 @@
 import com.zaxxer.hikari.HikariDataSource
-import dao.{UserDAO}
-import dungeons.dungeons.{DungeonsGrpc, Position}
-import dungeons.dungeons.EmptyResponse
+import dao.UserDAO
+import dungeons.dungeons.{DungeonsGrpc, LoginResponse, User}
 import io.grpc.{Server, ServerBuilder}
 import javax.sql.DataSource
 import scalikejdbc.{AutoSession, ConnectionPool, DataSourceConnectionPool}
@@ -58,11 +57,11 @@ class Api(executionContext: ExecutionContext, userDao: UserDAO) {
   }
 
   private class DungeonsImpl extends DungeonsGrpc.Dungeons {
-    override def reportPosition(request: Position): Future[EmptyResponse] = {
-      Future {
-        EmptyResponse()
-      }(executionContext)
-    }
+    override def login(request: User): Future[LoginResponse] = Future{
+      userDao.login(request.name, request.password).map{ token =>
+        LoginResponse(token)
+      }.getOrElse(throw new RuntimeException("Failed to log in"))
+    }(executionContext)
   }
 
 }
