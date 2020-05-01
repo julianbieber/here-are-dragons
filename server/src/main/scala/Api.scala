@@ -1,8 +1,10 @@
-import dao.TestDAO
+import com.zaxxer.hikari.HikariDataSource
+import dao.{UserDAO}
 import dungeons.dungeons.{DungeonsGrpc, Position}
 import dungeons.dungeons.EmptyResponse
 import io.grpc.{Server, ServerBuilder}
-import scalikejdbc.{AutoSession, ConnectionPool}
+import javax.sql.DataSource
+import scalikejdbc.{AutoSession, ConnectionPool, DataSourceConnectionPool}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -11,17 +13,24 @@ object Api extends App {
 
   private val port = 50051
 
-  Class.forName("org.postgresql.Driver")
-  ConnectionPool.singleton("jdbc:postgresql://db:5432/postgres", "postgres", "example")
-  val session = AutoSession
+  val dataSource: DataSource = {
+    val ds = new HikariDataSource()
+    ds.setDataSourceClassName("org.postgresql.Driver")
+    ds.addDataSourceProperty("url", "jdbc:postgresql://db:5432/postgres")
+    ds.addDataSourceProperty("user", "postgres")
+    ds.addDataSourceProperty("password", "example")
+    ds
+  }
+  val pool = new DataSourceConnectionPool(dataSource)
 
-  val api = new Api(ExecutionContext.global, new TestDAO(session))
+  val api = new Api(ExecutionContext.global, new UserDAO(pool))
   api.start()
   api.blockUntilShutdown()
 }
 
 
-class Api(executionContext: ExecutionContext, dao: TestDAO) { self =>
+class Api(executionContext: ExecutionContext, userDao: UserDAO) {
+  self =>
   private[this] var server: Server = null
 
   private def start(): Unit = {
@@ -51,7 +60,6 @@ class Api(executionContext: ExecutionContext, dao: TestDAO) { self =>
   private class DungeonsImpl extends DungeonsGrpc.Dungeons {
     override def reportPosition(request: Position): Future[EmptyResponse] = {
       Future {
-        dao.insert(request.lat, request.long)
         EmptyResponse()
       }(executionContext)
     }

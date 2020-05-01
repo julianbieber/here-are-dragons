@@ -1,5 +1,5 @@
-create table public.gps (
+create table public.users (
     id serial unique primary key,
-    lat float,
-    long float
+    name varchar unique not null,
+    hash varchar not null
 )
