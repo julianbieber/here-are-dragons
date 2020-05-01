@@ -1,6 +1,6 @@
 import com.zaxxer.hikari.HikariDataSource
 import dao.UserDAO
-import dungeons.dungeons.{DungeonsGrpc, LoginResponse, User}
+import dungeons.dungeons.{Auth, DungeonsGrpc, EmptyResponse, LoginResponse, User}
 import io.grpc.{Server, ServerBuilder}
 import javax.sql.DataSource
 import scalikejdbc.{AutoSession, ConnectionPool, DataSourceConnectionPool}
@@ -57,11 +57,19 @@ class Api(executionContext: ExecutionContext, userDao: UserDAO) {
   }
 
   private class DungeonsImpl extends DungeonsGrpc.Dungeons {
-    override def login(request: User): Future[LoginResponse] = Future{
-      userDao.login(request.name, request.password).map{ token =>
+    override def login(request: User): Future[LoginResponse] = Future {
+      userDao.login(request.name, request.password).map { token =>
         LoginResponse(token)
       }.getOrElse(throw new RuntimeException("Failed to log in"))
     }(executionContext)
+
+    override def createUser(request: User): Future[LoginResponse] = Future {
+      userDao.createUser(request.name, request.password).map{ _ =>
+        val token = userDao.login(request.name, request.password).get
+        LoginResponse(token)
+      }.getOrElse(throw new RuntimeException(s"Failed to create user: ${request.name}"))
+    }(executionContext)
+
   }
 
 }

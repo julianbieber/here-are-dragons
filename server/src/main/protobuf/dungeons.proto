@@ -3,7 +3,9 @@ syntax = "proto3";
 package dungeons;
 
 service Dungeons {
+    rpc createUser(User) returns (LoginResponse) {};
     rpc login(User) returns (LoginResponse) {};
+
 }
 
 message Auth {
