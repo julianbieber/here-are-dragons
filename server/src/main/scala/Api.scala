@@ -1,75 +1,40 @@
 import com.zaxxer.hikari.HikariDataSource
 import dao.UserDAO
-import dungeons.dungeons.{Auth, DungeonsGrpc, EmptyResponse, LoginResponse, User}
-import io.grpc.{Server, ServerBuilder}
 import javax.sql.DataSource
-import scalikejdbc.{AutoSession, ConnectionPool, DataSourceConnectionPool}
+import scalikejdbc.{ConnectionPool, DataSourceConnectionPool}
+import com.google.inject.Module
+import com.twitter.finagle.http.{Request, Response}
+import com.twitter.finatra.http.HttpServer
+import com.twitter.finatra.http.filters.{CommonFilters, LoggingMDCFilter, TraceIdMDCFilter}
+import com.twitter.finatra.http.routing.HttpRouter
+import controllers.UserController
+import net.codingwell.scalaguice.ScalaModule
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 
-object Api extends App {
-
-  private val port = 50051
-
+object Api extends HttpServer {
   val dataSource: DataSource = {
     val ds = new HikariDataSource()
-    ds.setDataSourceClassName("org.postgresql.Driver")
+    ds.setDataSourceClassName("org.postgresql.ds.PGPoolingDataSource")
     ds.addDataSourceProperty("url", "jdbc:postgresql://db:5432/postgres")
     ds.addDataSourceProperty("user", "postgres")
     ds.addDataSourceProperty("password", "example")
     ds
   }
   val pool = new DataSourceConnectionPool(dataSource)
-
-  val api = new Api(ExecutionContext.global, new UserDAO(pool))
-  api.start()
-  api.blockUntilShutdown()
-}
-
-
-class Api(executionContext: ExecutionContext, userDao: UserDAO) {
-  self =>
-  private[this] var server: Server = null
-
-  private def start(): Unit = {
-    server = ServerBuilder
-      .forPort(Api.port)
-      .addService(DungeonsGrpc.bindService(new DungeonsImpl, executionContext))
-      .build
-    server.start()
-
-    sys.addShutdownHook {
-      self.stop()
+  override val modules: Seq[Module] = Seq(new ScalaModule {
+    override def configure(): Unit = {
+      bind[ExecutionContext].toInstance(ExecutionContext.global)
+      bind[ConnectionPool].toInstance(pool)
     }
+  })
+
+  override def configureHttp(router: HttpRouter): Unit = {
+    router
+      .filter[LoggingMDCFilter[Request, Response]]
+      .filter[TraceIdMDCFilter[Request, Response]]
+      .filter[CommonFilters]
+      .add[UserController]
   }
-
-  private def stop(): Unit = {
-    if (server != null) {
-      server.shutdown()
-    }
-  }
-
-  private def blockUntilShutdown(): Unit = {
-    if (server != null) {
-      server.awaitTermination()
-    }
-  }
-
-  private class DungeonsImpl extends DungeonsGrpc.Dungeons {
-    override def login(request: User): Future[LoginResponse] = Future {
-      userDao.login(request.name, request.password).map { token =>
-        LoginResponse(token)
-      }.getOrElse(throw new RuntimeException("Failed to log in"))
-    }(executionContext)
-
-    override def createUser(request: User): Future[LoginResponse] = Future {
-      userDao.createUser(request.name, request.password).map{ _ =>
-        val token = userDao.login(request.name, request.password).get
-        LoginResponse(token)
-      }.getOrElse(throw new RuntimeException(s"Failed to create user: ${request.name}"))
-    }(executionContext)
-
-  }
-
 }

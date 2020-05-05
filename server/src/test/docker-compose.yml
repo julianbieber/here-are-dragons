@@ -9,7 +9,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db:/var/lib/postgresql/data:Z
+      - db-test:/var/lib/postgresql/data:Z
   adminer:
     image: adminer
     restart: always
@@ -18,4 +18,4 @@ services:
 
 
 volumes:
-  db:
+  db-test:
