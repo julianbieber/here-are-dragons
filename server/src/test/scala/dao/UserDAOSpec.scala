@@ -1,5 +1,6 @@
 package dao
 
+import model.LoginResponse
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.flatspec.AnyFlatSpec
 import testUtil.SQLSpec._
@@ -28,7 +29,7 @@ class UserDAOSpec extends AnyFlatSpec with Matchers {
     val password = oneRandom(genString)
 
     dao.createUser(name, password)
-    val token = dao.login(name, password).get
+    val LoginResponse(id, token) = dao.login(name, password).get
     dao.isLoggedIn(name, token) should be(true)
     dao.logout(name, token)
     dao.deleteUser(name)

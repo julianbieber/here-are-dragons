@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: ./api.dockerfile
     ports:
-      - "50051:50051"
+      - "8888:8888"
     links:
       - db
 

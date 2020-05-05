@@ -4,9 +4,11 @@ import java.security.{MessageDigest, SecureRandom}
 import java.util.UUID
 
 import io.github.nremond.SecureHash
+import javax.inject.Inject
+import model.LoginResponse
 import scalikejdbc._
 
-class UserDAO(val pool: ConnectionPool) extends SQLUtil {
+class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def createUser(name: String, password: String): Option[Int] = {
     withSession(pool) { implicit session =>
@@ -32,14 +34,14 @@ class UserDAO(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def login(name: String, password: String): Option[String] = {
+  def login(name: String, password: String): Option[LoginResponse] = {
     getUser(name).flatMap { user =>
       if (SecureHash.validatePassword(password, user.passwordHash)) {
         val token = UUID.randomUUID().toString + generateSecureCookie()
         loggedInUsers.synchronized {
           loggedInUsers.put(name, token)
         }
-        Option(token)
+        Option(LoginResponse(id = user.id, token = token)) // TODO wrap into object
       } else {
         None
       }

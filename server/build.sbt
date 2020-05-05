@@ -2,16 +2,14 @@ name := "DungeonsAndTraining"
 
 version := "0.1"
 
-scalaVersion := "2.13.2"
-
-PB.targets in Compile := Seq(
-  scalapb.gen() -> (sourceManaged in Compile).value
-)
+scalaVersion := "2.12.8"
 
 libraryDependencies ++= Seq(
-  "io.grpc" % "grpc-netty" % scalapb.compiler.Version.grpcJavaVersion,
-  "io.grpc" % "grpc-services" % scalapb.compiler.Version.grpcJavaVersion,
-  "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapb.compiler.Version.scalapbVersion,
+  "com.twitter" %% "finatra-http" % "20.4.1",
+  "com.sun.activation" % "javax.activation" % "1.2.0",
+  "io.netty" % "netty-transport-native-epoll" % "4.1.49.Final" classifier "linux-x86_64",
+  "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core"   % "2.2.0",
+  "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.2.0" % Provided,
   "org.scalikejdbc" %% "scalikejdbc"       % "3.4.1",
   "org.postgresql" % "postgresql" % "42.2.12",
   "ch.qos.logback"  %  "logback-classic"   % "1.2.3",
