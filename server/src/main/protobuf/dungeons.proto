@@ -3,12 +3,23 @@ syntax = "proto3";
 package dungeons;
 
 service Dungeons {
-    rpc reportPosition (Position) returns (EmptyResponse) {}
+    rpc createUser(User) returns (LoginResponse) {};
+    rpc login(User) returns (LoginResponse) {};
+
 }
 
-message Position {
-    float lat = 1;
-    float long = 2;
+message Auth {
+    string name = 1;
+    string token = 2;
+}
+
+message User {
+    string name = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string token = 1;
 }
 
 message EmptyResponse {
