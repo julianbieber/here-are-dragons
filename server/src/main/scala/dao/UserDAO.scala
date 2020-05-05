@@ -26,7 +26,7 @@ class UserDAO(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def deleteUser(name: String, token: String): Unit = {
+  def deleteUser(name: String): Unit = {
     withSession(pool) { implicit session =>
       sql"DELETE FROM public.users WHERE name = $name".execute().apply()
     }
