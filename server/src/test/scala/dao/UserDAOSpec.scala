@@ -1,6 +1,6 @@
 package dao
 
-import model.LoginResponse
+import model.Account.LoginResponse
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.flatspec.AnyFlatSpec
 import testUtil.SQLSpec._
