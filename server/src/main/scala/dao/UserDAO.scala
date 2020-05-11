@@ -5,7 +5,7 @@ import java.util.UUID
 
 import io.github.nremond.SecureHash
 import javax.inject.Inject
-import model.LoginResponse
+import model.Account.LoginResponse
 import scalikejdbc._
 
 class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
@@ -38,8 +38,8 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     getUser(name).flatMap { user =>
       if (SecureHash.validatePassword(password, user.passwordHash)) {
         val token = UUID.randomUUID().toString + generateSecureCookie()
-        loggedInUsers.synchronized {
-          loggedInUsers.put(name, token)
+        UserDAO.loggedInUsers.synchronized {
+          UserDAO.loggedInUsers.put(name, token)
         }
         Option(LoginResponse(id = user.id, token = token)) // TODO wrap into object
       } else {
@@ -49,14 +49,14 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   }
 
   def logout(name: String, token: String): Unit = {
-    loggedInUsers.synchronized {
+    UserDAO.loggedInUsers.synchronized {
       if (isLoggedIn(name, token)) {
-        loggedInUsers.remove(name)
+        UserDAO.loggedInUsers.remove(name)
       }
     }
   }
 
-  def isLoggedIn(name: String, token: String): Boolean = loggedInUsers.get(name).contains(token)
+  def isLoggedIn(name: String, token: String): Boolean = UserDAO.loggedInUsers.get(name).contains(token)
 
   // #########################################################
 
@@ -82,8 +82,10 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     builder.toString
   }
 
-  private val loggedInUsers = scala.collection.mutable.Map[String, String]()
+}
 
+object UserDAO {
+  private val loggedInUsers = scala.collection.mutable.Map[String, String]()
 }
 
 case class DAOUser(id: Int, name: String, passwordHash: String)
