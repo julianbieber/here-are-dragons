@@ -1473,8 +1473,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4e2ff288e221564fb2029c607556f12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  userNameField: {fileID: 828579591}
-  passwordField: {fileID: 1133942073}
+  userNameField: {fileID: 1836828276}
+  passwordField: {fileID: 831184994}
   feedbackField: {fileID: 1335239364}
   self: {fileID: 308504318}
 --- !u!1 &2130604681
