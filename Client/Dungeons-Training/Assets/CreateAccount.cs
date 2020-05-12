@@ -4,8 +4,8 @@ using UnityEngine.UI;
 
 public class CreateAccount : MonoBehaviour
 {
-    public Text userNameField;
-    public Text passwordField;
+    public InputField userNameField;
+    public InputField passwordField;
 
     public Text feedbackField;
     public Button self;
