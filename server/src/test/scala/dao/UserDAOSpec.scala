@@ -30,8 +30,8 @@ class UserDAOSpec extends AnyFlatSpec with Matchers {
 
     dao.createUser(name, password)
     val LoginResponse(id, token) = dao.login(name, password).get
-    dao.isLoggedIn(name, token) should be(true)
-    dao.logout(name, token)
+    dao.isLoggedIn(id, token) should be(true)
+    dao.logout(id, token)
     dao.deleteUser(name)
   }
 }

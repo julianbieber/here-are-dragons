@@ -39,24 +39,24 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       if (SecureHash.validatePassword(password, user.passwordHash)) {
         val token = UUID.randomUUID().toString + generateSecureCookie()
         UserDAO.loggedInUsers.synchronized {
-          UserDAO.loggedInUsers.put(name, token)
+          UserDAO.loggedInUsers.put(user.id, token)
         }
-        Option(LoginResponse(id = user.id, token = token)) // TODO wrap into object
+        Option(LoginResponse(id = user.id, token = token))
       } else {
         None
       }
     }
   }
 
-  def logout(name: String, token: String): Unit = {
+  def logout(id: Int, token: String): Unit = {
     UserDAO.loggedInUsers.synchronized {
-      if (isLoggedIn(name, token)) {
-        UserDAO.loggedInUsers.remove(name)
+      if (isLoggedIn(id, token)) {
+        UserDAO.loggedInUsers.remove(id)
       }
     }
   }
 
-  def isLoggedIn(name: String, token: String): Boolean = UserDAO.loggedInUsers.get(name).contains(token)
+  def isLoggedIn(userId: Int, token: String): Boolean = UserDAO.loggedInUsers.get(userId).contains(token)
 
   // #########################################################
 
@@ -85,7 +85,7 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 }
 
 object UserDAO {
-  private val loggedInUsers = scala.collection.mutable.Map[String, String]()
+  private val loggedInUsers = scala.collection.mutable.Map[Int, String]()
 }
 
 case class DAOUser(id: Int, name: String, passwordHash: String)
