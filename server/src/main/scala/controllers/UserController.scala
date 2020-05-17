@@ -23,8 +23,7 @@ class UserController @Inject()(userDao: UserDAO, executionContext: ExecutionCont
       val loginData = readFromString[LoginRequest](request.contentString)
       userDao.login(loginData.name, loginData.password)
         .map { loginResponse =>
-          writeToString(loginResponse)
-          response.ok(loginResponse)
+          response.ok(writeToString(loginResponse))
         }
         .getOrElse(response.unauthorized)
     }

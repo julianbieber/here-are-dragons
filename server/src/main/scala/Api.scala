@@ -1,5 +1,4 @@
 import com.zaxxer.hikari.HikariDataSource
-import dao.UserDAO
 import javax.sql.DataSource
 import scalikejdbc.{ConnectionPool, DataSourceConnectionPool}
 import com.google.inject.Module
@@ -7,7 +6,7 @@ import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.{CommonFilters, LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.http.routing.HttpRouter
-import controllers.{ExampleLoggedInController, UserController}
+import controllers.{ExampleLoggedInController, GroupController, UserController}
 import net.codingwell.scalaguice.ScalaModule
 
 import scala.concurrent.ExecutionContext
@@ -37,5 +36,6 @@ object Api extends HttpServer {
       .filter[CommonFilters]
       .add[UserController]
       .add[ExampleLoggedInController]
+      .add[GroupController]
   }
 }
