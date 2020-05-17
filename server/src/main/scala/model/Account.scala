@@ -7,5 +7,6 @@ object Account {
   case class LoginResponse(id: Int, token: String)
 
   case class CreateResponse(id: Int)
+
 }
 

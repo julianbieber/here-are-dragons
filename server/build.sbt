@@ -2,7 +2,7 @@ name := "DungeonsAndTraining"
 
 version := "0.1"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.10"
 
 libraryDependencies ++= Seq(
   "com.twitter" %% "finatra-http" % "20.4.1",

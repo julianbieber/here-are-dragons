@@ -42,7 +42,6 @@ object SQLSpec {
     try {
       f(ConnectionPool())
     } finally {
-      fw.clean()
       teardown(dbName)
       ConnectionPool.closeAll()
     }
