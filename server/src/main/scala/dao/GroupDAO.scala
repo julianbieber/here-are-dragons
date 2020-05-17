@@ -1,6 +1,7 @@
 package dao
 
 import javax.inject.Inject
+import model.Group.Group
 
 import scala.collection.mutable
 
@@ -28,6 +29,12 @@ class GroupDAO @Inject() (userDAO: UserDAO) {
         }
       }
       GroupDAO.groups = GroupDAO.groups.filterNot(_.size <= 1)
+    }
+  }
+
+  def getGroup(user: Int): Option[Group] = {
+    GroupDAO.groups.synchronized {
+      GroupDAO.groups.find(_.contains(user)).map(Group(_))
     }
   }
 }
