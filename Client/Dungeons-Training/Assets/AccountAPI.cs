@@ -6,11 +6,11 @@ using UnityEngine.Networking;
 using UnityEngine;
 
 public class AccountAPI {
-    static string baseUrl = "http://192.168.0.66:8888/";
+  
 
     public static async Task<Option<int>> createAccount(string user, string password) {
         var request = new AccountRequestBody{name = user, password = password};
-        var response = await API.post<AccountRequestBody, CreateAccountResponseBody>(baseUrl + "createUser", request, new Dictionary<string, string>());
+        var response = await API.post<AccountRequestBody, CreateAccountResponseBody>(Global.baseUrl + "createUser", request, new Dictionary<string, string>());
         if (response.isSome) {
             return Option<int>.Some(response.value.id);
         } else {
@@ -20,7 +20,7 @@ public class AccountAPI {
 
     public static async Task<Option<Tuple<int, string>>> login(string user, string password) {
         var request = new AccountRequestBody{name = user, password = password};
-        var response = await API.post<AccountRequestBody, LoginResponseBody>(baseUrl + "login", request, new Dictionary<string, string>());
+        var response = await API.post<AccountRequestBody, LoginResponseBody>(Global.baseUrl + "login", request, new Dictionary<string, string>());
         if (response.isSome) {
             var tuple = new Tuple<int, string>(response.value.id, response.value.token);
             return Option<Tuple<int, string>>.Some(tuple);
