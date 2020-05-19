@@ -9,7 +9,7 @@ using System.Linq;
 
 public class API {
 
-    public static async Task<Option<B>> get<A, B>(string url, Dictionary<string, string> queryParemeters) {
+    public static async Task<Option<B>> get<B>(string url, Dictionary<string, string> queryParemeters) {
         var urlWithQuery = url + queryString(queryParemeters);
         using (var www = UnityWebRequest.Get(urlWithQuery))
             {
