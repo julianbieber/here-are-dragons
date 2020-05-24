@@ -3,7 +3,7 @@ package model
 
 
 object Position{
-  case class PositionRequest(long: Float,lat:Float)
+  case class PositionRequest(longitude: Float,latitude:Float)
   case class positionResponse()
 }
 

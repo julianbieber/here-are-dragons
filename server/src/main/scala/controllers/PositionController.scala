@@ -27,7 +27,7 @@ class PositionController @Inject()(override val userDAO: UserDAO,val positionDAO
   post("/Position") { request: Request =>
     val position = readFromString[PositionRequest](request.contentString)
     withUser(request) { userId =>
-      positionDAO.setPosition(userId,position.long, position.lat)
+      positionDAO.setPosition(userId,position.longitude, position.latitude)
       response.ok
     }
   }
