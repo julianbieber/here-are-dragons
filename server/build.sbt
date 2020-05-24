@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback"  %  "logback-classic"   % "1.2.3",
   "com.zaxxer" % "HikariCP" % "1.3.+",
   "io.github.nremond" %% "pbkdf2-scala" % "0.6.5",
+  "joda-time" % "joda-time" % "2.10.6",
   "org.scalactic" %% "scalactic" % "3.1.1",
   "org.scalatest" %% "scalatest" % "3.1.1" % Test,
   "org.scalamock" %% "scalamock" % "4.4.0" % Test,

@@ -6,7 +6,7 @@ import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.{CommonFilters, LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.http.routing.HttpRouter
-import controllers.{ExampleLoggedInController, GroupController, UserController}
+import controllers.{ActivityController, ExampleLoggedInController, GroupController, PositionController, UserController}
 import net.codingwell.scalaguice.ScalaModule
 
 import scala.concurrent.ExecutionContext
@@ -37,5 +37,7 @@ object Api extends HttpServer {
       .add[UserController]
       .add[ExampleLoggedInController]
       .add[GroupController]
+      .add[ActivityController]
+      .add[PositionController]
   }
 }
