@@ -1,3 +1,4 @@
+import background.{BackgroundExecutor, Experience}
 import com.zaxxer.hikari.HikariDataSource
 import javax.sql.DataSource
 import scalikejdbc.{ConnectionPool, DataSourceConnectionPool}
@@ -7,6 +8,7 @@ import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.{CommonFilters, LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.http.routing.HttpRouter
 import controllers.{ActivityController, ExampleLoggedInController, GroupController, PositionController, QuestController, UserController}
+import dao.{ActivityDAO, ExperienceDAO}
 import net.codingwell.scalaguice.ScalaModule
 
 import scala.concurrent.ExecutionContext
@@ -41,4 +43,6 @@ object Api extends HttpServer {
       .add[PositionController]
       .add[QuestController]
   }
+
+  val experienceJob = new BackgroundExecutor(new Experience(new ActivityDAO(pool), new ExperienceDAO(pool)))
 }

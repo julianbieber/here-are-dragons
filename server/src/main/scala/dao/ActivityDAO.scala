@@ -45,10 +45,10 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def getNotProcessedActivities(): Seq[DAOActivity] = {
     withReadOnlySession(pool) { implicit session: DBSession =>
-      sql"SELECT userid, at.name, timestamp, start, stop FROM public.activity a join public.activity_type at ON a.activity_id = at.id WHERE a.processed = false ORDER BY a.timestamp ASC"
+      sql"SELECT userid, activity_id, timestamp, start, stop FROM public.activity a WHERE a.processed = false ORDER BY a.timestamp ASC"
         .map { row =>
           val timestamp = toDateTime(row.dateTime("timestamp"))
-          DAOActivity(row.int("userid"), row.string("name"), timestamp, row.boolean("start"), row.boolean("stop"))
+          DAOActivity(row.int("userid"), row.int("activity_id"), timestamp, row.boolean("start"), row.boolean("stop"))
         }.list().apply()
     }
   }
@@ -62,4 +62,4 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   }
 }
 
-case class DAOActivity(user: Int, activity: String, timestamp: DateTime, start: Boolean, stop: Boolean)
+case class DAOActivity(user: Int, activity: Int, timestamp: DateTime, start: Boolean, stop: Boolean)
