@@ -19,11 +19,10 @@ public class SendPosition : MonoBehaviour
   void Update()
   {
 	if(Time.time>=nextUpdate)
-        {
-
+        {	
             nextUpdate=Mathf.FloorToInt(Time.time)+1;
 	var pos=fp.CurrentLocation.LatitudeLongitude;
-  	PositionAPI.setPosition((float)pos.x, (float)pos.y);
+  	PositionAPI.setPosition((float)pos.y, (float)pos.x);
 	}
   }
   public async void Create() {

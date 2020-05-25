@@ -1,6 +1,0 @@
-package model
-
-object Quest {
-
-}
-
