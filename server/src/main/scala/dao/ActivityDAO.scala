@@ -42,4 +42,24 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
         }
     }
   }
+
+  def getNotProcessedActivities(): Seq[DAOActivity] = {
+    withReadOnlySession(pool) { implicit session: DBSession =>
+      sql"SELECT userid, at.name, timestamp, start, stop FROM public.activity a join public.activity_type at ON a.activity_id = at.id WHERE a.processed = false ORDER BY a.timestamp ASC"
+        .map { row =>
+          val timestamp = toDateTime(row.dateTime("timestamp"))
+          DAOActivity(row.int("userid"), row.string("name"), timestamp, row.boolean("start"), row.boolean("stop"))
+        }.list().apply()
+    }
+  }
+
+  def setProcessed(activities: Seq[DAOActivity]): Unit = {
+    withSession(pool) { implicit session: DBSession =>
+      sql"UPDATE public.activity SET processed = true where userid = {u} and timestamp = {t}".batchByName(activities.map{ activity =>
+        Seq("u" -> activity.user, "t" -> activity.timestamp)
+      }:_*).apply()
+    }
+  }
 }
+
+case class DAOActivity(user: Int, activity: String, timestamp: DateTime, start: Boolean, stop: Boolean)
