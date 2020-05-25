@@ -10,7 +10,7 @@ libraryDependencies ++= Seq(
   "io.netty" % "netty-transport-native-epoll" % "4.1.49.Final" classifier "linux-x86_64",
   "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core"   % "2.2.0",
   "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.2.0" % Provided,
-  "org.scalikejdbc" %% "scalikejdbc"       % "3.4.1",
+  "org.scalikejdbc" %% "scalikejdbc"        % "3.4.2",
   "org.postgresql" % "postgresql" % "42.2.12",
   "ch.qos.logback"  %  "logback-classic"   % "1.2.3",
   "com.zaxxer" % "HikariCP" % "1.3.+",

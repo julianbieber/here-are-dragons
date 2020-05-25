@@ -2,48 +2,61 @@ package testUtil
 
 import java.util.UUID
 
+import com.zaxxer.hikari.HikariDataSource
+import javax.sql.DataSource
 import org.flywaydb.core.Flyway
-import scalikejdbc.{AutoSession, ConnectionPool}
-import scalikejdbc._
+import scalikejdbc.{AutoSession, ConnectionPool, using, _}
 
 object SQLSpec {
+
   private val user = "postgres"
   private val password = "example"
-  Class.forName("org.postgresql.Driver")
-  val preUrl = s"jdbc:postgresql://127.0.0.1:5432/"
-
-  private def setup(dbName: String): Unit = {
-    ConnectionPool.singleton(preUrl, user, password)
-    val preSession = AutoSession
-    SQL(s"CREATE DATABASE $dbName").execute.apply()(preSession)
-    preSession.close()
-    ConnectionPool.closeAll()
+  private def url(dbName: String) = s"jdbc:postgresql://127.0.0.1:5433/$dbName"
+  val preDataSource: DataSource = {
+    val ds = new HikariDataSource()
+    ds.setDataSourceClassName("org.postgresql.ds.PGPoolingDataSource")
+    ds.addDataSourceProperty("url", s"jdbc:postgresql://127.0.0.1:5433/")
+    ds.addDataSourceProperty("user", user)
+    ds.addDataSourceProperty("password", password)
+    ds
   }
+  val prePool = new DataSourceConnectionPool(preDataSource)
 
-  private def teardown(dbName: String): Unit = {
-    ConnectionPool.singleton(preUrl, user, password)
-    val preSession = AutoSession
-    SQL(s"DROP DATABASE $dbName").execute.apply()(preSession)
-    preSession.close()
-    ConnectionPool.closeAll()
+
+  private def setup(dbName: String): (HikariDataSource, ConnectionPool) = {
+    using(DB(prePool.borrow())){ connection =>
+      using(connection.autoCommitSession()) { session =>
+        SQL(s"CREATE DATABASE $dbName").execute.apply()(session)
+      }
+    }
+
+    val dataSource: HikariDataSource = {
+      val ds = new HikariDataSource()
+      ds.setDataSourceClassName("org.postgresql.ds.PGPoolingDataSource")
+      ds.addDataSourceProperty("url", url(dbName))
+      ds.addDataSourceProperty("user", user)
+      ds.addDataSourceProperty("password", password)
+      ds.setMinimumIdle(0)
+      ds.setMaximumPoolSize(1)
+      ds.setIdleTimeout(10000)
+      ds
+    }
+    dataSource -> new DataSourceConnectionPool(dataSource, closer = () => dataSource.close())
   }
 
   def withPool[A](f: ConnectionPool => A): A = {
     val dbName = s"test_${UUID.randomUUID()}".replaceAll("-", "_")
 
-    setup(dbName)
+    val (ds, pool) = setup(dbName)
 
-    val url = s"$preUrl$dbName"
-    val fw = Flyway.configure().dataSource(url, user, password).locations("migration").load()
+    val fw = Flyway.configure().dataSource(url(dbName), user, password).locations("migration").load()
     fw.migrate()
 
-    ConnectionPool.singleton(url, user, password)
-
-    try {
-      f(ConnectionPool())
+    try{
+      f(pool)
     } finally {
-      teardown(dbName)
-      ConnectionPool.closeAll()
+      ds.close()
+      pool.close()
     }
   }
 }

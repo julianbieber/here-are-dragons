@@ -27,4 +27,15 @@ class ActivityController @Inject() (override val userDAO: UserDAO, executionCont
       }
     }
   }
+
+  delete("/activity") { request: Request =>
+    withUserAsync(request) { userId =>
+      Future {
+        activityDAO.getCurrentActivity(userId).map{ activity =>
+          activityDAO.stopActivity(userId, activity)
+        }.map(_ => response.ok("")).getOrElse(response.badRequest("User does not have a current activity to be stopped"))
+
+      }
+    }
+  }
 }
