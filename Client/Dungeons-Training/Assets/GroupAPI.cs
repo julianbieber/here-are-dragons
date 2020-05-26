@@ -6,13 +6,13 @@ using System;
 
 public class GroupAPI
 {
-     public static async Task<List<int>> getGroup() {
+     public static async Task<List<Position>> getGroup() {
         var response = await API.get<GroupResponse>(Global.baseUrl + "group", new Dictionary<string, string>());
         if (response.isSome) {
             return response.value.users;
         } else {
             Debug.Log("Failed to retrieve group");
-            return new List<int>();
+            return new List<Position>();
         }
     }
 
@@ -39,7 +39,15 @@ public class GroupAPI
 
 [Serializable]
 public class GroupResponse {
-    public List<int> users;
+    public List<Position> users;
+}
+
+[Serializable]
+public class Position {
+    public int userID;
+    public float longitude;
+    public float latitude;
+
 }
 
 [Serializable]
