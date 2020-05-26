@@ -9,7 +9,7 @@ import com.github.plokhotnyuk.jsoniter_scala.core._
 
 import scala.concurrent.ExecutionContext
 
-class QuestController @Inject()(val questDAO: QuestDAO,positionDAO: PositionDAO,executionContext: ExecutionContext) extends UserUtil {
+class QuestController @Inject()(val questDAO: QuestDAO,positionDAO: PositionDAO,override val userDAO: UserDAO,executionContext: ExecutionContext) extends UserUtil {
 
   private implicit val ec: ExecutionContext = executionContext
   private implicit val daoPositon :JsonValueCodec[dao.DAOPosition]=JsonCodecMaker.make[dao.DAOPosition];
