@@ -1,0 +1,22 @@
+package dao
+
+import background.ExperienceValue
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.must.Matchers
+import testUtil.SQLSpec._
+
+class ExperienceDAOSpec extends AnyFlatSpec with Matchers {
+  "ExperienceDAO" must "store and get experiences" in withPool { pool =>
+    val userDAO = new UserDAO(pool)
+    val experienceDAO = new ExperienceDAO(pool)
+
+    val userId = userDAO.createUser("user", "pass").get
+
+    experienceDAO.addExperiences(Seq(ExperienceValue(userId, 1, 100)))
+    experienceDAO.getExperiences(userId).head.amount must be(100)
+
+    experienceDAO.addExperiences(Seq(ExperienceValue(userId, 1, 150)))
+    experienceDAO.getExperiences(userId).head.amount must be(250)
+  }
+
+}

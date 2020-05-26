@@ -25,4 +25,26 @@ class ActivityDAOSpec extends AnyFlatSpec with Matchers {
 
   }
 
+  it must "process activities" in withPool { pool =>
+    val userDAO = new UserDAO(pool)
+    val activityDAO = new ActivityDAO(pool)
+
+    val userId = userDAO.createUser(oneRandom(genString), oneRandom(genString)).get
+
+    activityDAO.startActivity(userId, "RUNNING")
+    activityDAO.stopActivity(userId, "RUNNING")
+
+    activityDAO.startActivity(userId, "CYCLING")
+    activityDAO.stopActivity(userId, "CYCLING")
+
+    val activities = activityDAO.getNotProcessedActivities()
+
+    activities must have size 4
+
+    activityDAO.setProcessed(activities)
+
+    activityDAO.getNotProcessedActivities() must be(empty)
+
+  }
+
 }
