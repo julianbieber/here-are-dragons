@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class SyncGroupCount : MonoBehaviour
 {
     public Text self;
+    public GroupMemberController memberController;
     private int nextUpdate=1;
 
     // Start is called before the first frame update
@@ -20,8 +21,7 @@ public class SyncGroupCount : MonoBehaviour
         if(Time.time>=nextUpdate)
         {
             nextUpdate=Mathf.FloorToInt(Time.time)+1;
-            var members = await GroupAPI.getGroup();
-            self.text = members.Count.ToString();
+            self.text = memberController.members.Count.ToString();
         }
         
     }
