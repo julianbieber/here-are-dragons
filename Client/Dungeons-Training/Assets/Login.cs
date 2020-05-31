@@ -34,7 +34,6 @@ public class Login : MonoBehaviour
             Global.userId = Option<int>.Some(loginResponse.Item1);
             Global.token = Option<string>.Some(loginResponse.Item2);
             SceneManager.LoadScene("Map");
-
         } else {
             feedbackField.text = "Failed to login";
         }
