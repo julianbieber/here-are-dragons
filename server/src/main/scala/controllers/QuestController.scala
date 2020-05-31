@@ -3,11 +3,12 @@ package controllers
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 import javax.inject.Inject
-import dao.{UserDAO,PositionDAO,QuestDAO}
+import dao.{PositionDAO, QuestDAO, UserDAO}
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 
 import scala.concurrent.ExecutionContext
+import scala.util.control.NonFatal
 
 class QuestController @Inject()(val questDAO: QuestDAO,positionDAO: PositionDAO,override val userDAO: UserDAO,executionContext: ExecutionContext) extends UserUtil {
 
