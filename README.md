@@ -11,7 +11,7 @@
 * build the server (in server directory): `sbt pack`
 * run tests:
 ```
-docker-compose -f src/test/docker-compose.yml up --force-recreate --build
+docker-compose -f src/test/docker-compose.yml up --force-recreate --build -d
 sbt test
 ```
 * run the server (in server directory): `docker-compose up --force-recreate --build`
