@@ -36,9 +36,9 @@ class GroupDAO @Inject() (userDAO: UserDAO) {
     }
   }
 
-  def getGroup(user: Int): Option[Group] = {
+  def getGroup(user: Int): Option[Seq[Int]] = {
     GroupDAO.groups.synchronized {
-      GroupDAO.groups.find(_.contains(user)).map(Group(_))
+      GroupDAO.groups.find(_.contains(user))
     }
   }
 }
