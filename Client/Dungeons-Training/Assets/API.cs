@@ -25,6 +25,7 @@ public class API {
                 while (!www.isDone)
                     await Task.Delay(1);
                 var responseString = www.downloadHandler.text;
+		Debug.Log(responseString);
                 if (www.isNetworkError || www.isHttpError) {
                     return Option<B>.None;
                 } else {
@@ -117,7 +118,7 @@ public class API {
         foreach (var parameter in queryParemeters)
         {
             var key = parameter.Key;
-            var value = parameter.Key;
+            var value = parameter.Value;
             queryBuilder.Append(key);
             queryBuilder.Append("=");
             queryBuilder.Append(UnityWebRequest.EscapeURL(value));
@@ -127,3 +128,4 @@ public class API {
     }
         
 }
+
