@@ -2,6 +2,8 @@ package dao
 
 import javax.inject.Inject
 import scalikejdbc._
+
+import scala.collection.JavaConverters._
 import scala.collection.immutable.List
 
 class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
@@ -29,7 +31,7 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def toMeter(distanceFromPosition:Float) :Float=distanceFromPosition/111000f
+  def toMeter(distanceFromPosition:Float) :Float=distanceFromPosition/11100f
 
   def getListOfQuestsNerby(longitude:Float, latitude:Float, distanceFromPosition:Float): List[DAOQuest] = {
     //distanceFromPosition wird in Metern übergeben und danach mit der Methode toDegree in GeoCoordinaten
@@ -57,3 +59,5 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
 
 case class DAOQuest(questID:Integer,longitude:Float,latitude:Float)
+
+

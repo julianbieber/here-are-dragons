@@ -7,6 +7,7 @@ import dao.{PositionDAO, QuestDAO, UserDAO}
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 
+import scala.util.control.NonFatal
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
@@ -16,13 +17,20 @@ class QuestController @Inject()(val questDAO: QuestDAO,positionDAO: PositionDAO,
   private implicit val daoPositon :JsonValueCodec[dao.DAOPosition]=JsonCodecMaker.make[dao.DAOPosition];
   private implicit val daoQuestcodec :JsonValueCodec[dao.DAOQuest]=JsonCodecMaker.make[dao.DAOQuest];
   private implicit val lOQ :JsonValueCodec[List[dao.DAOQuest]]=JsonCodecMaker.make[List[dao.DAOQuest]];
+  private implicit val QuestsResponseCodex :JsonValueCodec[model.Quest.QuestsResponse]=JsonCodecMaker.make[model.Quest.QuestsResponse];
 
-  get("/getListOfRequests") { request: Request =>
+  get("/getListOfQuests") { request: Request =>
+    println(request.getParam("distance"))
     val y=request.getParam("distance").toFloat
       withUser(request) { userId =>
 
         var i =positionDAO.getPosition(userId).get
-        response.ok(writeToString(questDAO.getListOfQuestsNerby(i.longitude, i.latitude, y)))
+        try{
+          response.ok(writeToString(model.Quest.QuestsResponse(questDAO.getListOfQuestsNerby(i.longitude, i.latitude, y))))
+        } catch {
+          case NonFatal(e) => e.printStackTrace()
+            response.internalServerError()
+        }
        }
   }
 }
