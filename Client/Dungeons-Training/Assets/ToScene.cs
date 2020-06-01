@@ -4,7 +4,7 @@ using UnityEngine;
 
 using UnityEngine.SceneManagement;
 
-public class ToCharacter : MonoBehaviour
+public class ToScene : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
@@ -18,7 +18,7 @@ public class ToCharacter : MonoBehaviour
         
     }
 
-    public void Character() {
-        SceneManager.LoadScene("CharacterScene");
+    public void toScene(string scene) {
+        SceneManager.LoadScene(scene);
     }
 }
