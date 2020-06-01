@@ -9,13 +9,13 @@ public class QuestAPI : MonoBehaviour
     async public static Task<QuestsResponse> getListOfQuestsNearby(float distance) {
 	var que = new Dictionary<string, string>();
 	que.Add("distance",distance.ToString());
-       var response = await API.get<QuestsResponse>(Global.baseUrl + "getListOfQuests", que);
-       if (response.isSome) {
-	return response.value;      
- } else {
-           Debug.Log("No Quests available");
-           return new QuestsResponse();
-       }
+    var response = await API.get<QuestsResponse>(Global.baseUrl + "getListOfQuests", que);
+    if (response.isSome) {
+	    return response.value;      
+    } else {
+        Debug.Log("No Quests available");
+        return new QuestsResponse{ quests = new List<DAOQuest>()};
+    }
 }
 
 }
