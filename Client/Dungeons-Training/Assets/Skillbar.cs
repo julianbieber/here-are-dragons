@@ -19,7 +19,8 @@ public class Skillbar : MonoBehaviour
             targetPattern = "11011",
             effectPattern = "111",
             apCost = 1,
-            inflictsBurn = true
+            damage = 20,
+            burnDuration = 2
         }));
         skills.Add(Option<Skill>.None);
         skills.Add(Option<Skill>.None);
@@ -73,9 +74,19 @@ public class Skillbar : MonoBehaviour
         tooltipText.Append(skill.effectPattern);
         tooltipText.Append("\n");
 
+        tooltipText.Append("damage: ");
+        tooltipText.Append(skill.damage);
+        tooltipText.Append("\n");
+
         tooltipText.Append("ap cost: ");
         tooltipText.Append(skill.apCost);
         tooltipText.Append("\n");
+
+        if (skill.burnDuration > 0) {
+            tooltipText.Append("burning: ");
+            tooltipText.Append(skill.burnDuration);
+            tooltipText.Append("\n");
+        }
         
         tooltipBox.text = tooltipText.ToString();
     }
@@ -88,6 +99,8 @@ public class Skill {
     public string effectPattern; 
     public int apCost;
 
-    public bool inflictsBurn;
+    public int damage;
+
+    public int burnDuration;
 
 }

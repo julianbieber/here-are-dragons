@@ -18,6 +18,10 @@ public class DungeonController : MonoBehaviour
         units = new List<Unit>()
     };
 
+    private Turn currentTurn;
+
+    private int remainingAP;
+
     private List<GameObject> objects = new List<GameObject>();
     private Vector3 lowerLeft;
     private Vector3 lowerRight;
@@ -37,12 +41,14 @@ public class DungeonController : MonoBehaviour
         screenHeight = topLeft.y - lowerLeft.y;
 
         dungeon.units.Add(new EmptyUnit{ prefabId = 0 });
-        dungeon.units.Add(new PlayerUnit{userId = Global.userId.value});
+        dungeon.units.Add(new PlayerUnit{userId = Global.userId.value, health = 100});
         dungeon.units.Add(new EmptyUnit{ prefabId = 0 });
-        dungeon.units.Add(new NPCUnit{ prefabId = 0});
-        dungeon.units.Add(new NPCUnit{ prefabId = 0});
-        dungeon.units.Add(new NPCUnit{ prefabId = 0});
-        dungeon.units.Add(new NPCUnit{ prefabId = 0});
+        dungeon.units.Add(new NPCUnit{ prefabId = 0, health = 100});
+        dungeon.units.Add(new NPCUnit{ prefabId = 0, health = 100});
+        dungeon.units.Add(new NPCUnit{ prefabId = 0, health = 100});
+        dungeon.units.Add(new NPCUnit{ prefabId = 0, health = 100});
+
+        currentTurn = new Turn{ turnId = 0, skillsUsed = new List<SkillUsage>() };
     }
 
     // Update is called once per frame
@@ -51,6 +57,8 @@ public class DungeonController : MonoBehaviour
         if (objects.Count != dungeon.units.Count) {
             setDungeon(dungeon);
         }
+
+        apText.text = remainingAP.ToString();
     }
 
     void setDungeon(Dungeon dungeon) {
@@ -58,29 +66,33 @@ public class DungeonController : MonoBehaviour
                 o.Destroy();
             }
             objects.Clear();
-
+            var index = 0;
             foreach(var unit in dungeon.units) {
                 if (unit is PlayerUnit) {
                     var o = Instantiate(playerPrefab);
                     o.GetComponent<DungeonUnit>().Self = unit;
                     o.GetComponent<DungeonUnit>().gm = this;
+                    o.GetComponent<DungeonUnit>().index = index;
                     objects.Add(o);
                 }
                 if (unit is NPCUnit) {
                     var o = Instantiate(npcPrefabs[((NPCUnit)unit).prefabId]);
                     o.GetComponent<DungeonUnit>().Self = unit;
                     o.GetComponent<DungeonUnit>().gm = this;
+                    o.GetComponent<DungeonUnit>().index = index;
                     objects.Add(o);
                 }
                 if (unit is EmptyUnit) {
                     var o = Instantiate(emptyPrefabs[((EmptyUnit)unit).prefabId]);
                     o.GetComponent<DungeonUnit>().Self = unit;
                     o.GetComponent<DungeonUnit>().gm = this;
+                    o.GetComponent<DungeonUnit>().index = index;
                     objects.Add(o);
                 }
+                ++index;
             }
 
-            var objectSize = (screenWidth ) / (float)(objects.Count + 2);
+            var objectSize = screenWidth / (float)(objects.Count + 2);
 
             if (objectSize > screenHeight * 0.7f){
                 objectSize = screenHeight * 0.7f;
@@ -96,28 +108,31 @@ public class DungeonController : MonoBehaviour
     }
 
     public void makeTargettableForPattern(Skill skill) {
-        var selfUnitIndex = getSelf();
-        if (selfUnitIndex != -1) {
-            var selfInPattern = skill.targetPattern.Length / 2;
-            for(int patternI = 0; patternI < skill.targetPattern.Length; ++patternI) {
-                if (skill.targetPattern[patternI] == '1'){
-                    var duO = calculateUnitIndex(skill.targetPattern, selfUnitIndex, patternI);
-                    if (duO.isSome) {
-                        DungeonUnit du = duO.value.Item1;
-                        du.setTargettable();
-                        du.onClick(identifyEffected(skill.effectPattern, duO.value.Item2), skill);
+        if (skill.apCost <= remainingAP) {
+            var selfUnitIndex = getSelf();
+            if (selfUnitIndex != -1) {
+                var selfInPattern = skill.targetPattern.Length / 2;
+                for(int patternI = 0; patternI < skill.targetPattern.Length; ++patternI) {
+                    if (skill.targetPattern[patternI] == '1'){
+                        var duO = calculateUnitIndex(skill.targetPattern, selfUnitIndex, patternI);
+                        if (duO.isSome) {
+                            DungeonUnit du = duO.value.Item1;
+                            du.setTargettable();
+                            du.onClick(identifyEffected(skill.effectPattern, duO.value.Item2), skill);
+                        }
+                    } else {
+                        var duO = calculateUnitIndex(skill.targetPattern, selfUnitIndex, patternI);
+                        if (duO.isSome) {
+                            DungeonUnit du = duO.value.Item1;
+                            du.setNotTargettable();
+                        }
                     }
-                } else {
-                    var duO = calculateUnitIndex(skill.targetPattern, selfUnitIndex, patternI);
-                    if (duO.isSome) {
-                        DungeonUnit du = duO.value.Item1;
-                        du.setNotTargettable();
-                    }
+                    
                 }
-                
             }
         }
     }
+
     public List<DungeonUnit> identifyEffected(string effectPattern, int targetIndex) {
         var units = new List<DungeonUnit>();
         for (int i = 0; i < effectPattern.Length; ++i) {
@@ -149,13 +164,15 @@ public class DungeonController : MonoBehaviour
     }
 
     public void endTurn() {
-
+        remainingAP += 10;
     }
 
-    public void SkillWasUsed() {
+    public void SkillWasUsed(int unitIndex, Skill skill) {
         foreach(var du in objects) {
             du.GetComponent<DungeonUnit>().setNotTargettable();
         }
+        currentTurn.skillsUsed.Add(new SkillUsage{ targetId = unitIndex, skill = skill});
+        remainingAP -= skill.apCost;
     }
 }
 
@@ -179,4 +196,14 @@ public class NPCUnit : Unit {
 
 public class EmptyUnit : Unit {
     public int prefabId;
+}
+
+public class Turn {
+    public int turnId;
+    public List<SkillUsage> skillsUsed;
+}
+
+public class SkillUsage {
+    public int targetId;
+    public Skill skill;
 }
