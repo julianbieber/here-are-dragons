@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DungeonController : MonoBehaviour
 {
@@ -9,6 +11,8 @@ public class DungeonController : MonoBehaviour
     public GameObject playerPrefab;
 
     public List<GameObject> npcPrefabs;
+
+    public Text apText;
 
     private Dungeon dungeon = new Dungeon {
         units = new List<Unit>()
@@ -32,6 +36,7 @@ public class DungeonController : MonoBehaviour
         topLeft = mainCamera.ViewportToWorldPoint(new Vector3(0, 1, 0));
         screenHeight = topLeft.y - lowerLeft.y;
 
+        dungeon.units.Add(new EmptyUnit{ prefabId = 0 });
         dungeon.units.Add(new PlayerUnit{userId = Global.userId.value});
         dungeon.units.Add(new EmptyUnit{ prefabId = 0 });
         dungeon.units.Add(new NPCUnit{ prefabId = 0});
@@ -44,20 +49,34 @@ public class DungeonController : MonoBehaviour
     void Update()
     {
         if (objects.Count != dungeon.units.Count) {
-            foreach(var o in objects) {
+            setDungeon(dungeon);
+        }
+    }
+
+    void setDungeon(Dungeon dungeon) {
+        foreach(var o in objects) {
                 o.Destroy();
             }
             objects.Clear();
 
             foreach(var unit in dungeon.units) {
                 if (unit is PlayerUnit) {
-                    objects.Add(Instantiate(playerPrefab));
+                    var o = Instantiate(playerPrefab);
+                    o.GetComponent<DungeonUnit>().Self = unit;
+                    o.GetComponent<DungeonUnit>().gm = this;
+                    objects.Add(o);
                 }
                 if (unit is NPCUnit) {
-                    objects.Add(Instantiate(npcPrefabs[((NPCUnit)unit).prefabId]));
+                    var o = Instantiate(npcPrefabs[((NPCUnit)unit).prefabId]);
+                    o.GetComponent<DungeonUnit>().Self = unit;
+                    o.GetComponent<DungeonUnit>().gm = this;
+                    objects.Add(o);
                 }
                 if (unit is EmptyUnit) {
-                    objects.Add(Instantiate(emptyPrefabs[((EmptyUnit)unit).prefabId]));
+                    var o = Instantiate(emptyPrefabs[((EmptyUnit)unit).prefabId]);
+                    o.GetComponent<DungeonUnit>().Self = unit;
+                    o.GetComponent<DungeonUnit>().gm = this;
+                    objects.Add(o);
                 }
             }
 
@@ -74,6 +93,68 @@ public class DungeonController : MonoBehaviour
                 objects[i].transform.localPosition = Vector3.Lerp(objectLeft, objectRight, (i)/((float)objects.Count-1));
                 objects[i].transform.localScale = new Vector3( objectSize, objectSize, 1);
             }
+    }
+
+    public void makeTargettableForPattern(Skill skill) {
+        var selfUnitIndex = getSelf();
+        if (selfUnitIndex != -1) {
+            var selfInPattern = skill.targetPattern.Length / 2;
+            for(int patternI = 0; patternI < skill.targetPattern.Length; ++patternI) {
+                if (skill.targetPattern[patternI] == '1'){
+                    var duO = calculateUnitIndex(skill.targetPattern, selfUnitIndex, patternI);
+                    if (duO.isSome) {
+                        DungeonUnit du = duO.value.Item1;
+                        du.setTargettable();
+                        du.onClick(identifyEffected(skill.effectPattern, duO.value.Item2), skill);
+                    }
+                } else {
+                    var duO = calculateUnitIndex(skill.targetPattern, selfUnitIndex, patternI);
+                    if (duO.isSome) {
+                        DungeonUnit du = duO.value.Item1;
+                        du.setNotTargettable();
+                    }
+                }
+                
+            }
+        }
+    }
+    public List<DungeonUnit> identifyEffected(string effectPattern, int targetIndex) {
+        var units = new List<DungeonUnit>();
+        for (int i = 0; i < effectPattern.Length; ++i) {
+            int dungeonIndex = targetIndex + i - effectPattern.Length / 2;
+            if (dungeonIndex >= 0&& dungeonIndex < objects.Count) {
+                units.Add(objects[dungeonIndex].GetComponent<DungeonUnit>());
+            }
+        }
+        return units;
+    }
+
+    private Option<Tuple<DungeonUnit, int>> calculateUnitIndex(string pattern, int playerIndex, int patternIndex) {
+        var i = playerIndex + patternIndex - pattern.Length / 2;
+        if (i >= 0 && i < objects.Count) {
+            return Option<Tuple<DungeonUnit, int>>.Some(new Tuple<DungeonUnit, int>(objects[i].GetComponent<DungeonUnit>(), i));
+        } else {
+            return Option<Tuple<DungeonUnit, int>>.None;
+        }
+    }
+
+    private int getSelf() {
+        for(int i = 0; i < objects.Count; ++i) {
+            var u = objects[i].GetComponent<DungeonUnit>().Self;
+            if (u is PlayerUnit && ((PlayerUnit)u).userId == Global.userId.value) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void endTurn() {
+
+    }
+
+    public void SkillWasUsed() {
+        foreach(var du in objects) {
+            du.GetComponent<DungeonUnit>().setNotTargettable();
         }
     }
 }
@@ -88,10 +169,12 @@ public interface Unit {
 
 public class PlayerUnit : Unit {
     public int userId;
+    public int health;
 }
 
 public class NPCUnit : Unit {
     public int prefabId;
+    public int health;
 }
 
 public class EmptyUnit : Unit {
