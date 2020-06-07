@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DungeonController : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class DungeonController : MonoBehaviour
     public GameObject playerPrefab;
 
     public List<GameObject> npcPrefabs;
+
+    public Text apText;
 
     private Dungeon dungeon = new Dungeon {
         units = new List<Unit>()
@@ -76,6 +79,16 @@ public class DungeonController : MonoBehaviour
             }
         }
     }
+
+    public void makeTargettableForPattern(string pattern) {
+        PlayerUnit selfUnit = null;
+
+
+    }
+
+    public void endTurn() {
+
+    }
 }
 
 public class Dungeon {
@@ -88,10 +101,12 @@ public interface Unit {
 
 public class PlayerUnit : Unit {
     public int userId;
+    public int health;
 }
 
 public class NPCUnit : Unit {
     public int prefabId;
+    public int health;
 }
 
 public class EmptyUnit : Unit {
