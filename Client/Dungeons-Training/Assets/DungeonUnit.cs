@@ -8,6 +8,8 @@ public class DungeonUnit : MonoBehaviour
     public GameObject onFirePrefab;
     public GameObject targettablePrefab;
     public Unit Self { get; set; }
+    public int index;
+    public TextMesh hpText;
 
     public DungeonController gm;
 
@@ -32,6 +34,13 @@ public class DungeonUnit : MonoBehaviour
 
         targettableObject.transform.position = transform.position;
         targettableObject.transform.localScale = transform.localScale;
+
+        if (Self is NPCUnit) {
+            hpText.text = (Self as NPCUnit).health.ToString();
+        }
+        if (Self is PlayerUnit) {
+            hpText.text = (Self as PlayerUnit).health.ToString();
+        }
 
     }
 
@@ -61,12 +70,20 @@ public class DungeonUnit : MonoBehaviour
     void OnMouseDown() {
         if (whenSkillUse.isSome) {
             var skill = whenSkillUse.value;
-            if (skill.inflictsBurn) {
+            if (skill.burnDuration > 0) {
                 foreach (var u in onCastEffected) {
                     u.setOnFire();
                 }    
             }
-            gm.SkillWasUsed();
+            foreach (var u in onCastEffected) {
+                if (u.Self is NPCUnit) {
+                    (u.Self as NPCUnit).health -= skill.damage;
+                }
+                if (u.Self is PlayerUnit) {
+                    (u.Self as PlayerUnit).health -= skill.damage;
+                }
+            }
+            gm.SkillWasUsed(index, whenSkillUse.value);
         }
     }
 }
