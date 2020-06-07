@@ -86,6 +86,7 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
 object UserDAO {
   private val loggedInUsers = scala.collection.mutable.Map[Int, String]()
+  loggedInUsers.put(0, "DEBUG")
 }
 
 case class DAOUser(id: Int, name: String, passwordHash: String)
