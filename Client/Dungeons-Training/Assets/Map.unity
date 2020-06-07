@@ -728,7 +728,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 53e4aa1df69664b69be0b2db49714eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  quest: {fileID: 8736384178927601073, guid: 04fb264b00dc09c4791cec17cbbb362e, type: 3}
+  quest: {fileID: 2538763788783827284, guid: e7cb0f1e29d5643bab8f096ceec5e46d, type: 3}
   distanceInMeter: 1000000
 --- !u!1 &727629199
 GameObject:
