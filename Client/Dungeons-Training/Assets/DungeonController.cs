@@ -35,6 +35,7 @@ public class DungeonController : MonoBehaviour
         topLeft = mainCamera.ViewportToWorldPoint(new Vector3(0, 1, 0));
         screenHeight = topLeft.y - lowerLeft.y;
 
+        dungeon.units.Add(new EmptyUnit{ prefabId = 0 });
         dungeon.units.Add(new PlayerUnit{userId = Global.userId.value});
         dungeon.units.Add(new EmptyUnit{ prefabId = 0 });
         dungeon.units.Add(new NPCUnit{ prefabId = 0});
@@ -81,9 +82,45 @@ public class DungeonController : MonoBehaviour
     }
 
     public void makeTargettableForPattern(string pattern) {
-        PlayerUnit selfUnit = null;
+        var selfUnitIndex = getSelf();
+        if (selfUnitIndex != -1) {
+            var selfInPattern = pattern.Length / 2;
+            for(int patternI = 0; patternI < pattern.Length; ++patternI) {
+                if (pattern[patternI] == '1'){
+                    var duO = calculateUnitIndex(pattern, selfUnitIndex, patternI);
+                    if (duO.isSome) {
+                        DungeonUnit du = duO.value;
+                        du.setTargettable();
+                    }
+                } else {
+                    var duO = calculateUnitIndex(pattern, selfUnitIndex, patternI);
+                    if (duO.isSome) {
+                        DungeonUnit du = duO.value;
+                        du.setNotTargettable();
+                    }
+                }
+                
+            }
+        }
+    }
 
+    private Option<DungeonUnit> calculateUnitIndex(string pattern, int playerIndex, int patternIndex) {
+        var i = playerIndex + patternIndex - pattern.Length / 2;
+        if (i >= 0 && i < objects.Count) {
+            return Option<DungeonUnit>.Some(objects[i].GetComponent<DungeonUnit>());
+        } else {
+            return Option<DungeonUnit>.None;
+        }
+    }
 
+    private int getSelf() {
+        for(int i = 0; i < dungeon.units.Count; ++i) {
+            var u = dungeon.units[i];
+            if (u is PlayerUnit && ((PlayerUnit)u).userId == Global.userId.value) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public void endTurn() {

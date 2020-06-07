@@ -51,6 +51,7 @@ public class Skillbar : MonoBehaviour
         if (skillO.isSome) {
             var skill = skillO.value;
             displayTooltip(skill);
+            dm.makeTargettableForPattern(skill.targetPattern);
         }
     }
 

@@ -868,6 +868,7 @@ MonoBehaviour:
     type: 3}
   npcPrefabs:
   - {fileID: 5065670502019970065, guid: a586ad1f0779a014e9b3bba3e714eaea, type: 3}
+  apText: {fileID: 0}
 --- !u!4 &942243730
 Transform:
   m_ObjectHideFlags: 0
