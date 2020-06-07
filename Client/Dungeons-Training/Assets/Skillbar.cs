@@ -18,7 +18,8 @@ public class Skillbar : MonoBehaviour
             name = "Fireball",
             targetPattern = "11011",
             effectPattern = "111",
-            apCost = 1 
+            apCost = 1,
+            inflictsBurn = true
         }));
         skills.Add(Option<Skill>.None);
         skills.Add(Option<Skill>.None);
@@ -51,7 +52,7 @@ public class Skillbar : MonoBehaviour
         if (skillO.isSome) {
             var skill = skillO.value;
             displayTooltip(skill);
-            dm.makeTargettableForPattern(skill.targetPattern);
+            dm.makeTargettableForPattern(skill);
         }
     }
 
@@ -86,4 +87,7 @@ public class Skill {
     public string targetPattern;
     public string effectPattern; 
     public int apCost;
+
+    public bool inflictsBurn;
+
 }
