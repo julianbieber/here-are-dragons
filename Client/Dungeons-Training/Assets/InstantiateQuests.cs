@@ -34,11 +34,13 @@ public class InstantiateQuests : MonoBehaviour
 			List<int> loIn=new List<int>();
 			foreach(DAOQuest q in newList){
 				loIn.Add(q.questID);
-				if(!loI.Contains(q.questID)&&Time.time>=3){
-					var coord = map.GeoToWorldPosition(new Vector2d(q.longitude, q.latitude));
-					var l = Instantiate(quest, new Vector3(coord.x, coord.y, 0), Quaternion.identity);	
+				if(!loI.Contains(q.questID)&&Time.time>=10){
+					var coord = map.GeoToWorldPosition(new Vector2d(q.latitude, q.longitude));
+					var l = Instantiate(quest, new Vector3(coord.x,0.5f, coord.z), Quaternion.identity);
+					string n = q.questID.ToString();
+					l.name=n;
+					l.transform.Rotate(90.0f, 0.0f, 0.0f, Space.Self);
 					loI.Add(q.questID);
-					
 					loL.Add(new Hilfsobjetct(q.questID,l));
 				}
 			}
