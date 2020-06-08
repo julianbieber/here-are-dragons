@@ -37,11 +37,12 @@ class GroupController @Inject() (override val userDAO: UserDAO, val groupDAO: Gr
 
   get("/group") { request: Request =>
     withUser(request) { userId =>
-      val userIds = groupDAO.getGroup(userId).getOrElse(Seq(userId))
-      val positions = userIds.map { memberId =>
-        positionDAO.getPosition(memberId).getOrElse(DAOPosition(memberId, 0.0f, 0.0f))
-      }
-      response.ok(writeToString(Group(positions)))
+      groupDAO.getGroup(userId).map{ internalGroup =>
+        val positions = internalGroup.members.map { memberId =>
+          positionDAO.getPosition(memberId).getOrElse(DAOPosition(memberId, 0.0f, 0.0f))
+        }
+        response.ok(writeToString(Group(positions)))
+      }.getOrElse(response.notFound)
     }
   }
 }
