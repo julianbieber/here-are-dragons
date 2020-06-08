@@ -4,5 +4,5 @@ create table public.quest (
     latitude float8 not null
 );
 INSERT INTO public.quest  ( longitude, latitude) VALUES ( 24.968580,60.191880);
-INSERT INTO public.quest  (longitude, latitude) VALUES ( 24.968589,60.191887);
-INSERT INTO public.quest  ( longitude, latitude) VALUES ( 25.968580,60.191880);
+INSERT INTO public.quest  (longitude, latitude) VALUES ( 25.968589,60.191887);
+INSERT INTO public.quest  (longitude, latitude) VALUES ( 24.968589,59.191887);
