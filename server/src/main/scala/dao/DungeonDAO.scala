@@ -2,6 +2,7 @@ package dao
 
 import java.util.concurrent.atomic.AtomicInteger
 
+import model.Dungeon.Skill
 import service.{DungeonGenerator, PlayerCharacter}
 
 import scala.collection.mutable
@@ -18,16 +19,28 @@ object DungeonDAO {
     id -> dungeon
   }
 
+  def getDungeon(id: Int): Option[Dungeon] = dungeons.synchronized{
+    dungeons.get(id)
+  }
+
+  def updateDungeon(id: Int, d: Dungeon): Dungeon = dungeons.synchronized{
+    dungeons.put(id, d)
+    d
+  }
 
   def getDungeonForUser(userId: Int): Option[(Int, Dungeon)] = {
-    dungeons.find{ case (_, dungeon) =>
-      dungeon.userId == Option(userId)
+    dungeons.synchronized{
+      dungeons.find{ case (_, dungeon) =>
+        dungeon.userId == Option(userId)
+      }
     }
   }
 
   def getDungeonForGroup(groupId: String): Option[(Int, Dungeon)] = {
-    dungeons.find{ case (_, dungeon) =>
-      dungeon.groupId == Option(groupId)
+    dungeons.synchronized{
+      dungeons.find{ case (_, dungeon) =>
+        dungeon.groupId == Option(groupId)
+      }
     }
   }
 
@@ -47,11 +60,33 @@ case class Dungeon (
 }
 
 sealed trait DungeonUnit {
-
+  def applySkill(skill: Skill): DungeonUnit
 }
 
-case class PlayerUnit(userId: Int, health: Int) extends DungeonUnit
+case class PlayerUnit(userId: Int, health: Int) extends DungeonUnit {
+  override def applySkill(skill: Skill): DungeonUnit = {
+    val newHealth = health - skill.damage
+    if (newHealth <= 0) {
+      Empty(0)
+    } else {
+      copy(health = newHealth)
+    }
+  }
+}
 
-case class NPC(prefabId: Int, health: Int) extends DungeonUnit
+case class NPC(prefabId: Int, health: Int) extends DungeonUnit {
+  override def applySkill(skill: Skill): DungeonUnit = {
+    val newHealth = health - skill.damage
+    if (newHealth <= 0) {
+      Empty(0)
+    } else {
+      copy(health = newHealth)
+    }
+  }
+}
 
-case class Empty(prefabId: Int) extends DungeonUnit
+case class Empty(prefabId: Int) extends DungeonUnit {
+  override def applySkill(skill: Skill): DungeonUnit = {
+    this
+  }
+}

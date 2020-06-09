@@ -5,7 +5,7 @@ import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.twitter.finagle.http.Request
 import dao.{CharacterDAO, Dungeon, DungeonDAO, DungeonUnit, Empty, GroupDAO, NPC, PlayerUnit, QuestDAO, UserDAO}
 import javax.inject.Inject
-import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, UnitResponse}
+import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, Skill, SkillUsage, Turn, UnitResponse}
 import service.DungeonService
 
 import scala.concurrent.ExecutionContext
@@ -17,6 +17,9 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
   private implicit val openRequestCodec = JsonCodecMaker.make[OpenRequest]
   private implicit val unitResponseCodec = JsonCodecMaker.make[UnitResponse]
   private implicit val dungeonResponseCodec = JsonCodecMaker.make[DungeonResponse]
+  private implicit val skillCodec = JsonCodecMaker.make[Skill]
+  private implicit val skillUsageCodec = JsonCodecMaker.make[SkillUsage]
+  private implicit val turnCodec = JsonCodecMaker.make[Turn]
 
 
   get("/dungeons") { request: Request =>
@@ -57,10 +60,23 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
   }
 
   post("/dungeon/:dungeonId") { request: Request =>
-
+    withUserAutoOption(request){ userId =>
+      val dungeonId = request.params("dungeonId").toInt
+      val turn = readFromString[Turn](request.getContentString())
+      DungeonDAO.getDungeon(dungeonId).map{ preTurn =>
+        val postTurn = service.applyTurn(userId, preTurn, turn)
+        DungeonDAO.updateDungeon(dungeonId, postTurn)
+        dungeonToResponse(dungeonId, userId, postTurn)
+      }
+    }
   }
 
   get("/dungeon/:dungeonId") { request: Request =>
-
+    withUserAutoOption(request) { userId =>
+      val id = request.params("dungeonId").toInt
+      DungeonDAO.getDungeon(id).map{ dungeon =>
+        dungeonToResponse(id, userId, dungeon)
+      }
+    }
   }
 }
