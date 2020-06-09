@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.Text;
+using System;
 
 public class Skillbar : MonoBehaviour
 {
@@ -93,6 +94,7 @@ public class Skillbar : MonoBehaviour
 }
 
 
+[Serializable]
 public class Skill {
     public string name;
     public string targetPattern;

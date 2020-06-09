@@ -5,36 +5,70 @@ using UnityEngine.EventSystems;
 
 public class DungeonUnit : MonoBehaviour
 {
-    public GameObject onFirePrefab;
-    public GameObject targettablePrefab;
-    public Unit Self { get; set; }
+    public GameObject onFire;
+    public GameObject targettable;
+    public List<GameObject> empties;
+    public List<GameObject> npcs;
+    public GameObject player;
+    public Unit Self;
     public int index;
     public TextMesh hpText;
 
     public DungeonController gm;
 
-    private GameObject onFireObject;
-    private GameObject targettableObject;
     // Start is called before the first frame update
-    private List<DungeonUnit> onCastEffected = new List<DungeonUnit>();
+    
     private Option<Skill> whenSkillUse = Option<Skill>.None;
     void Start()
     {
-        onFireObject = Instantiate(onFirePrefab);
+        
         setNotOnFire();
-        targettableObject = Instantiate(targettablePrefab);
         setNotTargettable();
+    }
+
+    public void make(Unit unit) {
+        if (unit is PlayerUnit) {
+            var p = unit as PlayerUnit;
+            if (Self == null || !(Self is PlayerUnit)) {
+                reset();
+                player.SetActive(true);
+            }
+        } 
+        if (unit is NPCUnit) {
+            var n = unit as NPCUnit;
+            if (Self == null || !(Self is NPCUnit) || (Self as NPCUnit).prefabId != n.prefabId) {
+                reset();
+                npcs[n.prefabId].SetActive(true);
+            }
+        }
+        if (unit is EmptyUnit) {
+            var e = unit as EmptyUnit;
+            if (Self == null || !(Self is EmptyUnit) || (Self as EmptyUnit).prefabId != e.prefabId) {
+                reset();
+                empties[e.prefabId].SetActive(true);
+            }
+        }
+        setNotOnFire(); // Todo use fire from response
+        Self = unit;
+    }
+
+    void reset() {
+        setNotOnFire();
+        setNotTargettable();
+        player.SetActive(false);
+        hpText.text = "";
+        foreach(var o in npcs) {
+            o.SetActive(false);
+        }
+        foreach(var o in empties) {
+            o.SetActive(false);
+        }
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        onFireObject.transform.position = transform.position;
-        onFireObject.transform.localScale = transform.localScale;
-
-        targettableObject.transform.position = transform.position;
-        targettableObject.transform.localScale = transform.localScale;
-
         if (Self is NPCUnit) {
             hpText.text = (Self as NPCUnit).health.ToString();
         }
@@ -43,46 +77,29 @@ public class DungeonUnit : MonoBehaviour
         }
 
     }
-
     public void setOnFire() {
-        onFireObject.SetActive(true);
+        onFire.SetActive(true);
     }
 
     public void setTargettable() {
-        targettableObject.SetActive(true);
+        targettable.SetActive(true);
     }
     
     public void setNotOnFire() {
-        onFireObject.SetActive(false);
+        onFire.SetActive(false);
     }
 
     public void setNotTargettable() {
-        targettableObject.SetActive(false);
+        targettable.SetActive(false);
         whenSkillUse = Option<Skill>.None;
-        onCastEffected = new List<DungeonUnit>();
     }
 
-    public void onClick(List<DungeonUnit> effected, Skill skill) {
+    public void onClick(Skill skill) {
         whenSkillUse = Option<Skill>.Some(skill);
-        onCastEffected = effected;
     }
 
     void OnMouseDown() {
         if (whenSkillUse.isSome) {
-            var skill = whenSkillUse.value;
-            if (skill.burnDuration > 0) {
-                foreach (var u in onCastEffected) {
-                    u.setOnFire();
-                }    
-            }
-            foreach (var u in onCastEffected) {
-                if (u.Self is NPCUnit) {
-                    (u.Self as NPCUnit).health -= skill.damage;
-                }
-                if (u.Self is PlayerUnit) {
-                    (u.Self as PlayerUnit).health -= skill.damage;
-                }
-            }
             gm.SkillWasUsed(index, whenSkillUse.value);
         }
     }
