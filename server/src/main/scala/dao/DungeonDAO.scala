@@ -2,7 +2,7 @@ package dao
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import model.Dungeon.Skill
+import model.Dungeon.{Skill, Turn}
 import service.{DungeonGenerator, PlayerCharacter}
 
 import scala.collection.mutable
@@ -53,17 +53,17 @@ case class Dungeon (
   userId: Option[Int],
   groupId: Option[String],
   units: Seq[DungeonUnit],
-  currentTurn: Int,
-  ap: Int
+  currentTurn: Int
 ) {
 
 }
 
 sealed trait DungeonUnit {
   def applySkill(skill: Skill): DungeonUnit
+  def gainAP(): DungeonUnit
 }
 
-case class PlayerUnit(userId: Int, health: Int) extends DungeonUnit {
+case class PlayerUnit(userId: Int, health: Int, ap: Int, maxAP: Int, apGain: Int) extends DungeonUnit {
   override def applySkill(skill: Skill): DungeonUnit = {
     val newHealth = health - skill.damage
     if (newHealth <= 0) {
@@ -72,9 +72,13 @@ case class PlayerUnit(userId: Int, health: Int) extends DungeonUnit {
       copy(health = newHealth)
     }
   }
+
+  override def gainAP(): DungeonUnit = {
+    copy(ap = math.min(maxAP, ap + apGain))
+  }
 }
 
-case class NPC(prefabId: Int, health: Int) extends DungeonUnit {
+case class NPC(prefabId: Int, health: Int, skills: Seq[Skill], ap: Int, maxAP: Int, apGain: Int) extends DungeonUnit {
   override def applySkill(skill: Skill): DungeonUnit = {
     val newHealth = health - skill.damage
     if (newHealth <= 0) {
@@ -82,6 +86,9 @@ case class NPC(prefabId: Int, health: Int) extends DungeonUnit {
     } else {
       copy(health = newHealth)
     }
+  }
+  override def gainAP(): DungeonUnit = {
+    copy(ap = math.min(maxAP, ap + apGain))
   }
 }
 
@@ -89,4 +96,6 @@ case class Empty(prefabId: Int) extends DungeonUnit {
   override def applySkill(skill: Skill): DungeonUnit = {
     this
   }
+
+  override def gainAP(): DungeonUnit = this
 }
