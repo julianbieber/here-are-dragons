@@ -30,6 +30,15 @@ trait UserUtil extends Controller {
     })
   }
 
+  def withUserAutoOption[A](request: Request)(f: Int => Option[A])(implicit codec: JsonValueCodec[A]): Response = {
+    withUser(request)({ userId =>
+      f(userId).map { r =>
+        val responseString = writeToString(r)
+        response.ok(responseString)
+      }.getOrElse(response.notFound)
+    })
+  }
+
   def withUserAsync(request: Request)(f: Int => Future[Response]): Future[Response] = {
     val userId = request.headerMap.get("X-userId").map(_.toInt)
     val token = request.headerMap.get("X-token")
@@ -43,7 +52,7 @@ trait UserUtil extends Controller {
   }
 
   def withUserAsyncAuto[A](request: Request)(f: Int => Future[A])(implicit ec: ExecutionContext, codec: JsonValueCodec[A]): Future[Response] = {
-    withUserAsync(request)(f(_).map{ r =>
+    withUserAsync(request)(f(_).map { r =>
       val responseString = writeToString(r)
       response.ok(responseString)
     })

@@ -7,7 +7,7 @@ import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.{CommonFilters, LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.http.routing.HttpRouter
-import controllers.{ActivityController, CharacterController, ExampleLoggedInController, GroupController, PositionController, QuestController, UserController}
+import controllers.{ActivityController, CharacterController, DungeonController, ExampleLoggedInController, GroupController, PositionController, QuestController, UserController}
 import dao.{ActivityDAO, ExperienceDAO}
 import net.codingwell.scalaguice.ScalaModule
 
@@ -43,6 +43,7 @@ object Api extends HttpServer {
       .add[PositionController]
       .add[QuestController]
       .add[CharacterController]
+      .add[DungeonController]
   }
 
   val experienceJob = new BackgroundExecutor(new Experience(new ActivityDAO(pool), new ExperienceDAO(pool)))
