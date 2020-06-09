@@ -7,10 +7,7 @@ using UnityEngine.UI;
 public class DungeonController : MonoBehaviour
 {
     public Camera mainCamera;
-    public List<GameObject> emptyPrefabs;
-    public GameObject playerPrefab;
-
-    public List<GameObject> npcPrefabs;
+    public GameObject unitPrefab;
 
     public Text apText;
 
@@ -81,34 +78,16 @@ public class DungeonController : MonoBehaviour
     }
 
     void setDungeon(Dungeon dungeon) {
-        foreach(var o in objects) {
-            o.Destroy();
-        }
-        objects.Clear();
-        var index = 0;
-        foreach(var unit in dungeon.units) {
-            if (unit is PlayerUnit) {
-                var o = Instantiate(playerPrefab);
-                o.GetComponent<DungeonUnit>().Self = unit;
-                o.GetComponent<DungeonUnit>().gm = this;
-                o.GetComponent<DungeonUnit>().index = index;
+        for (int i = 0; i < dungeon.units.Count; ++i) {
+            var unit = dungeon.units[i];
+            if (i >= objects.Count) {
+                var o = Instantiate(unitPrefab);
+                var dungeonUnit = o.GetComponent<DungeonUnit>();
+                dungeonUnit.gm = this;
+                dungeonUnit.index = i;
                 objects.Add(o);
             }
-            if (unit is NPCUnit) {
-                var o = Instantiate(npcPrefabs[((NPCUnit)unit).prefabId]);
-                o.GetComponent<DungeonUnit>().Self = unit;
-                o.GetComponent<DungeonUnit>().gm = this;
-                o.GetComponent<DungeonUnit>().index = index;
-                objects.Add(o);
-            }
-            if (unit is EmptyUnit) {
-                var o = Instantiate(emptyPrefabs[((EmptyUnit)unit).prefabId]);
-                o.GetComponent<DungeonUnit>().Self = unit;
-                o.GetComponent<DungeonUnit>().gm = this;
-                o.GetComponent<DungeonUnit>().index = index;
-                objects.Add(o);
-            }
-            ++index;
+            objects[i].GetComponent<DungeonUnit>().make(unit);
         }
 
         var objectSize = screenWidth / (float)(objects.Count + 2);
@@ -125,6 +104,7 @@ public class DungeonController : MonoBehaviour
             objects[i].transform.localScale = new Vector3( objectSize, objectSize, 1);
         }
         remainingAP = dungeon.ap;
+        dungeonId = Option<int>.Some(dungeon.id);
         waitForTurn = !dungeon.myTurn;
     }
 
@@ -139,7 +119,7 @@ public class DungeonController : MonoBehaviour
                         if (duO.isSome) {
                             DungeonUnit du = duO.value.Item1;
                             du.setTargettable();
-                            du.onClick(identifyEffected(skill.effectPattern, duO.value.Item2), skill);
+                            du.onClick(skill);
                         }
                     } else {
                         var duO = calculateUnitIndex(skill.targetPattern, selfUnitIndex, patternI);
@@ -184,18 +164,30 @@ public class DungeonController : MonoBehaviour
         return -1;
     }
 
-    public void endTurn() {
+    public async void endTurn() {
         if (dungeonId.isSome) {
-            DungeonAPI.endTurn(dungeonId.value, currentTurn);
-            currentTurn = new Turn{
-                skillsUsed = new List<SkillUsage>(),
-                turnId = 0
-            };
-            waitForTurn = true;
+            var d = await DungeonAPI.endTurn(dungeonId.value, currentTurn);
+            if (d.isSome) {
+                currentTurn = new Turn{turnId = 0, skillsUsed = new List<SkillUsage>()};
+                setDungeon(d.value);
+            }
         }
     }
 
     public void SkillWasUsed(int unitIndex, Skill skill) {
+        if (skill.burnDuration > 0) {
+            foreach (var u in identifyEffected(skill.effectPattern, unitIndex)) {
+                u.setOnFire();
+            }    
+        }
+        foreach (var u in identifyEffected(skill.effectPattern, unitIndex)) {
+            if (u.Self is NPCUnit) {
+                (u.Self as NPCUnit).health -= skill.damage;
+            }
+            if (u.Self is PlayerUnit) {
+                (u.Self as PlayerUnit).health -= skill.damage;
+            }
+        }
         foreach(var du in objects) {
             du.GetComponent<DungeonUnit>().setNotTargettable();
         }
@@ -205,6 +197,7 @@ public class DungeonController : MonoBehaviour
 }
 
 public class Dungeon {
+    public int id;
     public List<Unit> units;
     public bool myTurn;
     public int ap;

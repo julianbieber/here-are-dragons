@@ -1229,17 +1229,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mainCamera: {fileID: 1972676131}
-  emptyPrefabs:
-  - {fileID: 232585232854574733, guid: 5b3bffe444f36bd41b67eda230d39a3e, type: 3}
-  playerPrefab: {fileID: 4335295292238134208, guid: ccde7bef141ec5b45b13bcf43916c069,
+  unitPrefab: {fileID: 8373780742609230896, guid: 5c6584c22508ce245b805eb2c243d4a1,
     type: 3}
-  npcPrefabs:
-  - {fileID: 5065670502019970065, guid: a586ad1f0779a014e9b3bba3e714eaea, type: 3}
   apText: {fileID: 837606101}
   joinButton: {fileID: 266050177}
   openButton: {fileID: 1917039275}
   questIdInputField: {fileID: 983884362}
-  questIdInputObject: {fileID: 0}
+  questIdInputObject: {fileID: 983884361}
 --- !u!4 &942243730
 Transform:
   m_ObjectHideFlags: 0
