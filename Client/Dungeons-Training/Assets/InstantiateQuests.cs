@@ -8,17 +8,20 @@ using Mapbox.Unity.Utilities;
 using Mapbox.Utils;
 using Mapbox.Unity.Location;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 [Serializable] 
 public class InstantiateQuests : MonoBehaviour
 {
     public GameObject quest;
     public float distanceInMeter;
-    private int nextUpdate=1;
+    private int nextUpdate=10;
     private List<DAOQuest> newList=new List<DAOQuest>();
     private List<int> loI=new List<int>();
     
     private List<Hilfsobjetct> loL=new List<Hilfsobjetct>();
+
+
 
     void Start()
     { 	
@@ -28,13 +31,22 @@ public class InstantiateQuests : MonoBehaviour
     { 
 		var map = LocationProviderFactory.Instance.mapManager;
 		if(Time.time>=nextUpdate){	
-            nextUpdate=Mathf.FloorToInt(Time.time)+10;	
+            nextUpdate=nextUpdate+5;	
 			var I = await QuestAPI.getListOfQuestsNearby(distanceInMeter);
 			newList =I.quests;
 			List<int> loIn=new List<int>();
 			foreach(DAOQuest q in newList){
 				loIn.Add(q.questID);
-				if(!loI.Contains(q.questID)&&Time.time>=10){
+				if(loI.Contains(q.questID)){
+					var coord = map.GeoToWorldPosition(new Vector2d(q.latitude, q.longitude));
+					coord.y=0.5f;
+					foreach(Hilfsobjetct h in loL.ToList()){
+						if(h.id.Equals(q.questID)){
+							h.go.transform.position=coord;
+						}
+					}
+				}
+				if(!loI.Contains(q.questID)&&Time.time>=2){
 					var coord = map.GeoToWorldPosition(new Vector2d(q.latitude, q.longitude));
 					var l = Instantiate(quest, new Vector3(coord.x,0.5f, coord.z), Quaternion.identity);
 					string n = q.questID.ToString();

@@ -8,6 +8,8 @@ public static class Global
 
     public static Option<string> token = Option<string>.Some("DEBUG");
 
+    public static Option<DAOQuest>  ausgewahlterQuest = Option<DAOQuest>.None;
+
     public static string baseUrl = "http://127.0.0.1:8888/";
     //public static string baseUrl = "http://192.168.0.66:8888/";
 }

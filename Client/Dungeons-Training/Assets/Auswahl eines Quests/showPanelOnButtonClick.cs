@@ -7,8 +7,10 @@ using UnityEngine.UIElements;
 public class showPanelOnButtonClick : MonoBehaviour
 {
     public GameObject panel;
-    public void showPanel(GameObject p){
-        if(p != null){
+    public void showPanel(GameObject p)
+    {
+        if (p != null)
+        {
             p.SetActive(true);
         }
     }
