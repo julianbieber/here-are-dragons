@@ -14,10 +14,6 @@ import scala.util.control.NonFatal
 class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO, override val userDAO: UserDAO, executionContext: ExecutionContext) extends UserUtil {
 
   private implicit val ec: ExecutionContext = executionContext
-  private implicit val daoPositon: JsonValueCodec[dao.DAOPosition] = JsonCodecMaker.make[dao.DAOPosition];
-  private implicit val daoQuestcodec: JsonValueCodec[dao.DAOQuest] = JsonCodecMaker.make[dao.DAOQuest];
-  private implicit val lOQ: JsonValueCodec[List[dao.DAOQuest]] = JsonCodecMaker.make[List[dao.DAOQuest]];
-  private implicit val QuestsResponseCodex: JsonValueCodec[model.Quest.QuestsResponse] = JsonCodecMaker.make[model.Quest.QuestsResponse];
 
   get("/getListOfQuests") { request: Request =>
     println(request.getParam("distance"))

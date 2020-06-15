@@ -6,6 +6,8 @@ public static class Global
 {
     public static Option<int> userId = Option<int>.Some(1);
 
+    public static Option<DAOQuest> ausgewahlterQuest = Option<DAOQuest>.None;
+
     public static Option<string> token = Option<string>.Some("DEBUG");
 
     //public static string baseUrl = "http://127.0.0.1:8888/";
