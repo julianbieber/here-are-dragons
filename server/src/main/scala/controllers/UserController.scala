@@ -12,10 +12,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UserController @Inject()(userDao: UserDAO, executionContext: ExecutionContext, characterDAO: CharacterDAO, skillbarDAO: SkillbarDAO) extends Controller {
 
-  private implicit val loginCodec: JsonValueCodec[LoginRequest] = JsonCodecMaker.make[LoginRequest]
-  private implicit val loginResponseCodec: JsonValueCodec[LoginResponse] = JsonCodecMaker.make[LoginResponse]
-  private implicit val createResponseCodec: JsonValueCodec[CreateResponse] = JsonCodecMaker.make[CreateResponse]
-
   private implicit val ec: ExecutionContext = executionContext
 
   post("/login") { request: Request =>

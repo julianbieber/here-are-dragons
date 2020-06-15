@@ -1,6 +1,5 @@
 package controllers
 
-import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.twitter.finagle.http.Request
 import dao.{ActivityDAO, UserDAO}
@@ -11,7 +10,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ActivityController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, activityDAO: ActivityDAO) extends UserUtil {
   private implicit val ec: ExecutionContext = executionContext
-  private implicit val activityStartCodec = JsonCodecMaker.make[ActivityStart]
   private val supportedActivities = Seq("RUNNING", "CYCLING")
 
   put("/activity") { request: Request =>

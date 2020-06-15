@@ -1,6 +1,5 @@
 package controllers
 
-import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.google.inject.Inject
 import com.twitter.finagle.http.Request
 import dao.{ExperienceDAO, SkillDAO, SkillbarDAO, UserDAO}
@@ -11,9 +10,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CharacterController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, experienceDAO: ExperienceDAO, skillbarDAO: SkillbarDAO) extends UserUtil {
   implicit val ec: ExecutionContext = executionContext
-
-  implicit val characterCodec = JsonCodecMaker.make[Character]
-  implicit val skillBarCodec = JsonCodecMaker.make[ExtendedSkillBar]
 
   get("/character") { request: Request =>
     withUserAsyncAuto(request) { userId =>

@@ -13,13 +13,7 @@ import scala.concurrent.ExecutionContext
 class DungeonController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, service: DungeonService, groupDAO: GroupDAO, questDAO: QuestDAO, characterDAO: CharacterDAO) extends UserUtil {
   private implicit val ec: ExecutionContext = executionContext
 
-  private implicit val availableDungeonsCodec = JsonCodecMaker.make[AvailableDungeons]
-  private implicit val openRequestCodec = JsonCodecMaker.make[OpenRequest]
-  private implicit val unitResponseCodec = JsonCodecMaker.make[UnitResponse]
-  private implicit val dungeonResponseCodec = JsonCodecMaker.make[DungeonResponse]
-  private implicit val skillCodec = JsonCodecMaker.make[Skill]
-  private implicit val skillUsageCodec = JsonCodecMaker.make[SkillUsage]
-  private implicit val turnCodec = JsonCodecMaker.make[Turn]
+
 
 
   get("/dungeons") { request: Request =>

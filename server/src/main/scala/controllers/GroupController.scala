@@ -11,9 +11,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class GroupController @Inject() (override val userDAO: UserDAO, val groupDAO: GroupDAO, executionContext: ExecutionContext, val positionDAO: PositionDAO) extends UserUtil {
 
   private implicit val ec: ExecutionContext = executionContext
-  private implicit val joinRequestCodec = JsonCodecMaker.make[JoinRequest]
-  private implicit val positionCodec = JsonCodecMaker.make[DAOPosition]
-  private implicit val GroupCodec = JsonCodecMaker.make[Group]
 
   post("/joinGroup") { request: Request =>
     withUserAsync(request) { userId =>
