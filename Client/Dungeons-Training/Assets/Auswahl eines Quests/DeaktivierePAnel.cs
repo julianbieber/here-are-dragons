@@ -6,8 +6,10 @@ using UnityEngine.UIElements;
 public class DeaktivierePAnel : MonoBehaviour
 {
     public GameObject panel;
-    public void disablePanel(GameObject p){
-        if(p != null){
+    public void disablePanel(GameObject p)
+    {
+        if (p != null)
+        {
             p.SetActive(false);
         }
     }
