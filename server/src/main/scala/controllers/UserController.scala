@@ -5,16 +5,12 @@ import com.twitter.finatra.http.Controller
 import javax.inject.Inject
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
-import dao.{CharacterDAO, UserDAO}
+import dao.{CharacterDAO, SkillbarDAO, UserDAO}
 import model.Account.{CreateResponse, LoginRequest, LoginResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class UserController @Inject()(userDao: UserDAO, executionContext: ExecutionContext, characterDAO: CharacterDAO) extends Controller {
-
-  private implicit val loginCodec: JsonValueCodec[LoginRequest] = JsonCodecMaker.make[LoginRequest]
-  private implicit val loginResponseCodec: JsonValueCodec[LoginResponse] = JsonCodecMaker.make[LoginResponse]
-  private implicit val createResponseCodec: JsonValueCodec[CreateResponse] = JsonCodecMaker.make[CreateResponse]
+class UserController @Inject()(userDao: UserDAO, executionContext: ExecutionContext, characterDAO: CharacterDAO, skillbarDAO: SkillbarDAO) extends Controller {
 
   private implicit val ec: ExecutionContext = executionContext
 
@@ -35,6 +31,10 @@ class UserController @Inject()(userDao: UserDAO, executionContext: ExecutionCont
       userDao.createUser(user.name, user.password)
         .map { userId =>
           characterDAO.createCharacter(userId)
+          // TMP
+          skillbarDAO.unlock(userId, 0)
+          skillbarDAO.unlock(userId, 1)
+          //
           writeToString(CreateResponse(userId))
         }
         .map(response.ok)

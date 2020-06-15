@@ -31,12 +31,27 @@ object Dungeon {
   )
 
   case class Skill(
+    id: Int,
     name: String,
     targetPattern: String,
     effectPattern: String,
     apCost: Int,
     damage: Int,
-    burnDuration: Int
+    burnDuration: Int,
+    moves: Boolean,
+    movementOffset: Int
+  )
+
+  case class SkillBar(
+    userId: Int,
+    selected: Seq[Int],
+    unlocked: Seq[Int]
+  )
+
+  case class ExtendedSkillBar(
+    userId: Int,
+    selected: Seq[Skill],
+    unlocked: Seq[Skill]
   )
 
 }

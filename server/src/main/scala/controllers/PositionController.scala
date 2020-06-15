@@ -12,10 +12,6 @@ import model.Position.{positionResponse, PositionRequest}
 import scala.concurrent.{ExecutionContext, Future}
 
 class PositionController @Inject()(override val userDAO: UserDAO,val positionDAO: PositionDAO, executionContext: ExecutionContext) extends UserUtil {
-  private implicit val loginResponseCodec: JsonValueCodec[positionResponse] = JsonCodecMaker.make[positionResponse]
-  private implicit val loginCodec: JsonValueCodec[PositionRequest] = JsonCodecMaker.make[PositionRequest]
-  private implicit val ec: ExecutionContext = executionContext
-  private implicit val daoPositon :JsonValueCodec[dao.DAOPosition]=JsonCodecMaker.make[dao.DAOPosition];
 
   get("/Positon") { request: Request =>
     withUser(request) { userId =>
@@ -33,3 +29,4 @@ class PositionController @Inject()(override val userDAO: UserDAO,val positionDAO
   }
 
 }
+

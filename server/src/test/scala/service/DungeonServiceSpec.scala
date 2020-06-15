@@ -15,11 +15,14 @@ class DungeonServiceSpec extends AnyFlatSpec with Matchers {
     )
 
     val skill = Skill(
+      0,
       "",
       "01010",
       "",
       0,
       0,
+      0,
+      false,
       0
     )
 
@@ -36,11 +39,14 @@ class DungeonServiceSpec extends AnyFlatSpec with Matchers {
     )
 
     val skill = Skill(
+      0,
       "",
       "",
       "01010",
       0,
       0,
+      0,
+      false,
       0
     )
 
@@ -56,11 +62,14 @@ class DungeonServiceSpec extends AnyFlatSpec with Matchers {
       0
     )
     val skill = Skill(
+      0,
       "",
       "111101111",
       "111",
       2,
       5,
+      0,
+      false,
       0
     )
 
