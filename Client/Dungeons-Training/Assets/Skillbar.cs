@@ -8,51 +8,38 @@ using System;
 public class Skillbar : MonoBehaviour
 {
     public List<Button> skillButtons;
-    private List<Option<Skill>> skills = new List<Option<Skill>>();
     public DungeonController dm;
+    public Character character;
     public Text tooltipBox;
     public Image tooltipBackground;
+    
+    private int nextUpdate = 0;
     // Start is called before the first frame update
     void Start()
     {
-        skills.Add(Option<Skill>.Some(new Skill {
-            name = "Fireball",
-            targetPattern = "11011",
-            effectPattern = "111",
-            apCost = 1,
-            damage = 20,
-            burnDuration = 2
-        }));
-        skills.Add(Option<Skill>.None);
-        skills.Add(Option<Skill>.None);
-        skills.Add(Option<Skill>.None);
-        skills.Add(Option<Skill>.None);
         tooltipBackground.enabled = false;
         tooltipBox.enabled = false;
     }
 
     // Update is called once per frame
-    void Update()
+    async void Update()
     {
-        for (int i = 0; i < skills.Count && i < skillButtons.Count; ++i) {
-            var skillO = skills[i];
-            var skillButton = skillButtons[i];
-            if (skillO.isSome){
-                var skill = skillO.value;
-                skillButton.GetComponentInChildren<Text>().text = skill.name;
-                // Todo replace text with a sprite
-            } else {
-                skillButton.GetComponentInChildren<Text>().text = (i + 1).ToString();
-                skillButton.enabled = false;
+        if (character.player.isSome && character.player.value.skillBar.selected.Count <= skillButtons.Count) {
+            for (int i = 0; i < skillButtons.Count; ++i) {
+                if (i < character.player.value.skillBar.selected.Count) {
+                    var skill = character.player.value.skillBar.selected[i];
+                    var skillButton = skillButtons[i];
+                    skillButton.GetComponentInChildren<Text>().text = skill.name;
+                } 
             }
-            
         }
+        
     }
 
     public void cast(int skillId) {
-        var skillO = skills[skillId];
-        if (skillO.isSome) {
-            var skill = skillO.value;
+        if (character.player.isSome && character.player.value.skillBar.selected.Count > skillId) {
+            var skill = character.player.value.skillBar.selected[skillId];
+        
             displayTooltip(skill);
             dm.makeTargettableForPattern(skill);
         }
@@ -88,6 +75,12 @@ public class Skillbar : MonoBehaviour
             tooltipText.Append(skill.burnDuration);
             tooltipText.Append("\n");
         }
+
+        if (skill.moves) {
+            tooltipText.Append("moves to target offset by: ");
+            tooltipText.Append(skill.movementOffset);
+            tooltipText.Append("\n");
+        }
         
         tooltipBox.text = tooltipText.ToString();
     }
@@ -96,6 +89,7 @@ public class Skillbar : MonoBehaviour
 
 [Serializable]
 public class Skill {
+    public int id;
     public string name;
     public string targetPattern;
     public string effectPattern; 
@@ -104,5 +98,8 @@ public class Skill {
     public int damage;
 
     public int burnDuration;
+
+    public bool moves;
+    public int movementOffset;
 
 }

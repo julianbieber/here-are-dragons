@@ -7,6 +7,7 @@ using System.Text;
 public class CharacterViewController : MonoBehaviour
 {
     public Text characterText;
+    public Character character;
 
     private int nextUpdate=1;
 
@@ -19,20 +20,17 @@ public class CharacterViewController : MonoBehaviour
     // Update is called once per frame
     async void Update()
     {
-        if (Time.time >= nextUpdate) {
-            nextUpdate=Mathf.FloorToInt(Time.time)+1;
-            var character = await CharacterAPI.getCharacter();
+        if (character.player.isSome) {
             var characterStringBuilder = new StringBuilder();
             characterStringBuilder.Append("Ranger: ");
-            characterStringBuilder.Append(character.rangerExperience);
+            characterStringBuilder.Append(character.player.value.rangerExperience);
             characterStringBuilder.Append("\n");
             characterStringBuilder.Append("Sorcerer: ");
-            characterStringBuilder.Append(character.sorcererExperience);
+            characterStringBuilder.Append(character.player.value.sorcererExperience);
             characterStringBuilder.Append("\n");
             characterStringBuilder.Append("Warrior: ");
-            characterStringBuilder.Append(character.warriorExperience);
-            characterText.text = characterStringBuilder.ToString();
+            characterStringBuilder.Append(character.player.value.warriorExperience);
+            characterText.text = characterStringBuilder.ToString(); 
         }
-        
     }
 }
