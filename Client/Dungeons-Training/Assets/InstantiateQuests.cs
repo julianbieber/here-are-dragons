@@ -10,68 +10,82 @@ using Mapbox.Unity.Location;
 using System.Linq;
 using UnityEngine.SceneManagement;
 
-[Serializable] 
+[Serializable]
 public class InstantiateQuests : MonoBehaviour
 {
     public GameObject quest;
     public float distanceInMeter;
-    private int nextUpdate=10;
-    private List<DAOQuest> newList=new List<DAOQuest>();
-    private List<int> loI=new List<int>();
-    
-    private List<Hilfsobjetct> loL=new List<Hilfsobjetct>();
+    private float nextUpdate;
+    private List<DAOQuest> newList = new List<DAOQuest>();
+    private List<int> loI = new List<int>();
+
+    private List<Hilfsobjetct> loL = new List<Hilfsobjetct>();
 
 
 
     void Start()
-    { 	
+    {
     }
-    
+
+	void Awake()
+	{
+		nextUpdate = 5f+Global.TimeOfLogin.value;
+	}
     async void Update()
-    { 
-		var map = LocationProviderFactory.Instance.mapManager;
-		if(Time.time>=nextUpdate){	
-            nextUpdate=nextUpdate+5;	
-			var I = await QuestAPI.getListOfQuestsNearby(distanceInMeter);
-			newList =I.quests;
-			List<int> loIn=new List<int>();
-			foreach(DAOQuest q in newList){
-				loIn.Add(q.questID);
-				if(loI.Contains(q.questID)){
-					var coord = map.GeoToWorldPosition(new Vector2d(q.latitude, q.longitude));
-					coord.y=0.5f;
-					foreach(Hilfsobjetct h in loL.ToList()){
-						if(h.id.Equals(q.questID)){
-							h.go.transform.position=coord;
-						}
-					}
-				}
-				if(!loI.Contains(q.questID)&&Time.time>=2){
-					var coord = map.GeoToWorldPosition(new Vector2d(q.latitude, q.longitude));
-					var l = Instantiate(quest, new Vector3(coord.x,0.5f, coord.z), Quaternion.identity);
-					string n = q.questID.ToString();
-					l.name=n;
-					l.transform.Rotate(90.0f, 0.0f, 0.0f, Space.Self);
-					loI.Add(q.questID);
-					loL.Add(new Hilfsobjetct(q.questID,l));
-				}
-			}
-			foreach(Hilfsobjetct h in loL.ToList()){
-				if(!loIn.Contains(h.id)){
-					Destroy(h.go);
-					loI.Remove(h.id);
-					loL.Remove(h);
-				}
-			}
-     	}
+    {
+        var map = LocationProviderFactory.Instance.mapManager;
+        if (Time.time >= nextUpdate )
+        {
+            nextUpdate = nextUpdate + 5f;
+            var I = await QuestAPI.getListOfQuestsNearby(distanceInMeter);
+            newList = I.quests;
+            List<int> loIn = new List<int>();
+            foreach (DAOQuest q in newList)
+            {
+                loIn.Add(q.questID);
+                if (loI.Contains(q.questID))
+                {
+                    var coord = map.GeoToWorldPosition(new Vector2d(q.latitude, q.longitude));
+                    coord.y = 0.5f;
+                    foreach (Hilfsobjetct h in loL.ToList())
+                    {
+                        if (h.id.Equals(q.questID))
+                        {
+                            h.go.transform.position = coord;
+                        }
+                    }
+                }
+                if (!loI.Contains(q.questID) && Time.time >= 2)
+                {
+                    var coord = map.GeoToWorldPosition(new Vector2d(q.latitude, q.longitude));
+                    var l = Instantiate(quest, new Vector3(coord.x, 0.5f, coord.z), Quaternion.identity);
+                    string n = q.questID.ToString();
+                    l.name = n;
+                    l.transform.Rotate(90.0f, 0.0f, 0.0f, Space.Self);
+                    loI.Add(q.questID);
+                    loL.Add(new Hilfsobjetct(q.questID, l));
+                }
+            }
+            foreach (Hilfsobjetct h in loL.ToList())
+            {
+                if (!loIn.Contains(h.id))
+                {
+                    Destroy(h.go);
+                    loI.Remove(h.id);
+                    loL.Remove(h);
+                }
+            }
+        }
     }
 }
 
-public class Hilfsobjetct{
-	public int id;
-	public GameObject go;
-	public Hilfsobjetct(int i,GameObject go1){
-		id=i;
-		go=go1;
-	}
+public class Hilfsobjetct
+{
+    public int id;
+    public GameObject go;
+    public Hilfsobjetct(int i, GameObject go1)
+    {
+        id = i;
+        go = go1;
+    }
 }

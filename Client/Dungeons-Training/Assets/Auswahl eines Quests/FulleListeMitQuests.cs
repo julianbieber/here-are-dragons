@@ -75,7 +75,8 @@ public class FulleListeMitQuests : MonoBehaviour
     async void Update()
     {
         Global.ausgewahlterQuest = getSelectedQuest();
-        if(Global.ausgewahlterQuest.isSome&&Global.ausgewahlterQuest.value.erledigt){
+        if (Global.ausgewahlterQuest.isSome && Global.ausgewahlterQuest.value.erledigt)
+        {
             await getFilling();
             FillList();
         }

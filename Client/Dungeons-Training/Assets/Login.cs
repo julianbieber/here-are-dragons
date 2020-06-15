@@ -15,6 +15,8 @@ public class Login : MonoBehaviour
     public Text feedbackField;
     public Button self;
 
+    public float t= Mathf.Infinity;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -34,6 +36,7 @@ public class Login : MonoBehaviour
             Global.userId = Option<int>.Some(loginResponse.Item1);
             Global.token = Option<string>.Some(loginResponse.Item2);
             SceneManager.LoadScene("Map");
+            Global.TimeOfLogin=Option<float>.Some(Time.time);
         } else {
             feedbackField.text = "Failed to login";
         }

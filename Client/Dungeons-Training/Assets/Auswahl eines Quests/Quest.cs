@@ -29,7 +29,7 @@ public class Quest
     }
     public bool anulus()
     {
-        /*var map = LocationProviderFactory.Instance.mapManager;
+        var map = LocationProviderFactory.Instance.mapManager;
         var positionSpieler = Player.transform.position;
         if (ausgewählterQuest.isSome)
         {
@@ -39,9 +39,7 @@ public class Quest
                 return true;
             }
         }
-        return false;*/
-        return true;
-
+        return false;
     }
     public float GetDistanceBetweenPoints(Vector3 point1, Vector3 point2)
     {

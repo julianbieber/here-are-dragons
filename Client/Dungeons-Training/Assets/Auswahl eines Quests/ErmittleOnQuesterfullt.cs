@@ -14,14 +14,14 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
     {
         if (Time.time > nextUpdate * 10)
         {
-            
+
             Quest q = new Quest(Global.ausgewahlterQuest, Player);
             bool Questerfullt = q.istPlayerAnPositionVonAusgewahltemQuest();
             nextUpdate++;
-            if (Questerfullt&&q.ausgewählterQuest.isSome)
+            if (Questerfullt && q.ausgewählterQuest.isSome)
             {
                 QuestAPI.postQuestErledigt(q.ausgewählterQuest.value.questID);
-                Global.ausgewahlterQuest.value.erledigt=true;
+                Global.ausgewahlterQuest.value.erledigt = true;
             }
         }
     }
