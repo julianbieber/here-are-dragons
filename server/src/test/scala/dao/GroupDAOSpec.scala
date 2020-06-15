@@ -16,7 +16,7 @@ class GroupDAOSpec extends AnyFlatSpec with Matchers with MockFactory {
     val groupDAO = new GroupDAO(userDAO)
     groupDAO.addToGroup(user1, user2Name) must be(true)
     val group = groupDAO.getGroup(user1)
-    group.get must contain theSameElementsAs Seq(user1, user2)
+    group.get.members must contain theSameElementsAs Seq(user1, user2)
     groupDAO.leaveGroup(user1)
 
     GroupDAO.groups must be(empty)

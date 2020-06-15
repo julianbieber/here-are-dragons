@@ -6,22 +6,37 @@ using System;
 
 public class CharacterAPI
 {
-    public static async Task<CharacterResponse> getCharacter() {
-        var response = await API.get<CharacterResponse>(Global.baseUrl + "character", new Dictionary<string, string>());
+    public static async Task<Option<PlayerCharacter>> getCharacter() {
+        var response = await API.get<PlayerCharacter>(Global.baseUrl + "character", new Dictionary<string, string>());
         if (response.isSome) {
-            return response.value;
+            return response;
         } else {
             Debug.Log("Failed to retrieve character");
-            return new CharacterResponse{ rangerExperience = -1, sorcererExperience = -1, warriorExperience = -1};
+            return Option<PlayerCharacter>.None;
+        }
+    }
+
+    public static async void selectSkill(int id) {
+        var query = new Dictionary<string, string>();
+        query.Add("skill", id.ToString());
+        var response = await API.post<string, PlayerSkillBar>(Global.baseUrl + "character/select", "", query);
+        if (!response.isSome) {
+            Debug.Log("Failed to select skill");
         }
     }
 }
 
 [Serializable]
-public class CharacterResponse {
+public class PlayerCharacter {
     public long rangerExperience;
     public long sorcererExperience;
     public long warriorExperience;
+    public PlayerSkillBar skillBar;
 }
 
+[Serializable]
+public class PlayerSkillBar {
+    public List<Skill> selected;
+    public List<Skill> unlocked;
+}
 
