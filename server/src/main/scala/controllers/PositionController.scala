@@ -33,3 +33,4 @@ class PositionController @Inject()(override val userDAO: UserDAO,val positionDAO
   }
 
 }
+
