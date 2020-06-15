@@ -26,7 +26,7 @@ object Dungeon {
   )
 
   case class SkillUsage(
-    targetId: Int,
+    targetPosition: Int,
     skill: Skill
   )
 

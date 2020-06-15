@@ -18,7 +18,7 @@ object Api extends HttpServer {
   val dataSource: DataSource = {
     val ds = new HikariDataSource()
     ds.setDataSourceClassName("org.postgresql.ds.PGPoolingDataSource")
-    ds.addDataSourceProperty("url", "jdbc:postgresql://db:5432/postgres")
+    ds.addDataSourceProperty("url", "jdbc:postgresql://db:5435/postgres")
     ds.addDataSourceProperty("user", "postgres")
     ds.addDataSourceProperty("password", "example")
     ds

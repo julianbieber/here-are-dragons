@@ -16,15 +16,16 @@ case class DungeonGenerator(numberOfEnemies: Int, healthMultiplier: () => Float)
   private val baseHealth = 10
 
   def generate(userId: Int, players: Seq[PlayerUnit]): Dungeon = {
-    val enemies = (0 to numberOfEnemies).map{ _ =>
-      NPC(maxNPCPrefab, (baseHealth * healthMultiplier()).toInt, Seq(), 5, 10, 2)
+    val enemies = (0 to numberOfEnemies).map{ i =>
+      NPC(players.size + i, maxNPCPrefab, (baseHealth * healthMultiplier()).toInt, Seq(), 5, 10, 2)
     }
-
+    val units = players ++ enemies
     Dungeon(
       userId = Option(userId),
       groupId = None,
-      units = players ++ enemies,
-      currentTurn = 0
+      units = units.toBuffer,
+      currentTurn = 0,
+      units.map(_.id)
     )
   }
 }
