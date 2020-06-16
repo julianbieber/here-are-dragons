@@ -16,14 +16,13 @@ public class DungeonController : MonoBehaviour
     public InputField questIdInputField;
     public GameObject questIdInputObject;
 
-    private Turn currentTurn;
-
     private Option<int> dungeonId = Option<int>.None;
     private bool waitForTurn = true;
 
     private int remainingAP;
 
     private List<GameObject> objects = new List<GameObject>();
+    private Dungeon currentDungeon;
     private Vector3 lowerLeft;
     private Vector3 lowerRight;
     private Vector3 topLeft;
@@ -42,8 +41,6 @@ public class DungeonController : MonoBehaviour
 
         topLeft = mainCamera.ViewportToWorldPoint(new Vector3(0, 1, 0));
         screenHeight = topLeft.y - lowerLeft.y;
-
-        currentTurn = new Turn{ turnId = 0, skillsUsed = new List<SkillUsage>() };
     }
 
     public async void openDungeon() {
@@ -106,9 +103,13 @@ public class DungeonController : MonoBehaviour
         remainingAP = dungeon.ap;
         dungeonId = Option<int>.Some(dungeon.id);
         waitForTurn = !dungeon.myTurn;
+        currentDungeon = dungeon;
     }
 
     public void makeTargettableForPattern(Skill skill) {
+        foreach (var du in objects) {
+            du.GetComponent<DungeonUnit>().setNotTargettable();
+        }
         if (skill.apCost <= remainingAP) {
             var selfUnitIndex = getSelf();
             if (selfUnitIndex != -1) {
@@ -134,17 +135,6 @@ public class DungeonController : MonoBehaviour
         }
     }
 
-    public List<DungeonUnit> identifyEffected(string effectPattern, int targetIndex) {
-        var units = new List<DungeonUnit>();
-        for (int i = 0; i < effectPattern.Length; ++i) {
-            int dungeonIndex = targetIndex + i - effectPattern.Length / 2;
-            if (dungeonIndex >= 0&& dungeonIndex < objects.Count) {
-                units.Add(objects[dungeonIndex].GetComponent<DungeonUnit>());
-            }
-        }
-        return units;
-    }
-
     private Option<Tuple<DungeonUnit, int>> calculateUnitIndex(string pattern, int playerIndex, int patternIndex) {
         var i = playerIndex + patternIndex - pattern.Length / 2;
         if (i >= 0 && i < objects.Count) {
@@ -166,33 +156,29 @@ public class DungeonController : MonoBehaviour
 
     public async void endTurn() {
         if (dungeonId.isSome) {
-            var d = await DungeonAPI.endTurn(dungeonId.value, currentTurn);
+            var d = await DungeonAPI.endTurn(dungeonId.value);
             if (d.isSome) {
-                currentTurn = new Turn{turnId = 0, skillsUsed = new List<SkillUsage>()};
                 setDungeon(d.value);
             }
         }
     }
 
-    public void SkillWasUsed(int unitIndex, Skill skill) {
-        if (skill.burnDuration > 0) {
-            foreach (var u in identifyEffected(skill.effectPattern, unitIndex)) {
-                u.setOnFire();
-            }    
+    public async void SkillWasUsed(int unitIndex, Skill skill) {
+        var newDungeon = await DungeonAPI.action(dungeonId.value, new SkillUsage{targetPosition = unitIndex, skill= skill});
+        if (newDungeon.isSome) {
+            setDungeon(newDungeon.value);
         }
-        foreach (var u in identifyEffected(skill.effectPattern, unitIndex)) {
-            if (u.Self is NPCUnit) {
-                (u.Self as NPCUnit).health -= skill.damage;
-            }
-            if (u.Self is PlayerUnit) {
-                (u.Self as PlayerUnit).health -= skill.damage;
-            }
-        }
-        foreach(var du in objects) {
+        foreach (var du in objects) {
             du.GetComponent<DungeonUnit>().setNotTargettable();
         }
-        currentTurn.skillsUsed.Add(new SkillUsage{ targetId = unitIndex, skill = skill});
-        remainingAP -= skill.apCost;
+        
+    }
+
+    void Swap<T>(IList<T> list, int indexA, int indexB)
+    {
+        T tmp = list[indexA];
+        list[indexA] = list[indexB];
+        list[indexB] = tmp;
     }
 }
 
@@ -222,13 +208,7 @@ public class EmptyUnit : Unit {
 }
 
 [Serializable]
-public class Turn {
-    public int turnId;
-    public List<SkillUsage> skillsUsed;
-}
-
-[Serializable]
 public class SkillUsage {
-    public int targetId;
+    public int targetPosition;
     public Skill skill;
 }

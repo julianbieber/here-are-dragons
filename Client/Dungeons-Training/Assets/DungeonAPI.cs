@@ -29,8 +29,18 @@ public static class DungeonAPI
         }
     }
 
-    public static async Task<Option<Dungeon>> endTurn(int dungeonId, Turn turn) {
-        var response = await API.post<Turn, DungeonResponse>(Global.baseUrl + "dungeon/" + dungeonId, turn, new Dictionary<string, string>());
+    public static async Task<Option<Dungeon>> endTurn(int dungeonId) {
+        var response = await API.post<string, DungeonResponse>(Global.baseUrl + "dungeon/" + dungeonId, "", new Dictionary<string, string>());
+        if (response.isSome) {
+            return Option<Dungeon>.Some(convertDungeonResponse(response.value));
+        } else {
+            Debug.Log("Failed to post turn for id: " + dungeonId);
+            return Option<Dungeon>.None;
+        }
+    }
+
+    public static async Task<Option<Dungeon>> action(int dungeonId, SkillUsage action) {
+        var response = await API.post<SkillUsage, DungeonResponse>(Global.baseUrl + "dungeon/" + dungeonId + "/action", action, new Dictionary<string, string>());
         if (response.isSome) {
             return Option<Dungeon>.Some(convertDungeonResponse(response.value));
         } else {
@@ -50,7 +60,6 @@ public static class DungeonAPI
     }
 
     static Dungeon convertDungeonResponse(DungeonResponse response) {
-        Debug.Log(response.units);
         return new Dungeon {
             id = response.dungeonId,
             units = response.units.Select(u => convertUnitResponse(u)).ToList(),
