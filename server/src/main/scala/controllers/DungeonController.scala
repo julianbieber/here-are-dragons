@@ -25,11 +25,8 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
   }
 
   put("/dungeon") { request: Request =>
-    println("dungeon request")
     withUserAuto(request) { userId =>
-      println(s"dungeon request for $userId")
       val openRequest = readFromString[OpenRequest](request.getContentString())
-      println(s"dungeon request for $openRequest")
       //questDAO.getQuests(openRequest.questId).map { quest =>
         // TODO if user has completed quest
       val (id, dungeon) = service.newSPDungeon(userId, openRequest.questId, characterDAO.getCharacter(userId))
@@ -43,11 +40,11 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
       dungeonId = id,
       units = dungeon.units.map(unitToResponse),
       myTurn =  dungeon.units.zipWithIndex.find {
-        case (PlayerUnit(u, _, _, _, _), i) => u == userId
+        case (PlayerUnit(unitId, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
         case _ => false
       }.map(_._2).contains(dungeon.currentTurn),
       ap = dungeon.units.find{
-        case PlayerUnit(u, _, _, _, _) => u == userId
+        case PlayerUnit(_, u, _, _, _, _) => u == userId
         case _ => false
       }.map(_.asInstanceOf[PlayerUnit].ap).getOrElse(0)
     )
@@ -55,23 +52,38 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
 
   private def unitToResponse(unit: DungeonUnit): UnitResponse = {
     unit match {
-      case PlayerUnit(userId, health, _, _, _) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None)
-      case NPC(prefabId, health, _, _, _, _) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId))
-      case Empty(prefabId) =>UnitResponse(tyype = "empty", userId = None, health = None, prefabId = Option(prefabId))
+      case PlayerUnit(_, userId, health, _, _, _) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None)
+      case NPC(_, prefabId, health, _, _, _, _) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId))
+      case Empty(_, prefabId) =>UnitResponse(tyype = "empty", userId = None, health = None, prefabId = Option(prefabId))
     }
   }
 
+  // end turn
   post("/dungeon/:dungeonId") { request: Request =>
-    withUserAutoOption(request){ userId =>
+    withUserAutoOption(request) { userId =>
       val dungeonId = request.params("dungeonId").toInt
-      val turn = readFromString[Turn](request.getContentString())
-      DungeonDAO.getDungeon(dungeonId).flatMap{ preTurn =>
-        println(s"apply turn: $turn")
-        service(userId, preTurn, turn).map{ postTurn =>
-          DungeonDAO.updateDungeon(dungeonId, postTurn)
-          dungeonToResponse(dungeonId, userId, postTurn)
+      DungeonDAO.getDungeon(dungeonId).flatMap{ dungeon =>
+        val unitId = dungeon.findUser(userId)._1.id
+        service.endTurn(unitId, dungeon).map{ updated =>
+          DungeonDAO.updateDungeon(dungeonId, updated)
+          updated
         }
-      }
+      }.map(dungeonToResponse(dungeonId, userId, _))
+    }
+  }
+
+  // Action
+  post("/dungeon/:dungeonId/action") { request: Request =>
+    withUserAutoOption(request) { userId =>
+      val dungeonId = request.params("dungeonId").toInt
+      val skillUsage = readFromString[SkillUsage](request.getContentString())
+      DungeonDAO.getDungeon(dungeonId).flatMap{ dungeon =>
+        val unitId = dungeon.findUser(userId)._1.id
+        println(s"user $userId has unit: $unitId")
+        service.applyAction(unitId, skillUsage, dungeon).map{ updated =>
+          DungeonDAO.updateDungeon(dungeonId, updated)
+        }
+      }.map(dungeonToResponse(dungeonId, userId, _))
     }
   }
 

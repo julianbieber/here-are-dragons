@@ -16,17 +16,14 @@ services:
     environment:
       POSTGRES_PASSWORD: example
     ports:
-    - "5432:5432"
+    - "5435:5435"
     volumes:
     - db:/var/lib/postgresql/data:Z
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
+    command: postgres -c 'max_connections=200' -p 5435
+
   flyway-db:
     image: boxfuse/flyway:6
-    command: -url=jdbc:postgresql://db:5432/postgres -user=postgres -password=example -connectRetries=60 migrate
+    command: -url=jdbc:postgresql://db:5435/postgres -user=postgres -password=example -connectRetries=60 migrate
     volumes:
       - ./src/main/resources/migration:/flyway/sql:Z
     depends_on:
