@@ -45,6 +45,16 @@ public class Skillbar : MonoBehaviour
         }
     }
 
+    public void show(int skillId) {
+        if (character.player.isSome && character.player.value.skillBar.selected.Count > skillId) {
+            var skill = character.player.value.skillBar.selected[skillId];
+        
+            displayTooltip(skill);
+        }
+    }
+
+    
+
     private void displayTooltip(Skill skill) {
         tooltipBox.enabled = true;
         tooltipBackground.enabled = true;

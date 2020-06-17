@@ -3,23 +3,27 @@ using System.Collections.Generic;
 using UnityEngine;
 using KKUserActivityRecognition;
 using System.Threading.Tasks;
+using UnityEngine.UI;
 
 public class ActivityTracker : MonoBehaviour
 {
     private Option<ActivityType> currentActivity = Option<ActivityType>.None;
 
+    public Text debug;
+
     // Start is called before the first frame update
     void Start()
-    {
+    {   
+        debug.text = "";
         bool isAvailable = UserActivityRecognition.IsAvailable();
 
 		if (isAvailable) {
-			// make sure your listener prefab exists on current scene!
-			GameObject.FindObjectOfType<UserActivityListener>()
+			GetComponent<UserActivityListener>()
 				.onUserActivityRecognized
 				.AddListener(OnActivityRecognized);
             UserActivityRecognition.StartUpdates();
 		} else {
+            debug.text = "Activity Tracker is unavailable"; 
 			Debug.Log("Activity Tracker is unavailable");
 		}
     }
