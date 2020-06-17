@@ -2,11 +2,19 @@ package service
 
 import dao.{Dungeon, NPC}
 import javax.inject.Inject
-import model.Dungeon.{Skill, SkillUsage, Turn}
+import model.Dungeon.SkillUsage
 
-class AI @Inject() () {
-  def decideAction(NPC: NPC, dungeon: Dungeon): Option[SkillUsage] = {
-    None
+class AI @Inject()() {
+  def decideAction(npc: NPC, dungeon: Dungeon): Option[SkillUsage] = {
+    npc.skills.sortBy(_.damage).collect { case skill if skill.apCost <= npc.ap =>
+      skill
+    }.lastOption.flatMap { skill =>
+      DungeonService.identifyTargetable(dungeon, skill, dungeon.findUnitById(npc.id)._2).headOption.map(target =>
+        SkillUsage(target, skill)
+      )
+    }
+
+
   }
 
 }

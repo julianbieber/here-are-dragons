@@ -94,7 +94,7 @@ case class Dungeon(
     units.zipWithIndex.collectFirst { case (unit: PlayerUnit, i) if unit.userId == userId => unit -> i }.get
   }
 
-  private def findUnitById(unitId: Int): (DungeonUnit, Int) = units.zipWithIndex.collectFirst { case (unit, i) if unit.id == unitId => unit -> i }.get
+  def findUnitById(unitId: Int): (DungeonUnit, Int) = units.zipWithIndex.collectFirst { case (unit, i) if unit.id == unitId => unit -> i }.get
 
   private def swap(unitPosition: Int, position: Int): Unit = {
     val tmp = units(position)

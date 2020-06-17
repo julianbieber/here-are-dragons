@@ -27,7 +27,7 @@ class DungeonService @Inject()(ai: AI) {
   }
 
   private def executeNPCS(dungeon: Dungeon): Unit = {
-    while (!dungeon.currentTurnUnit.isInstanceOf[PlayerUnit]) {
+    while (!dungeon.currentTurnUnit.isInstanceOf[PlayerUnit] && dungeon.units.exists(_.isInstanceOf[PlayerUnit])) {
       dungeon.currentTurnUnit match {
         case npc: NPC =>
           var actionO = ai.decideAction(npc, dungeon)
