@@ -20,7 +20,8 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.1.1" % Test,
   "org.scalamock" %% "scalamock" % "4.4.0" % Test,
   "org.scalacheck" %% "scalacheck" % "1.14.1" % Test,
-  "org.flywaydb" % "flyway-core" % "6.4.1" % Test
+  "org.flywaydb" % "flyway-core" % "6.4.1" % Test,
+  "com.softwaremill.sttp.client" %% "core" % "2.2.0"
 )
 
 enablePlugins(PackPlugin)
