@@ -1,7 +1,6 @@
 <dependencies>
   <packages>
-    <package>com.google.android.gms:play-services-base:16.1.0</package>
-    <package>com.google.android.gms:play-services-location:16.0.0</package>
+    <package>com.google.android.gms:play-services-location:12.0.0</package>
   </packages>
   <files />
   <settings>
@@ -9,7 +8,7 @@
     <setting name="bundleId" value="com.DefaultCompany.DungeonsTraining" />
     <setting name="explodeAars" value="True" />
     <setting name="gradleBuildEnabled" value="True" />
-    <setting name="gradleTemplateEnabled" value="False" />
+    <setting name="gradleTemplateEnabled" value="True" />
     <setting name="installAndroidPackages" value="True" />
     <setting name="localMavenRepoDir" value="Assets/GeneratedLocalRepo" />
     <setting name="packageDir" value="Assets/Plugins/Android" />
