@@ -2776,6 +2776,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4961856903295740, guid: 35ce2bb4caba9434db5e656796b632b1, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4961856903295740, guid: 35ce2bb4caba9434db5e656796b632b1, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4961856903295740, guid: 35ce2bb4caba9434db5e656796b632b1, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 114105500206378512, guid: 35ce2bb4caba9434db5e656796b632b1,
         type: 3}
       propertyPath: _options.tileMaterial
@@ -2789,7 +2801,7 @@ PrefabInstance:
     - target: {fileID: 114105500206378512, guid: 35ce2bb4caba9434db5e656796b632b1,
         type: 3}
       propertyPath: _options.locationOptions.zoom
-      value: 10
+      value: 15
       objectReference: {fileID: 0}
     - target: {fileID: 114105500206378512, guid: 35ce2bb4caba9434db5e656796b632b1,
         type: 3}
@@ -2977,9 +2989,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10f6a6e3bc4d24d70b88b93defdd88e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  far: {fileID: 21300000, guid: 0b0fc9ed683cb4fc4892ac80d7b1e9f6, type: 3}
-  near: {fileID: 21300000, guid: 0c5fed8fd04944400b4239a76ea56554, type: 3}
-  supernear: {fileID: 21300000, guid: fbf137d20c821409dbf4cc0cdd560793, type: 3}
+  far: {fileID: 21300000, guid: 78f64b0fd92be8044b951eb0e474cee9, type: 3}
+  near: {fileID: 21300000, guid: c28cf76c7e16569499fe77e47467dff1, type: 3}
+  supernear: {fileID: 21300000, guid: 39eb1f9f985f3ee4986ae5ca5e7f041d, type: 3}
 --- !u!54 &1567228530
 Rigidbody:
   m_ObjectHideFlags: 0

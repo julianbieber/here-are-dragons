@@ -34,4 +34,27 @@ class UserDAOSpec extends AnyFlatSpec with Matchers {
     dao.logout(id, token)
     dao.deleteUser(name)
   }
+
+  it must "get a list of every user" in withPool{ pool =>
+    val dao = new UserDAO(pool)
+
+    //create first user
+    val name = oneRandom(genString)
+    val password = oneRandom(genString)
+    val i = dao.createUser(name,password).get
+
+    //create second user
+    val name1 = oneRandom(genString)
+    val password1 = oneRandom(genString)
+    val j = dao.createUser(name1,password1).get
+
+    //generate expected result and the result of the tested method
+    val generatedList = dao.getListOfEveryUserId()
+    val result = Seq[Int](0,i,j)
+
+    //compares expected result and the result of the tested method
+    generatedList should be(result)
+    dao.deleteUser(name)
+    dao.deleteUser(name1)
+  }
 }

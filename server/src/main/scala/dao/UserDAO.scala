@@ -8,7 +8,20 @@ import javax.inject.Inject
 import model.Account.LoginResponse
 import scalikejdbc._
 
+import scala.collection.immutable.List
+
 class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
+
+  def getListOfEveryUserId(): Seq[Int] = {
+    withSession(pool) { implicit session =>
+      val photoNodes: List[Int] =
+      sql"""SELECT id FROM public.users """.map(rs =>
+        rs.int("id")
+      ).list.apply()
+      photoNodes
+    }
+  }
+
 
   def createUser(name: String, password: String): Option[Int] = {
     withSession(pool) { implicit session =>
@@ -56,7 +69,11 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def isLoggedIn(userId: Int, token: String): Boolean = UserDAO.loggedInUsers.get(userId).contains(token)
+  def isLoggedIn(userId: Int, token: String): Boolean = {
+    println(userId,token)
+    println(UserDAO.loggedInUsers)
+    UserDAO.loggedInUsers.get(userId).contains(token)
+  }
 
   // #########################################################
 

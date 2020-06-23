@@ -72,3 +72,5 @@ sysinfo.txt
 **/[Aa]ssets/[Ss]treamingAssets/aa/*
 **/ShaderCache
 **/Temp
+
+**.DS_Store

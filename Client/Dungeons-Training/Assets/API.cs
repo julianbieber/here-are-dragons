@@ -11,6 +11,7 @@ public class API {
 
     public static async Task<Option<B>> get<B>(string url, Dictionary<string, string> queryParemeters) {
         var urlWithQuery = url + queryString(queryParemeters);
+        Debug.Log(Global.userId.value);
         using (var www = UnityWebRequest.Get(urlWithQuery))
             {
                 www.SetRequestHeader("Content-Type", "application/json");
