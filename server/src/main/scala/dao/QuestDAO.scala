@@ -25,7 +25,7 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       sql"INSERT INTO public.quest (longitude, latitude,erledigt) VALUES ($longitude, $latitude, false)".executeUpdate().apply()
       sql"SELECT id FROM public.quest WHERE longitude = $longitude and latitude = $latitude".map { col =>
         col.int("id")
-      }.first().apply(
+      }.first().apply(SkillbarDAO
     }
   }*/
 
