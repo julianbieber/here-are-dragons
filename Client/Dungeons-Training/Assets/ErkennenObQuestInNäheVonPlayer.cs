@@ -8,29 +8,42 @@ public class ErkennenObQuestInNäheVonPlayer : MonoBehaviour
     public Sprite near;
     public Sprite supernear;
 
-    private void OnTriggerEnter(Collider other)
+
+      void Update()
+    {
+    }
+    private void OnTriggerStay(Collider other)
     {
         GameObject change = other.gameObject;
+        bool schonBahandelt = change.GetComponent<SchonBehandelterQuest>().schonBehandelt;
+        Debug.Log("OntriggerEnter wird ausgeführt"+change.GetComponent<SphereCollider>().radius );
 
-        if (change.GetComponent<SphereCollider>().radius == 30)
+        if (change.GetComponent<SphereCollider>().radius == 10&& schonBahandelt  == false)
         {
-            change.GetComponent<SphereCollider>().radius = 3;
+            change.GetComponent<SphereCollider>().radius = 0.5f;
             change.GetComponent<SpriteRenderer>().sprite = supernear;
+            change.GetComponent<SchonBehandelterQuest>().schonBehandelt =true;
         }
-        if (change.GetComponent<SphereCollider>().radius == 50)
+        if (change.GetComponent<SphereCollider>().radius == 50 &&schonBahandelt == false  )
         {
-            change.GetComponent<SphereCollider>().radius = 30;
+            change.GetComponent<SphereCollider>().radius = 10;
             change.GetComponent<SpriteRenderer>().sprite = near;
+            change.GetComponent<SchonBehandelterQuest>().schonBehandelt =true;
         }
 
     }
     private void OnTriggerExit(Collider other)
     {
+        
         GameObject change = other.gameObject;
-        if (change.GetComponent<SphereCollider>().radius == 30)
+        bool schonBahandelt = change.GetComponent<SchonBehandelterQuest>().schonBehandelt;
+        Debug.Log("OntriggerEnxit wird ausgeführt"+change.GetComponent<SphereCollider>().radius);
+        if (change.GetComponent<SphereCollider>().radius == 10&&schonBahandelt == false )
         {
             change.GetComponent<SphereCollider>().radius = 50;
             change.GetComponent<SpriteRenderer>().sprite = far;
+            change.GetComponent<SchonBehandelterQuest>().schonBehandelt =true;
         }
+        
     }
 }

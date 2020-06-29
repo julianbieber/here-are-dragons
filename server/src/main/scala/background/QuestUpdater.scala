@@ -6,14 +6,28 @@ import sttp.client._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.github.dmarcous.s2utils._
 import com.github.dmarcous.s2utils.converters.CoordinateConverters
+import com.google.common.geometry.{S2CellId, S2LatLng}
 import com.vividsolutions.jts.math.Vector2D
+import javax.xml.bind.DatatypeConverter
+
+
 
 class QuestUpdater @Inject() (val questdao : dao.QuestDAO, val positiondao:dao.PositionDAO,val userdao: dao.UserDAO) extends Background {
 
+  private var iter :Int = 0;
+
   def a(node:Node): Unit= questdao.createQuestFromAPI(node.id,node.lon,node.lat)
 
-  override def run(): Unit = {
+  def nullenAuffuellen(s: String):String = {
+    var result = s
+    while(result.length <= 63){
+       result = "0"+result
+    }
+    result
+  }
 
+  override def run(): Unit = {
+    if (iter <5){
     implicit val nodesCodec = JsonCodecMaker.make[Nodes]
 
     val sort: Option[String] = None
@@ -34,14 +48,20 @@ class QuestUpdater @Inject() (val questdao : dao.QuestDAO, val positiondao:dao.P
         pos =>
           val positionOfPlayer = new Vector2D(pos.longitude, pos.latitude)
 
-
-          val cell = CoordinateConverters.lonLatToS2CellID(positionOfPlayer.getX, positionOfPlayer.getY, 30)
+          val varrr = nullenAuffuellen(CoordinateConverters.lonLatToS2CellID(positionOfPlayer.getY,positionOfPlayer.getX,14).id().toBinaryString)
           val cid = "0100011110111101011100000110001100000000000000000000000000000000"
-        //cell.id().toString
 
 
 
-          val r = new PoI("GetPoI", cid, "5", "[10,12]")
+          println(positionOfPlayer.getX)
+          println(positionOfPlayer.getY)
+          println(varrr)
+          println("__________________________")
+
+
+
+
+          val r = new PoI("GetPoI", varrr, "5", "[10,12]")
           val request = basicRequest.post(uri"http://130.83.245.99:8080").body(writeToString(r))
 
 
@@ -56,13 +76,17 @@ class QuestUpdater @Inject() (val questdao : dao.QuestDAO, val positiondao:dao.P
             case Left(varibla) => println(varibla)
 
             case Right(value) =>
+              iter = iter + 1
               val nods = readFromString[Nodes](value)
               val n =readFromString[Seq[Node]](nods.nodes)
               n.foreach(a)
           }
       }
     }
+
+    }
   }
+
 }
 
 case class PoI(update_type:String,cell_id:String, amount:String,classifiers:String)
