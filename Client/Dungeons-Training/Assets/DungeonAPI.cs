@@ -105,6 +105,8 @@ public class DungeonResponse {
     public List<UnitResponse> units;
     public bool myTurn;
     public int ap;
+    public bool won;
+    public bool lost;
 }
 
 [Serializable]
