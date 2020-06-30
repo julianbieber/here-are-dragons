@@ -15,11 +15,11 @@ class ActivityController @Inject() (override val userDAO: UserDAO, executionCont
   put("/activity") { request: Request =>
     withUserAsync(request){ userId =>
       Future {
-        val activityStart = readFromString[ActivityStart](request.contentString)
-        if (!supportedActivities.contains(activityStart.activityType)) {
-          response.badRequest(s"Activity: ${activityStart.activityType} is not supported, the ony supported activities are: ${supportedActivities.mkString(", ")}")
+        val activityType = request.getParam("type")
+        if (!supportedActivities.contains(activityType)) {
+          response.badRequest(s"Activity: ${activityType} is not supported, the ony supported activities are: ${supportedActivities.mkString(", ")}")
         } else {
-          activityDAO.startActivity(userId, activityStart.activityType)
+          activityDAO.startActivity(userId, activityType)
           response.ok("")
         }
       }
