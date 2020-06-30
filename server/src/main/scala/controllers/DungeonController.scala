@@ -41,11 +41,11 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
       dungeonId = id,
       units = dungeon.units.map(unitToResponse),
       myTurn =  dungeon.units.zipWithIndex.find {
-        case (PlayerUnit(unitId, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
+        case (PlayerUnit(unitId, _, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
         case _ => false
       }.map(_._2).contains(dungeon.currentTurn),
       ap = dungeon.units.find{
-        case PlayerUnit(_, u, _, _, _, _) => u == userId
+        case PlayerUnit(_, u, _, _, _, _, _) => u == userId
         case _ => false
       }.map(_.asInstanceOf[PlayerUnit].ap).getOrElse(0),
       won,
@@ -55,9 +55,9 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
 
   private def unitToResponse(unit: DungeonUnit): UnitResponse = {
     unit match {
-      case PlayerUnit(_, userId, health, _, _, _) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None)
-      case NPC(_, prefabId, health, _, _, _, _) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId))
-      case Empty(_, prefabId) =>UnitResponse(tyype = "empty", userId = None, health = None, prefabId = Option(prefabId))
+      case PlayerUnit(_, userId, health, _, _, _, status) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None, status = status)
+      case NPC(_, prefabId, health, _, _, _, _, status) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId), status = status)
+      case Empty(_, prefabId, status) =>UnitResponse(tyype = "empty", userId = None, health = None, prefabId = Option(prefabId), status = status)
     }
   }
 

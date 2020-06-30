@@ -13,7 +13,7 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
     val long = nextFloat()
     val lat = nextFloat()
     val userID : Long= dao.createQuestFromAPI("1",lat, long).get
-    userID should be >=(0)
+    userID should be >= 0L
 
     dao.deleteQuest(userID)
     dao.getQuests(userID) should be (None)

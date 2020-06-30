@@ -1,5 +1,7 @@
 package model
 
+import dao.Status
+
 object Dungeon {
 
   case class AvailableDungeons(ids: Seq[Int])
@@ -19,7 +21,8 @@ object Dungeon {
     tyype: String,
     userId: Option[Int],
     health: Option[Int],
-    prefabId: Option[Int]
+    prefabId: Option[Int],
+    status: Status
   )
 
   case class Turn(

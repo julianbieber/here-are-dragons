@@ -153,6 +153,8 @@ sealed trait DungeonUnit {
 
   def ap: Int = 0
 
+  def status: Status
+
   def applySkill(skill: Skill): DungeonUnit
 
   def applyStatuses(): DungeonUnit
@@ -160,11 +162,19 @@ sealed trait DungeonUnit {
   def gainAP(): DungeonUnit
 }
 
-case class PlayerUnit(id: Int, userId: Int, health: Int, override val ap: Int, maxAP: Int, apGain: Int) extends DungeonUnit {
+case class PlayerUnit(
+  id: Int,
+  userId: Int,
+  health: Int,
+  override val ap: Int,
+  maxAP: Int,
+  apGain: Int,
+  override val status: Status
+) extends DungeonUnit {
   override def applySkill(skill: Skill): DungeonUnit = {
     val newHealth = health - skill.damage
     if (newHealth <= 0) {
-      Empty(id, 0)
+      Empty(id, 0, status)
     } else {
       copy(health = newHealth)
     }
@@ -177,11 +187,11 @@ case class PlayerUnit(id: Int, userId: Int, health: Int, override val ap: Int, m
   override def applyStatuses(): DungeonUnit = this
 }
 
-case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], override val ap: Int, maxAP: Int, apGain: Int) extends DungeonUnit {
+case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], override val ap: Int, maxAP: Int, apGain: Int, override val status: Status) extends DungeonUnit {
   override def applySkill(skill: Skill): DungeonUnit = {
     val newHealth = health - skill.damage
     if (newHealth <= 0) {
-      Empty(id, 0)
+      Empty(id, 0, status)
     } else {
       copy(health = newHealth)
     }
@@ -194,7 +204,7 @@ case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], override
   override def applyStatuses(): DungeonUnit = this
 }
 
-case class Empty(id: Int, prefabId: Int) extends DungeonUnit {
+case class Empty(id: Int, prefabId: Int, override val status: Status) extends DungeonUnit {
   override def applySkill(skill: Skill): DungeonUnit = {
     this
   }
@@ -202,4 +212,54 @@ case class Empty(id: Int, prefabId: Int) extends DungeonUnit {
   override def applyStatuses(): DungeonUnit = this
 
   override def gainAP(): DungeonUnit = this
+}
+
+case class Status(
+  burning: Int,
+  wet: Int,
+  stunned:Int,
+  shocked: Int,
+  knockedDown: Int
+) {
+  def countDown(): Status = {
+    copy(
+      burning = math.max(burning-1, 0),
+      wet = math.max(wet-1, 0),
+      stunned = math.max(stunned-1, 0),
+      shocked = math.max(shocked-1, 0),
+      knockedDown = math.max(knockedDown-1, 0),
+    )
+  }
+
+  def setOnFire(duration: Int): Status = copy(
+    burning = math.max(burning, duration),
+    wet = 0
+  )
+
+  def drowse(duration: Int): Status = copy(
+    wet = math.max(wet, duration),
+    burning = 0
+  )
+
+  def stun(duration: Int): Status = copy(
+    stunned = math.max(stunned, duration),
+    shocked = 0
+  )
+
+  def shock(duration: Int): Status = {
+    if (shocked > 0) {
+      copy(stunned = math.max(math.max(stunned, duration), shocked))
+    } else {
+      copy(shocked = duration)
+    }
+  }
+
+  def knockDown(duration: Int): Status = {
+    copy(knockedDown = math.max(knockedDown, duration))
+  }
+
+}
+
+object Status {
+  def empty: Status = Status(0, 0, 0, 0, 0)
 }
