@@ -64,7 +64,9 @@ public static class DungeonAPI
             id = response.dungeonId,
             units = response.units.Select(u => convertUnitResponse(u)).ToList(),
             myTurn = response.myTurn,
-            ap = response.ap
+            ap = response.ap,
+            won = response.won,
+            lost = response.lost
         };
     }
 

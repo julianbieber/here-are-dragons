@@ -16,6 +16,16 @@ public class DungeonController : MonoBehaviour
     public InputField questIdInputField;
     public GameObject questIdInputObject;
 
+    public GameObject endObject;
+    public Image endBackground;
+    public Text endText;
+
+    public GameObject leaveButton;
+
+    private Color winColor = Color.green;
+    private Color loseColor = Color.red;
+    private Color drawColor = Color.yellow;
+
     private Option<int> dungeonId = Option<int>.None;
     private bool waitForTurn = true;
 
@@ -41,6 +51,8 @@ public class DungeonController : MonoBehaviour
 
         topLeft = mainCamera.ViewportToWorldPoint(new Vector3(0, 1, 0));
         screenHeight = topLeft.y - lowerLeft.y;
+        endObject.SetActive(false);
+        leaveButton.SetActive(false);
     }
 
     public async void openDungeon() {
@@ -104,6 +116,34 @@ public class DungeonController : MonoBehaviour
         dungeonId = Option<int>.Some(dungeon.id);
         waitForTurn = !dungeon.myTurn;
         currentDungeon = dungeon;
+
+        if (dungeon.won) {
+            endObject.SetActive(true);
+            leaveButton.SetActive(true);
+            endBackground.color = winColor;
+            endText.text = "YOU WON";
+        } 
+
+        if (dungeon.lost) {
+            endObject.SetActive(true);
+            leaveButton.SetActive(true);
+            endBackground.color = loseColor;
+            endText.text = "YOU LOST";
+        }
+
+        if (dungeon.won && dungeon.lost) {
+            endObject.SetActive(true);
+            leaveButton.SetActive(true);
+            endBackground.color = drawColor;
+            endText.text = "draw";
+        }
+
+        if (!dungeon.won && !dungeon.lost) {
+            endObject.SetActive(false);
+            leaveButton.SetActive(false);
+        }
+
+        
     }
 
     public void makeTargettableForPattern(Skill skill) {
@@ -187,6 +227,8 @@ public class Dungeon {
     public List<Unit> units;
     public bool myTurn;
     public int ap;
+    public bool won;
+    public bool lost;
 }
 
 public interface Unit {
