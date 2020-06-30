@@ -78,6 +78,10 @@ case class Dungeon(
     currentTurn = (currentTurn + 1) % turnOrder.length
   }
 
+  def completed: (Boolean, Boolean) = {
+    !units.exists(_.isInstanceOf[NPC]) -> !units.exists(_.isInstanceOf[PlayerUnit])
+  }
+
   def isAllowedToUse(unitId: Int, skillUsage: SkillUsage): Boolean = {
     println(turnOrder, currentTurn)
     println(currentTurnUnit.id, unitId)

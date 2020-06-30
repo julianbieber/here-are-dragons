@@ -36,6 +36,7 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
   }
 
   private def dungeonToResponse(id: Int, userId: Int, dungeon: Dungeon): DungeonResponse = {
+    val (won, lost) = dungeon.completed
     DungeonResponse(
       dungeonId = id,
       units = dungeon.units.map(unitToResponse),
@@ -46,7 +47,9 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
       ap = dungeon.units.find{
         case PlayerUnit(_, u, _, _, _, _) => u == userId
         case _ => false
-      }.map(_.asInstanceOf[PlayerUnit].ap).getOrElse(0)
+      }.map(_.asInstanceOf[PlayerUnit].ap).getOrElse(0),
+      won,
+      lost
     )
   }
 
