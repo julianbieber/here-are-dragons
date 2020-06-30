@@ -1,11 +1,15 @@
 package dao
 
+import java.sql.Timestamp
+
 import javax.inject.Inject
 import org.joda.time.DateTime
 import scalikejdbc.{ConnectionPool, _}
 import util.TimeUtil
 
 class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
+
+  private val oneMinute = 60 * 1000
 
   def startActivity(user: Int, activityType: String): Unit = {
     withSession(pool) { implicit session: DBSession =>
@@ -14,6 +18,43 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       }.first().apply().getOrElse(throw new RuntimeException(s"Unsupported activityType: $activityType"))
       val time: DateTime = TimeUtil.now
       sql"INSERT INTO public.activity (userId, timestamp, activity_id, start, stop) VALUES ($user, $time, $activityId, true, false)".executeUpdate().apply()
+    }
+  }
+
+  def combineActivities(): Unit = {
+    withSession(pool) { implicit session: DBSession =>
+
+      val mostRecentStopsPerUser = sql"select userid, timestamp, activity_id from public.activity where processed = false and stop = true;".map { row =>
+        val user = row.int("userid")
+        val timestamp = row.timestamp(2)
+        val activity = row.int("activity_id")
+        (user, timestamp, activity)
+      }.list().apply().groupBy(v => v._1 -> v._3).mapValues(_.map(v => v._2).sortBy(_.getTime)).toSeq
+
+      val mostRecentStartsPerUser = sql"select userid, timestamp, activity_id from public.activity where processed = false and start = true".map { row =>
+        val user = row.int("userid")
+        val timestamp = row.timestamp(2)
+        val activity = row.int("activity_id")
+        (user, timestamp, activity)
+      }.list().apply().groupBy(v => v._1 -> v._3).mapValues(_.map(v => v._2).sortBy(_.getTime))
+
+      val toDelete = mostRecentStopsPerUser.flatMap { case ((user, activity), stops) =>
+        val starts = mostRecentStartsPerUser(user -> activity)
+        val history: Seq[(Timestamp, Boolean)] = (stops.map(_ -> false) ++ starts.map(_ -> true)).sortBy(_._1.getTime)
+        // Under the assumption that the oldest unprocessed activity for a user must be a start event
+        history.takeRight(history.size - 1).grouped(2).collect { case Seq((t1, false), (t2, true)) =>
+          if (t2.getTime - t1.getTime < oneMinute) {
+            Seq(user -> t1, user -> t2)
+          } else {
+            Seq()
+          }
+        }.flatten
+      }
+
+
+      sql"delete from public.activity where userid = {u} and timestamp = {t}".batchByName(toDelete.map { case (user, t) =>
+        Seq("u" -> user, "t" -> t)
+      }: _*).apply()
     }
   }
 
@@ -55,9 +96,9 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def setProcessed(activities: Seq[DAOActivity]): Unit = {
     withSession(pool) { implicit session: DBSession =>
-      sql"UPDATE public.activity SET processed = true where userid = {u} and timestamp = {t}".batchByName(activities.map{ activity =>
+      sql"UPDATE public.activity SET processed = true where userid = {u} and timestamp = {t}".batchByName(activities.map { activity =>
         Seq("u" -> activity.user, "t" -> activity.timestamp)
-      }:_*).apply()
+      }: _*).apply()
     }
   }
 }

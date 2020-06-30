@@ -47,4 +47,28 @@ class ActivityDAOSpec extends AnyFlatSpec with Matchers {
 
   }
 
+  it must "combine activities when the start and end are close together" in withPool { pool =>
+    val userDAO = new UserDAO(pool)
+    val activityDAO = new ActivityDAO(pool)
+
+    val userId = userDAO.createUser(oneRandom(genString), oneRandom(genString)).get
+
+    activityDAO.startActivity(userId, "RUNNING")
+    activityDAO.stopActivity(userId, "RUNNING")
+
+    activityDAO.startActivity(userId, "RUNNING")
+    activityDAO.stopActivity(userId, "RUNNING")
+
+    activityDAO.startActivity(userId, "CYCLING")
+    activityDAO.stopActivity(userId, "CYCLING")
+    val activitiesBefore = activityDAO.getNotProcessedActivities()
+    activitiesBefore must have size 6
+
+    activityDAO.combineActivities()
+
+    val activitiesAfter = activityDAO.getNotProcessedActivities()
+    activitiesAfter must have size 4
+
+  }
+
 }

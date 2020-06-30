@@ -3,7 +3,7 @@ package background
 import dao.{ActivityDAO, ExperienceDAO}
 import javax.inject.Inject
 
-class Experience @Inject() (activityDAO: ActivityDAO, experienceDAO: ExperienceDAO) extends Background {
+class Activity @Inject() (activityDAO: ActivityDAO, experienceDAO: ExperienceDAO) extends Background {
   private def calculateMissingExperiences(): Seq[ExperienceValue] = {
     val activities = activityDAO.getNotProcessedActivities()
     val experiencesAndProcessedActivities = activities.groupBy(_.user).flatMap{ case (user, userActivities) =>
