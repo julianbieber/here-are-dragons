@@ -5,7 +5,7 @@ import com.twitter.finatra.http.Controller
 import javax.inject.Inject
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
-import dao.{CharacterDAO, SkillbarDAO, UserDAO}
+import dao.{CharacterDAO, SkillDAO, SkillbarDAO, UserDAO}
 import model.Account.{CreateResponse, LoginRequest, LoginResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,8 +32,9 @@ class UserController @Inject()(userDao: UserDAO, executionContext: ExecutionCont
         .map { userId =>
           characterDAO.createCharacter(userId)
           // TMP
-          skillbarDAO.unlock(userId, 0)
-          skillbarDAO.unlock(userId, 1)
+          SkillDAO.skills.foreach(s =>
+            skillbarDAO.unlock(userId, s.id)
+          )
           //
           writeToString(CreateResponse(userId))
         }

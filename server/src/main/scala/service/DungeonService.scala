@@ -1,6 +1,6 @@
 package service
 
-import dao.{Dungeon, DungeonDAO, NPC, PlayerUnit}
+import dao.DungeonDAO
 import javax.inject.Inject
 import model.Dungeon.{Skill, SkillUsage}
 

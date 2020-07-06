@@ -1,12 +1,11 @@
 package controllers
 
-import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.twitter.finagle.http.Request
-import dao.{CharacterDAO, Dungeon, DungeonDAO, DungeonUnit, Empty, GroupDAO, NPC, PlayerUnit, QuestDAO, UserDAO}
+import dao.{CharacterDAO, DungeonDAO, GroupDAO, QuestDAO, SkillDAO, UserDAO}
 import javax.inject.Inject
-import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, Skill, SkillUsage, Turn, UnitResponse}
-import service.DungeonService
+import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, SkillUsage, UnitResponse}
+import service.{Dungeon, DungeonService, DungeonUnit, Empty, NPC, PlayerUnit}
 
 import scala.concurrent.ExecutionContext
 
@@ -41,11 +40,11 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
       dungeonId = id,
       units = dungeon.units.map(unitToResponse),
       myTurn =  dungeon.units.zipWithIndex.find {
-        case (PlayerUnit(unitId, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
+        case (PlayerUnit(unitId, _, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
         case _ => false
       }.map(_._2).contains(dungeon.currentTurn),
       ap = dungeon.units.find{
-        case PlayerUnit(_, u, _, _, _, _) => u == userId
+        case PlayerUnit(_, u, _, _, _, _, _) => u == userId
         case _ => false
       }.map(_.asInstanceOf[PlayerUnit].ap).getOrElse(0),
       won,
@@ -55,9 +54,9 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
 
   private def unitToResponse(unit: DungeonUnit): UnitResponse = {
     unit match {
-      case PlayerUnit(_, userId, health, _, _, _) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None)
-      case NPC(_, prefabId, health, _, _, _, _) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId))
-      case Empty(_, prefabId) =>UnitResponse(tyype = "empty", userId = None, health = None, prefabId = Option(prefabId))
+      case PlayerUnit(_, userId, health, _, _, _, status) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None, status = status)
+      case NPC(_, prefabId, health, _, _, _, _, status) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId), status = status)
+      case Empty(_, prefabId, status) =>UnitResponse(tyype = "empty", userId = None, health = None, prefabId = Option(prefabId), status = status)
     }
   }
 
@@ -79,10 +78,11 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
   post("/dungeon/:dungeonId/action") { request: Request =>
     withUserAutoOption(request) { userId =>
       val dungeonId = request.params("dungeonId").toInt
-      val skillUsage = readFromString[SkillUsage](request.getContentString())
+      val attemptedSkillUsage = readFromString[SkillUsage](request.getContentString())
+      val skillUsage = attemptedSkillUsage.copy(skill = SkillDAO.skills(attemptedSkillUsage.skill.id))
+      println(skillUsage)
       DungeonDAO.getDungeon(dungeonId).flatMap{ dungeon =>
         val unitId = dungeon.findUser(userId)._1.id
-        println(s"user $userId has unit: $unitId")
         service.applyAction(unitId, skillUsage, dungeon).map{ updated =>
           DungeonDAO.updateDungeon(dungeonId, updated)
         }

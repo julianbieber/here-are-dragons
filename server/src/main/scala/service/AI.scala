@@ -1,6 +1,5 @@
 package service
 
-import dao.{Dungeon, NPC}
 import javax.inject.Inject
 import model.Dungeon.SkillUsage
 

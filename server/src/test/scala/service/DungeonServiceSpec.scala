@@ -1,6 +1,6 @@
 package service
 
-import dao.{Dungeon, Empty, NPC, PlayerUnit}
+import dao.{Empty, NPC, PlayerUnit}
 import model.Dungeon.{Skill, SkillUsage, Turn}
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers

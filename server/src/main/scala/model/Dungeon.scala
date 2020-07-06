@@ -1,5 +1,7 @@
 package model
 
+import service.Status
+
 object Dungeon {
 
   case class AvailableDungeons(ids: Seq[Int])
@@ -19,7 +21,8 @@ object Dungeon {
     tyype: String,
     userId: Option[Int],
     health: Option[Int],
-    prefabId: Option[Int]
+    prefabId: Option[Int],
+    status: Status
   )
 
   case class Turn(
@@ -39,7 +42,7 @@ object Dungeon {
     effectPattern: String,
     apCost: Int,
     damage: Int,
-    burnDuration: Int,
+    status: Status,
     moves: Boolean,
     movementOffset: Int
   )

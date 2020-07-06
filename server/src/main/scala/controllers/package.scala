@@ -7,6 +7,7 @@ import model.Dungeon._
 import model.Group.{Group, JoinRequest}
 import model.Position.PositionRequest
 import model.Quest.QuestsResponse
+import service.Status
 
 package object controllers {
   implicit val loginCodec = JsonCodecMaker.make[LoginRequest]
@@ -29,4 +30,5 @@ package object controllers {
   implicit val lOQ = JsonCodecMaker.make[List[dao.DAOQuest]]
   implicit val QuestsResponseCodec = JsonCodecMaker.make[QuestsResponse]
   implicit val positionRequestCodec = JsonCodecMaker.make[PositionRequest]
+  implicit val statusCodec = JsonCodecMaker.make[Status]
 }
