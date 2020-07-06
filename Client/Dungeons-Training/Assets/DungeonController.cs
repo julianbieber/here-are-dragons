@@ -238,19 +238,23 @@ public interface Unit {
 public class PlayerUnit : Unit {
     public int userId;
     public int health;
+    public Status status;
 }
 
 public class NPCUnit : Unit {
     public int prefabId;
     public int health;
+    public Status status;
 }
 
 public class EmptyUnit : Unit {
     public int prefabId;
+    public Status status;
 }
 
 [Serializable]
 public class SkillUsage {
     public int targetPosition;
     public Skill skill;
+    public Status status;
 }

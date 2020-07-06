@@ -73,17 +73,20 @@ public static class DungeonAPI
     static Unit convertUnitResponse(UnitResponse response) {
         if (response.tyype == "empty") {
             return new EmptyUnit {
-                prefabId = response.prefabId
+                prefabId = response.prefabId,
+                status = response.status
             };
         } else if (response.tyype == "npc") {
             return new NPCUnit {
                 prefabId = response.prefabId,
-                health = response.health
+                health = response.health,
+                status = response.status
             };
         } else if (response.tyype == "player") {
             return new PlayerUnit {
                 userId = response.userId,
-                health = response.health
+                health = response.health,
+                status = response.status
             };
         } else {
             throw new System.ArgumentException("Unrecognized unit type", response.tyype);
@@ -117,4 +120,14 @@ public class UnitResponse {
     public int userId;
     public int health;
     public int prefabId;
+    public Status status;
+}
+
+[Serializable]
+public class Status {
+    public int burning;
+    public int wet;
+    public int stunned;
+    public int shocked;
+    public int knockedDown;
 }
