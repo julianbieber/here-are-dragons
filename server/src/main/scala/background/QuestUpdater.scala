@@ -14,8 +14,8 @@ class QuestUpdater @Inject() (val poIDAO: dao.PoIDAO, val questdao : dao.QuestDA
   private var iter :Int = 0;
 
   def storeNode(node:Node): Unit={
-    questdao.createQuestFromAPI(node.id,node.lon,node.lat)
-    poIDAO.createPoIFromAPI(node.id.toLong,node.lon,node.lat,node.priority,node.tags.flatMap(_.get("name")))
+    //questdao.createQuestFromAPI(node.id,node.lon,node.lat)
+    poIDAO.createPoI(node.id.toLong,node.lon,node.lat,node.priority,node.tags.flatMap(_.get("name")))
   }
 
   def nullenAuffuellen(s: String):String = {
