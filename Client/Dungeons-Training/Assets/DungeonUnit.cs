@@ -6,6 +6,9 @@ using UnityEngine.EventSystems;
 public class DungeonUnit : MonoBehaviour
 {
     public GameObject onFire;
+    public GameObject wet;
+    public GameObject shock;
+    public GameObject stun;
     public GameObject targettable;
     public List<GameObject> empties;
     public List<GameObject> npcs;
@@ -21,39 +24,38 @@ public class DungeonUnit : MonoBehaviour
     private Option<Skill> whenSkillUse = Option<Skill>.None;
     void Start()
     {
-        
-        setNotOnFire();
-        setNotTargettable();
+        //reset();
+        Debug.Log("---");
     }
 
     public void make(Unit unit) {
+        reset();
+        Debug.Log("display");
         if (unit is PlayerUnit) {
             var p = unit as PlayerUnit;
-            if (Self == null || !(Self is PlayerUnit)) {
-                reset();
-                player.SetActive(true);
-            }
+            player.SetActive(true);
+            displayStatus(p.status);
+            hpText.text = p.health.ToString();
         } 
         if (unit is NPCUnit) {
             var n = unit as NPCUnit;
-            if (Self == null || !(Self is NPCUnit) || (Self as NPCUnit).prefabId != n.prefabId) {
-                reset();
-                npcs[n.prefabId].SetActive(true);
-            }
+            npcs[n.prefabId].SetActive(true);
+            hpText.text = n.health.ToString();
+            displayStatus(n.status);
         }
         if (unit is EmptyUnit) {
             var e = unit as EmptyUnit;
-            if (Self == null || !(Self is EmptyUnit) || (Self as EmptyUnit).prefabId != e.prefabId) {
-                reset();
-                empties[e.prefabId].SetActive(true);
-            }
+            empties[e.prefabId].SetActive(true);
+            displayStatus(e.status);
         }
-        setNotOnFire(); // Todo use fire from response
         Self = unit;
     }
 
     void reset() {
-        setNotOnFire();
+        onFire.SetActive(false);
+        wet.SetActive(false);
+        shock.SetActive(false);
+        stun.SetActive(false);
         setNotTargettable();
         player.SetActive(false);
         hpText.text = "";
@@ -63,18 +65,40 @@ public class DungeonUnit : MonoBehaviour
         foreach(var o in empties) {
             o.SetActive(false);
         }
+        Debug.Log("reset");
+    }
 
+    void displayStatus(Status status) {
+        if (status.burning > 0 ){
+            onFire.SetActive(true);
+        }
+        if (status.wet > 0) {
+            wet.SetActive(true);
+        }
+        if (status.shocked > 0) {
+            shock.SetActive(true);
+        }
+        if (status.stunned > 0) {
+            stun.SetActive(true);
+        } 
+        if (status.knockedDown > 0) {
+            transform.eulerAngles = new Vector3(
+                0,
+                0,
+                90
+            ); 
+        } else {
+            transform.eulerAngles = new Vector3(
+                0,
+                0,
+                0
+            );
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Self is NPCUnit) {
-            hpText.text = (Self as NPCUnit).health.ToString();
-        }
-        if (Self is PlayerUnit) {
-            hpText.text = (Self as PlayerUnit).health.ToString();
-        }
 
     }
     public void setOnFire() {
@@ -86,7 +110,7 @@ public class DungeonUnit : MonoBehaviour
     }
     
     public void setNotOnFire() {
-        onFire.SetActive(false);
+        
     }
 
     public void setNotTargettable() {

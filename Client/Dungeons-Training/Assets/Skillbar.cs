@@ -80,9 +80,9 @@ public class Skillbar : MonoBehaviour
         tooltipText.Append(skill.apCost);
         tooltipText.Append("\n");
 
-        if (skill.burnDuration > 0) {
+        if (skill.status.burning > 0) {
             tooltipText.Append("burning: ");
-            tooltipText.Append(skill.burnDuration);
+            tooltipText.Append(skill.status.burning);
             tooltipText.Append("\n");
         }
 
@@ -107,7 +107,7 @@ public class Skill {
 
     public int damage;
 
-    public int burnDuration;
+    public Status status;
 
     public bool moves;
     public int movementOffset;
