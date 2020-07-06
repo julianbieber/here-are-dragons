@@ -16,7 +16,6 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
   private implicit val ec: ExecutionContext = executionContext
 
   get("/getListOfQuests") { request: Request =>
-    println(request.getParam("distance"))
     val y = request.getParam("distance").toFloat
     withUser(request) { userId =>
       var i = positionDAO.getPosition(userId).get
@@ -29,7 +28,6 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
     }
   }
   post("/postQuestErledigt") { request: Request =>
-    println(request.getParam("questID"))
     val y = request.getParam("questID").toInt
     withUser(request) { userId =>
       questDAO.setQuestToErledigt(y)

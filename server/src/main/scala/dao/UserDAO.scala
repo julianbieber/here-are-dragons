@@ -70,8 +70,6 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   }
 
   def isLoggedIn(userId: Int, token: String): Boolean = {
-    println(userId,token)
-    println(UserDAO.loggedInUsers)
     UserDAO.loggedInUsers.get(userId).contains(token)
   }
 

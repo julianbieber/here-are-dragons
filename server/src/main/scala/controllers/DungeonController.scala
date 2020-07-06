@@ -1,12 +1,11 @@
 package controllers
 
-import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.twitter.finagle.http.Request
-import dao.{CharacterDAO, Dungeon, DungeonDAO, DungeonUnit, Empty, GroupDAO, NPC, PlayerUnit, QuestDAO, UserDAO}
+import dao.{CharacterDAO, DungeonDAO, GroupDAO, QuestDAO, SkillDAO, UserDAO}
 import javax.inject.Inject
-import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, Skill, SkillUsage, Turn, UnitResponse}
-import service.DungeonService
+import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, SkillUsage, UnitResponse}
+import service.{Dungeon, DungeonService, DungeonUnit, Empty, NPC, PlayerUnit}
 
 import scala.concurrent.ExecutionContext
 
@@ -79,10 +78,11 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
   post("/dungeon/:dungeonId/action") { request: Request =>
     withUserAutoOption(request) { userId =>
       val dungeonId = request.params("dungeonId").toInt
-      val skillUsage = readFromString[SkillUsage](request.getContentString())
+      val attemptedSkillUsage = readFromString[SkillUsage](request.getContentString())
+      val skillUsage = attemptedSkillUsage.copy(skill = SkillDAO.skills(attemptedSkillUsage.skill.id))
+      println(skillUsage)
       DungeonDAO.getDungeon(dungeonId).flatMap{ dungeon =>
         val unitId = dungeon.findUser(userId)._1.id
-        println(s"user $userId has unit: $unitId")
         service.applyAction(unitId, skillUsage, dungeon).map{ updated =>
           DungeonDAO.updateDungeon(dungeonId, updated)
         }

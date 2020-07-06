@@ -1,5 +1,5 @@
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
-import dao.{DAOPosition, Status}
+import dao.DAOPosition
 import model.Account.{CreateResponse, LoginRequest, LoginResponse}
 import model.Activity.ActivityStart
 import model.Character.Character
@@ -7,6 +7,7 @@ import model.Dungeon._
 import model.Group.{Group, JoinRequest}
 import model.Position.PositionRequest
 import model.Quest.QuestsResponse
+import service.Status
 
 package object controllers {
   implicit val loginCodec = JsonCodecMaker.make[LoginRequest]

@@ -1,6 +1,6 @@
 package model
 
-import dao.Status
+import service.Status
 
 object Dungeon {
 
@@ -42,7 +42,7 @@ object Dungeon {
     effectPattern: String,
     apCost: Int,
     damage: Int,
-    burnDuration: Int,
+    status: Status,
     moves: Boolean,
     movementOffset: Int
   )

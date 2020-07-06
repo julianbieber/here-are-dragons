@@ -1,6 +1,6 @@
 package service
 
-import dao.{Dungeon, NPC, PlayerUnit, SkillDAO, Status}
+import dao.{SkillDAO}
 
 import scala.util.Random
 
@@ -20,7 +20,7 @@ case class DungeonGenerator(numberOfEnemies: Int, healthMultiplier: () => Float)
       NPC(players.size + i, maxNPCPrefab, (baseHealth * healthMultiplier()).toInt, Seq(SkillDAO.skills(0)), 5, 10, 2, Status.empty)
     }
     val units = players ++ enemies
-    Dungeon(
+    service.Dungeon(
       userId = Option(userId),
       groupId = None,
       units = units.toBuffer,

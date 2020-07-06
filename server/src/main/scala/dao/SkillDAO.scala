@@ -1,6 +1,7 @@
 package dao
 
 import model.Dungeon.Skill
+import service.Status
 
 object SkillDAO {
   val skills = IndexedSeq(
@@ -17,6 +18,27 @@ object SkillDAO {
       .withTargetPattern("101")
       .withCost(1)
       .movesTo(0)
+      .build(),
+    SkillBuilder.create("Shock")
+      .withTargetPattern("101")
+      .withCost(1)
+      .withShock(2)
+      .build(),
+    SkillBuilder.create("Stun")
+      .withTargetPattern("101")
+      .withCost(1)
+      .withStun(1)
+      .build(),
+    SkillBuilder.create("Rain")
+      .withTargetPattern("1")
+      .withEffectPattern("111111111")
+      .withWet(5)
+      .withCost(2)
+      .build(),
+    SkillBuilder.create("KD")
+      .withTargetPattern("101")
+      .withKD(1)
+      .withCost(2)
       .build()
   )
 
@@ -41,6 +63,10 @@ case class SkillBuilder(
   apCost: Int = 1,
   damage: Int = 0,
   burnDuration: Int = 0,
+  shockDuration: Int = 0,
+  wetDuration: Int = 0,
+  stunDuration: Int = 0,
+  knockDownDuration: Int = 0,
   moves: Boolean = false,
   movementOffset: Int = 0
 ) {
@@ -49,6 +75,10 @@ case class SkillBuilder(
   def withCost(c: Int): SkillBuilder = copy(apCost = c)
   def withDamage(d: Int): SkillBuilder = copy(damage = d)
   def withBurn(d: Int): SkillBuilder = copy(burnDuration = d)
+  def withShock(d: Int): SkillBuilder = copy(shockDuration = d)
+  def withWet(d: Int): SkillBuilder = copy(wetDuration = d)
+  def withStun(d: Int): SkillBuilder = copy(stunDuration = d)
+  def withKD(d: Int): SkillBuilder = copy(knockDownDuration = d)
   def movesTo(offset: Int): SkillBuilder = copy(moves = true, movementOffset = offset)
 
   def build(): Skill = {
@@ -59,7 +89,13 @@ case class SkillBuilder(
       effectPattern,
       apCost,
       damage,
-      burnDuration,
+      Status(
+        burning = burnDuration,
+        wet = wetDuration,
+        stunned = stunDuration,
+        shocked = shockDuration,
+        knockedDown = knockDownDuration
+      ),
       moves,
       movementOffset
     )
