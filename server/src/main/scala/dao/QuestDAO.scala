@@ -8,38 +8,58 @@ import scala.collection.immutable.List
 
 class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
-  def createQuestFromAPI(questID: String, longitude: Float, latitude: Float): Option[Long] = {
+
+  def fillDatabaseWithQuestsFromPoIs(listOfPoIs:List[DAOPoI]): Unit = {
     withSession(pool) { implicit session =>
-      val questNumber:Long = questID.toLong;
-      sql"INSERT INTO public.quest (id, longitude, latitude,erledigt) VALUES ($questNumber,$longitude, $latitude, false) ON CONFLICT (id) DO NOTHING".executeUpdate().apply()
-      sql"SELECT id FROM public.quest WHERE longitude = $longitude and latitude = $latitude".map { col =>
-        col.long("id")
-      }.first().apply()
-      Some(questNumber)
+      for(poi <- listOfPoIs){
+        sql"INSERT INTO public.quest (id) VALUES (${poi.poiID}) ON CONFLICT (id) DO NOTHING".executeUpdate().apply()
+      }
     }
   }
 
-/*
-  def createQuest(longitude: Float, latitude: Float): Option[Int] = {
+  def makeQuestActive(questID: Long,userId :Int) : Unit = {
     withSession(pool) { implicit session =>
-      sql"INSERT INTO public.quest (longitude, latitude,erledigt) VALUES ($longitude, $latitude, false)".executeUpdate().apply()
-      sql"SELECT id FROM public.quest WHERE longitude = $longitude and latitude = $latitude".map { col =>
-        col.int("id")
-      }.first().apply(SkillbarDAO
-    }
-  }*/
-
-  def setQuestToErledigt(questID: Long): Unit = {
-    withSession(pool) { implicit session =>
-      sql"UPDATE public.quest SET erledigt = true WHERE id =$questID ".executeUpdate().apply()
+      sql"UPDATE public.quest SET active_user_ids = active_user_ids + $userId WHERE id = $questID AND idx(active_user_ids, $userId) = 0".executeUpdate().apply()
+      sql"UPDATE public.quest SET activatable_user_ids = activatable_user_ids - $userId WHERE id = $questID".executeUpdate().apply()
     }
   }
 
-  def getStatusErledigt(questID: Long): Option[Boolean] = {
+  def makeQuestUnActive(questID: Long,userId :Int) : Unit = {
     withSession(pool) { implicit session =>
-      sql"SELECT erledigt FROM public.quest WHERE id = $questID".map { col =>
-        col.boolean("erledigt")
+      sql"UPDATE public.quest SET active_user_ids = active_user_ids - $userId WHERE id = $questID ".executeUpdate().apply()
+      sql"UPDATE public.quest SET activatable_user_ids = activatable_user_ids + $userId WHERE id = $questID AND idx(activatable_user_ids, $userId) = 0".executeUpdate().apply()
+    }
+  }
+
+  def getActiveUsersForQuest(questID: Long) : Option[Array[Int]] = {
+    withSession(pool) { implicit session =>
+      sql"""SELECT active_user_ids FROM public.quest WHERE id = $questID""".map {row =>
+        row.array("active_user_ids").getArray().asInstanceOf[Array[Integer]].map(_.intValue())
       }.first().apply()
+    }
+  }
+
+  def getActivatableUserForQuest(questID: Long) : Option[Array[Int]] = {
+    withSession(pool) { implicit session =>
+      sql""" SELECT activatable_user_ids FROM public.quest WHERE id = $questID""".map { row =>
+        row.array("activatable_user_ids").getArray().asInstanceOf[Array[Integer]].map(_.intValue())
+      }.first().apply()
+    }
+  }
+
+  def getQuestsFromDatabase(): List[DAOQuest] = {
+    withSession(pool) { implicit session =>
+      val daoquests: List[DAOQuest] =
+        sql"""SELECT id FROM public.quest""".map(rowQuest =>
+          sql"""SELECT longitude, latitude FROM public.poi WHERE id = ${rowQuest.long("id")}""".map(rowPoi =>
+            DAOQuest(
+              rowQuest.long("id"),
+              rowPoi.float("longitude"),
+              rowPoi.float("latitude"),
+            )
+          ).list.apply()
+        ).list.apply().flatten
+      daoquests
     }
   }
 
@@ -59,7 +79,9 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def toMeter(distanceFromPosition: Float): Float = distanceFromPosition / 11100f
 
-  def getListOfQuestsNerby(longitude: Float, latitude: Float, distanceFromPosition: Float): List[DAOQuest] = {
+
+
+  def getListOfActivataibleQuestsNerby(longitude: Float, latitude: Float, distanceFromPosition: Float,userId:Int): List[DAOQuest] = {
     //distanceFromPosition wird in Metern übergeben und danach mit der Methode toDegree in GeoCoordinaten
     //umgerechnet
     val distanceFromPositionInDegree = toMeter(distanceFromPosition)
@@ -69,15 +91,18 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     val latitudemax = latitude + distanceFromPositionInDegree;
 
     withReadOnlySession(pool) { implicit session =>
-      val photoNodes: List[DAOQuest] =
-        sql"""SELECT id,longitude,latitude,erledigt FROM public.quest WHERE longitude BETWEEN $longitudemin AND $longitudemax and latitude BETWEEN $latitudemin AND $latitudemax AND erledigt = false""".map(rs =>
-          DAOQuest(
-            rs.int("id"),
-            rs.float("longitude"),
-            rs.float("latitude"),
-          )
-        ).list.apply()
-      photoNodes
+      val daoquests: List[DAOQuest] =
+        sql"""SELECT id FROM public.quest WHERE idx(activatable_user_ids, $userId) <> 0 """.map { rowQuest =>
+          println(rowQuest.long("id"))
+          sql"""SELECT longitude, latitude FROM public.poi WHERE (longitude BETWEEN $longitudemin AND $longitudemax) and (latitude BETWEEN $latitudemin AND $latitudemax) AND (id = ${rowQuest.long("id")})""".map(rowPoi =>
+            DAOQuest(
+              rowQuest.long("id"),
+              rowPoi.float("longitude"),
+              rowPoi.float("latitude"),
+            )
+          ).list().apply()
+        }.list().apply().flatten
+      daoquests
     }
   }
 
