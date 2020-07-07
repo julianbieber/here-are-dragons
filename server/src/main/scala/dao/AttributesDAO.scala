@@ -6,23 +6,17 @@ import scalikejdbc._
 
 class AttributesDAO @Inject() (val pool: ConnectionPool) extends SQLUtil {
 
-  def storeAttributes(userId: Int, selected: Attributes, unlocked: Attributes, max: Int): Option[AttributesTable] = {
-    val cappedMax = math.min(AttributesDAO.globalMax, max)
-    if (selected.check(cappedMax) && selected.check(unlocked)) {
-
-      withSession(pool) { implicit session =>
-        sql"insert into public.attributes (user_id, selected_strength, selected_constitution, selected_spell_power, selected_will_power, selected_dexterity, selected_evasion, unlocked_strength, unlocked_constitution, unlocked_spell_power, unlocked_will_power, unlocked_dexterity, unlocked_evasion, max_attributes) VALUES (${userId}, ${selected.strength}, ${selected.constitution}, ${selected.spellPower}, ${selected.willpower}, ${selected.dexterity}, ${selected.evasion}, ${unlocked.strength}, ${unlocked.constitution}, ${unlocked.spellPower}, ${unlocked.willpower}, ${unlocked.dexterity}, ${unlocked.evasion}, ${cappedMax}) ON CONFLICT (user_id) DO UPDATE SET selected_strength = excluded.selected_strength, selected_constitution= excluded.selected_constitution, selected_spell_power= excluded.selected_spell_power, selected_will_power= excluded.selected_will_power, selected_dexterity= excluded.selected_dexterity, selected_evasion= excluded.selected_evasion, unlocked_strength= excluded.unlocked_strength, unlocked_constitution= excluded.unlocked_constitution, unlocked_spell_power= excluded.unlocked_spell_power, unlocked_will_power= excluded.unlocked_will_power, unlocked_dexterity= excluded.unlocked_dexterity, unlocked_evasion= excluded.unlocked_evasion, max_attributes= excluded.max_attributes".executeUpdate().apply()
-      }
-
-      Option(AttributesTable(userId, selected, unlocked, cappedMax))
-    } else {
-      None
+  def storeAttributes(userId: Int, selected: Attributes, unlocked: Attributes, level: Int): AttributesTable = {
+    withSession(pool) { implicit session =>
+      sql"insert into public.attributes (user_id, selected_strength, selected_constitution, selected_spell_power, selected_will_power, selected_dexterity, selected_evasion, unlocked_strength, unlocked_constitution, unlocked_spell_power, unlocked_will_power, unlocked_dexterity, unlocked_evasion, level) VALUES (${userId}, ${selected.strength}, ${selected.constitution}, ${selected.spellPower}, ${selected.willPower}, ${selected.dexterity}, ${selected.evasion}, ${unlocked.strength}, ${unlocked.constitution}, ${unlocked.spellPower}, ${unlocked.willPower}, ${unlocked.dexterity}, ${unlocked.evasion}, ${level}) ON CONFLICT (user_id) DO UPDATE SET selected_strength = excluded.selected_strength, selected_constitution= excluded.selected_constitution, selected_spell_power= excluded.selected_spell_power, selected_will_power= excluded.selected_will_power, selected_dexterity= excluded.selected_dexterity, selected_evasion= excluded.selected_evasion, unlocked_strength= excluded.unlocked_strength, unlocked_constitution= excluded.unlocked_constitution, unlocked_spell_power= excluded.unlocked_spell_power, unlocked_will_power= excluded.unlocked_will_power, unlocked_dexterity= excluded.unlocked_dexterity, unlocked_evasion= excluded.unlocked_evasion, level = excluded.level".executeUpdate().apply()
     }
+
+    AttributesTable(userId, selected, unlocked, level)
   }
 
-  def readAttributes(userId: Int): Option[AttributesTable] = {
+  def readAttributes(userId: Int): AttributesTable = {
     withReadOnlySession(pool) { implicit session =>
-      sql"select selected_strength, selected_constitution, selected_spell_power, selected_will_power, selected_dexterity, selected_evasion, unlocked_strength, unlocked_constitution, unlocked_spell_power, unlocked_will_power, unlocked_dexterity, unlocked_evasion, max_attributes, max_attributes from public.attributes where user_id = $userId".map{ attributesRow =>
+      sql"select selected_strength, selected_constitution, selected_spell_power, selected_will_power, selected_dexterity, selected_evasion, unlocked_strength, unlocked_constitution, unlocked_spell_power, unlocked_will_power, unlocked_dexterity, unlocked_evasion, level from public.attributes where user_id = $userId".map{ attributesRow =>
         val selected = Attributes(
           attributesRow.int("selected_strength"),
           attributesRow.int("selected_constitution"),
@@ -44,9 +38,9 @@ class AttributesDAO @Inject() (val pool: ConnectionPool) extends SQLUtil {
           userId,
           selected,
           unlocked,
-          attributesRow.int("max_attributes")
+          attributesRow.int("level")
         )
-      }.first().apply()
+      }.first().apply().getOrElse(AttributesTable(userId, Attributes.empty, Attributes.empty, 0))
     }
   }
 
@@ -57,4 +51,4 @@ object AttributesDAO {
   private[dao] val globalMax = 100
 }
 
-case class AttributesTable(userId: Int, selected: Attributes, unlocked: Attributes, max: Int)
+case class AttributesTable(userId: Int, selected: Attributes, unlocked: Attributes, level: Int)

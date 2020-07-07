@@ -28,7 +28,7 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
       val openRequest = readFromString[OpenRequest](request.getContentString())
       //questDAO.getQuests(openRequest.questId).map { quest =>
         // TODO if user has completed quest
-      val (id, dungeon) = service.newSPDungeon(userId, openRequest.questId, attributesDAO.readAttributes(userId).getOrElse(throw new RuntimeException("Can not open dungeon since the user does not have attributes")).selected)
+      val (id, dungeon) = service.newSPDungeon(userId, openRequest.questId, attributesDAO.readAttributes(userId).selected)
       dungeonToResponse(id, userId, dungeon)
       //}
     }

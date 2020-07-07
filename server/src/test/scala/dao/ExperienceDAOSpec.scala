@@ -13,10 +13,10 @@ class ExperienceDAOSpec extends AnyFlatSpec with Matchers {
     val userId = userDAO.createUser("user", "pass").get
 
     experienceDAO.addExperiences(Seq(ExperienceValue(userId, 1, 100)))
-    experienceDAO.getExperiences(userId).head.amount must be(100)
+    experienceDAO.getExperiences(userId).ranger must be(100)
 
     experienceDAO.addExperiences(Seq(ExperienceValue(userId, 1, 150)))
-    experienceDAO.getExperiences(userId).head.amount must be(250)
+    experienceDAO.getExperiences(userId).ranger must be(250)
   }
 
 }

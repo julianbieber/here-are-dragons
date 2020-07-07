@@ -12,5 +12,5 @@ create table public.attributes (
     unlocked_will_power int default 0,
     unlocked_dexterity int default 0,
     unlocked_evasion int default 0,
-    max_attributes int default 0
+    level int default 0
 );
