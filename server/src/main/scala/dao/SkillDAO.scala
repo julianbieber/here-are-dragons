@@ -12,6 +12,7 @@ object SkillDAO {
       .withDamage(20)
       .withBurn(2)
       .withCost(2)
+      .withSpellPower(1f)
       .build(),
     SkillBuilder
       .create("Walk")
@@ -23,6 +24,7 @@ object SkillDAO {
       .withTargetPattern("101")
       .withCost(1)
       .withShock(2)
+      .withSpellPower(0.1f)
       .build(),
     SkillBuilder.create("Stun")
       .withTargetPattern("101")
@@ -39,6 +41,7 @@ object SkillDAO {
       .withTargetPattern("101")
       .withKD(1)
       .withCost(2)
+      .withStrength(0.5f)
       .build()
   )
 
@@ -62,6 +65,9 @@ case class SkillBuilder(
   effectPattern: String = "1",
   apCost: Int = 1,
   damage: Int = 0,
+  strengthScaling: Float = 0,
+  spellPowerScaling: Float = 0,
+  dexterityScaling: Float = 0,
   burnDuration: Int = 0,
   shockDuration: Int = 0,
   wetDuration: Int = 0,
@@ -74,6 +80,9 @@ case class SkillBuilder(
   def withEffectPattern(p: String): SkillBuilder = copy(effectPattern = p)
   def withCost(c: Int): SkillBuilder = copy(apCost = c)
   def withDamage(d: Int): SkillBuilder = copy(damage = d)
+  def withStrength(d: Float): SkillBuilder = copy(strengthScaling = d)
+  def withSpellPower(d: Float): SkillBuilder = copy(spellPowerScaling = d)
+  def withDexterity(d: Float): SkillBuilder = copy(dexterityScaling = d)
   def withBurn(d: Int): SkillBuilder = copy(burnDuration = d)
   def withShock(d: Int): SkillBuilder = copy(shockDuration = d)
   def withWet(d: Int): SkillBuilder = copy(wetDuration = d)
@@ -89,6 +98,9 @@ case class SkillBuilder(
       effectPattern,
       apCost,
       damage,
+      strengthScaling,
+      spellPowerScaling,
+      dexterityScaling,
       Status(
         burning = burnDuration,
         wet = wetDuration,

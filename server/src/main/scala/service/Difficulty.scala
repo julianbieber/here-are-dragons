@@ -1,6 +1,7 @@
 package service
 
-import dao.{SkillDAO}
+import dao.SkillDAO
+import model.Character.Attributes
 
 import scala.util.Random
 
@@ -17,7 +18,7 @@ case class DungeonGenerator(numberOfEnemies: Int, healthMultiplier: () => Float)
 
   def generate(userId: Int, players: Seq[PlayerUnit]): Dungeon = {
     val enemies = (0 to numberOfEnemies).map{ i =>
-      NPC(players.size + i, maxNPCPrefab, (baseHealth * healthMultiplier()).toInt, Seq(SkillDAO.skills(0)), 5, 10, 2, Status.empty)
+      NPC(players.size + i, maxNPCPrefab, (baseHealth * healthMultiplier()).toInt, Seq(SkillDAO.skills(0)), 5, 10, 2, Status.empty, Attributes.empty)
     }
     val units = players ++ enemies
     service.Dungeon(

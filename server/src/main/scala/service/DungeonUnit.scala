@@ -1,15 +1,17 @@
 package service
 
+import model.Character.Attributes
 import model.Dungeon.Skill
 
 sealed trait DungeonUnit {
   def id: Int
 
-  def ap: Int = 0
+  val ap: Int
 
   var status: Status
+  val attributes: Attributes
 
-  def applySkill(skill: Skill): DungeonUnit
+  def applySkill(status: Status, damage: Int): DungeonUnit
 
   def gainAP(): DungeonUnit
 
@@ -26,11 +28,12 @@ case class PlayerUnit(
   override val ap: Int,
   maxAP: Int,
   apGain: Int,
-  override var status: Status
+  var status: Status,
+  attributes: Attributes
 ) extends DungeonUnit {
-  override def applySkill(skill: Skill): DungeonUnit = {
-    status.add(skill.status)
-    val newHealth = health - skill.damage
+  override def applySkill(status: Status, damage: Int): DungeonUnit = {
+    status.add(status)
+    val newHealth = health - damage
     if (newHealth <= 0) {
       Empty(id, 0, status)
     } else {
@@ -58,15 +61,15 @@ case class PlayerUnit(
   }
 }
 
-case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], override val ap: Int, maxAP: Int, apGain: Int, override var status: Status) extends DungeonUnit {
-  override def applySkill(skill: Skill): DungeonUnit = {
-    status.add(skill.status)
-    val newAP = if (skill.status.knockedDown > 0 || skill.status.stunned > 0){
+case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], ap: Int, maxAP: Int, apGain: Int, var status: Status, attributes: Attributes) extends DungeonUnit {
+  override def applySkill(status: Status, damage: Int): DungeonUnit = {
+    status.add(status)
+    val newAP = if (status.knockedDown > 0 || status.stunned > 0){
       0
     } else {
       ap
     }
-    val newHealth = health - skill.damage
+    val newHealth = health - damage
     if (newHealth <= 0) {
       Empty(id, 0, status)
     } else {
@@ -94,9 +97,11 @@ case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], override
   }
 }
 
-case class Empty(id: Int, prefabId: Int, override var status: Status) extends DungeonUnit {
-  override def applySkill(skill: Skill): DungeonUnit = {
-    status.add(skill.status)
+case class Empty(id: Int, prefabId: Int, var status: Status) extends DungeonUnit {
+  val ap = 0
+  val attributes: Attributes = Attributes.empty
+  override def applySkill(status: Status, damage: Int): DungeonUnit = {
+    status.add(status.locationBased)
     this
   }
 

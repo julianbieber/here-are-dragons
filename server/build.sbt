@@ -25,4 +25,5 @@ libraryDependencies ++= Seq(
   "com.github.dmarcous" % "s2utils_2.12" % "1.1.1"
 )
 
+fork := true
 enablePlugins(PackPlugin)

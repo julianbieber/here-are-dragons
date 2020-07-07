@@ -2,13 +2,13 @@ package controllers
 
 import com.google.inject.Inject
 import com.twitter.finagle.http.Request
-import dao.{ExperienceDAO, SkillDAO, SkillbarDAO, UserDAO}
-import model.Character.Character
+import dao.{AttributesDAO, AttributesTable, ExperienceDAO, SkillDAO, SkillbarDAO, UserDAO}
+import model.Character.{Attributes, Character}
 import model.Dungeon.{ExtendedSkillBar, SkillBar}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CharacterController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, experienceDAO: ExperienceDAO, skillbarDAO: SkillbarDAO) extends UserUtil {
+class CharacterController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, experienceDAO: ExperienceDAO, skillbarDAO: SkillbarDAO, attributesDAO: AttributesDAO) extends UserUtil {
   implicit val ec: ExecutionContext = executionContext
 
   get("/character") { request: Request =>
@@ -20,8 +20,9 @@ class CharacterController @Inject() (override val userDAO: UserDAO, executionCon
         val warriorExperience = experience.find(_.experienceType == 3).map(_.amount).getOrElse(0L)
 
         val skillBar = skillbarDAO.getSkillBar(userId).map(extend).getOrElse(ExtendedSkillBar(userId, Seq(), Seq()))
+        val attributes = attributesDAO.readAttributes(userId).getOrElse(AttributesTable(userId, Attributes.empty, Attributes.empty, 0))
 
-        Character(rangerExperience, sorcererExperience, warriorExperience, skillBar)
+        Character(rangerExperience, sorcererExperience, warriorExperience, skillBar, attributes.unlocked, attributes.selected)
       }
     }
   }

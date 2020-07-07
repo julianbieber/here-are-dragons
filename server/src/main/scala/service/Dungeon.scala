@@ -72,7 +72,7 @@ case class Dungeon(
     val hitUnitIds = hits.map(units(_).id)
     units.transform { unit =>
       if (hitUnitIds.contains(unit.id)) {
-        unit.applySkill(skill)
+        unit.applySkill(skill.status, DamageCalc(findUnitById(casterId)._1, unit, skill))
       } else {
         unit
       }
