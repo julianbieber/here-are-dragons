@@ -2,14 +2,14 @@ package controllers
 
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.twitter.finagle.http.Request
-import dao.{CharacterDAO, DungeonDAO, GroupDAO, QuestDAO, SkillDAO, UserDAO}
+import dao.{AttributesDAO, DungeonDAO, GroupDAO, QuestDAO, SkillDAO, UserDAO}
 import javax.inject.Inject
 import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, SkillUsage, UnitResponse}
 import service.{Dungeon, DungeonService, DungeonUnit, Empty, NPC, PlayerUnit}
 
 import scala.concurrent.ExecutionContext
 
-class DungeonController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, service: DungeonService, groupDAO: GroupDAO, questDAO: QuestDAO, characterDAO: CharacterDAO) extends UserUtil {
+class DungeonController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, service: DungeonService, groupDAO: GroupDAO, questDAO: QuestDAO, attributesDAO: AttributesDAO) extends UserUtil {
   private implicit val ec: ExecutionContext = executionContext
 
 
@@ -28,7 +28,7 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
       val openRequest = readFromString[OpenRequest](request.getContentString())
       //questDAO.getQuests(openRequest.questId).map { quest =>
         // TODO if user has completed quest
-      val (id, dungeon) = service.newSPDungeon(userId, openRequest.questId, characterDAO.getCharacter(userId))
+      val (id, dungeon) = service.newSPDungeon(userId, openRequest.questId, attributesDAO.readAttributes(userId).selected)
       dungeonToResponse(id, userId, dungeon)
       //}
     }
@@ -40,11 +40,11 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
       dungeonId = id,
       units = dungeon.units.map(unitToResponse),
       myTurn =  dungeon.units.zipWithIndex.find {
-        case (PlayerUnit(unitId, _, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
+        case (PlayerUnit(unitId, _, _, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
         case _ => false
       }.map(_._2).contains(dungeon.currentTurn),
       ap = dungeon.units.find{
-        case PlayerUnit(_, u, _, _, _, _, _) => u == userId
+        case PlayerUnit(_, u, _, _, _, _, _, _) => u == userId
         case _ => false
       }.map(_.asInstanceOf[PlayerUnit].ap).getOrElse(0),
       won,
@@ -54,8 +54,8 @@ class DungeonController @Inject() (override val userDAO: UserDAO, executionConte
 
   private def unitToResponse(unit: DungeonUnit): UnitResponse = {
     unit match {
-      case PlayerUnit(_, userId, health, _, _, _, status) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None, status = status)
-      case NPC(_, prefabId, health, _, _, _, _, status) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId), status = status)
+      case PlayerUnit(_, userId, health, _, _, _, status, _) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None, status = status)
+      case NPC(_, prefabId, health, _, _, _, _, status, _) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId), status = status)
       case Empty(_, prefabId, status) =>UnitResponse(tyype = "empty", userId = None, health = None, prefabId = Option(prefabId), status = status)
     }
   }

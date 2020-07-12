@@ -20,11 +20,17 @@ class ExperienceDAO @Inject() (val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def getExperiences(userId: Int): Seq[ExperienceValue] = {
+  def getExperiences(userId: Int): UserExperience = {
     withReadOnlySession(pool) { implicit session =>
-      sql"SELECT activity_id, amount from public.experiences where userid = $userId".map{ row =>
+      val experiences = sql"SELECT activity_id, amount from public.experiences where userid = $userId".map{ row =>
         ExperienceValue(userId, row.int("activity_id"), row.long("amount"))
       }.list().apply()
+      val sorcererExperience = experiences.find(_.experienceType == 1).map(_.amount).getOrElse(0L)
+      val rangerExperience = experiences.find(_.experienceType == 2).map(_.amount).getOrElse(0L)
+      val warriorExperience = experiences.find(_.experienceType == 3).map(_.amount).getOrElse(0L)
+      UserExperience(warriorExperience, sorcererExperience, rangerExperience)
     }
   }
 }
+
+case class UserExperience(warrior: Long, sorcerer: Long, ranger: Long)

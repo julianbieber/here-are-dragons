@@ -2,11 +2,12 @@ package service
 
 import dao.DungeonDAO
 import javax.inject.Inject
+import model.Character.Attributes
 import model.Dungeon.{Skill, SkillUsage}
 
 class DungeonService @Inject()(ai: AI) {
 
-  def newSPDungeon(userId: Int, difficulty: Int, player: PlayerCharacter): (Int, Dungeon) = {
+  def newSPDungeon(userId: Int, difficulty: Int, player: Attributes): (Int, Dungeon) = {
     val generator = Difficulty.generator(difficulty)
     val dungeon = DungeonDAO.newDungeon(userId, player, generator)
 

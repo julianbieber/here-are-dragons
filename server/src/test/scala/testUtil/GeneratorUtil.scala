@@ -11,6 +11,8 @@ object GeneratorUtil {
 
   def genPosInt: Gen[Int] = Gen.posNum[Int]
 
+  def genSmallPosInt: Gen[Int] = Gen.chooseNum[Int](0, 10)
+
   def genSeq[A](gen: Gen[A]): Gen[Seq[A]] = Gen.listOf(gen)
 
 }

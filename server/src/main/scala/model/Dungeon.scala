@@ -42,6 +42,9 @@ object Dungeon {
     effectPattern: String,
     apCost: Int,
     damage: Int,
+    strengthScaling: Float,
+    spellPowerScaling: Float,
+    dexterityScaling: Float,
     status: Status,
     moves: Boolean,
     movementOffset: Int
