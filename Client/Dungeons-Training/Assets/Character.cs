@@ -18,7 +18,7 @@ public class Character : MonoBehaviour
     async void Update()
     {   
         if (Time.time >= nextUpdate) {
-            nextUpdate = (int)(Time.time) + 1;
+            nextUpdate = (int)(Time.time) + 2;
 
             var p = await CharacterAPI.getCharacter();
             player = p;
