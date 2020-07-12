@@ -9,6 +9,10 @@ public class CharacterViewController : MonoBehaviour
     public Text characterText;
     public Character character;
 
+    public List<AttributeControll> attributes;
+
+    public Button levelUpButton;
+
     private int nextUpdate=1;
 
     // Start is called before the first frame update 
@@ -30,7 +34,12 @@ public class CharacterViewController : MonoBehaviour
             characterStringBuilder.Append("\n");
             characterStringBuilder.Append("Warrior: ");
             characterStringBuilder.Append(character.player.value.warriorExperience);
-            characterText.text = characterStringBuilder.ToString(); 
+            characterText.text = characterStringBuilder.ToString();
+            foreach (var att in attributes)
+            {  
+               att.display(character.player.value); 
+            } 
+            levelUpButton.gameObject.SetActive(character.player.value.canLevelUp);
         }
     }
 }
