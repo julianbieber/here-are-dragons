@@ -54,5 +54,6 @@ public class Quest
         ausgewählterQuest = a;
         Player = P;
     }
+
 }
 

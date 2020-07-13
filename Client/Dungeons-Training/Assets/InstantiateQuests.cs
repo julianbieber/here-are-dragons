@@ -17,7 +17,7 @@ public class InstantiateQuests : MonoBehaviour
     public float distanceInMeter;
     private float nextUpdate;
     private List<DAOQuest> newList = new List<DAOQuest>();
-    private List<int> loI = new List<int>();
+    private List<long> loI = new List<long>();
 
     private List<Hilfsobjetct> loL = new List<Hilfsobjetct>();
 
@@ -36,10 +36,10 @@ public class InstantiateQuests : MonoBehaviour
         var map = LocationProviderFactory.Instance.mapManager;
         if (Time.time >= nextUpdate )
         {
-            nextUpdate = nextUpdate + 5f;
+            nextUpdate = nextUpdate + 100f;
             var I = await QuestAPI.getListOfQuestsNearby(distanceInMeter);
             newList = I.quests;
-            List<int> loIn = new List<int>();
+            List<long> loIn = new List<long>();
             foreach (DAOQuest q in newList)
             {
                 loIn.Add(q.questID);
@@ -81,9 +81,9 @@ public class InstantiateQuests : MonoBehaviour
 
 public class Hilfsobjetct
 {
-    public int id;
+    public long id;
     public GameObject go;
-    public Hilfsobjetct(int i, GameObject go1)
+    public Hilfsobjetct(long i, GameObject go1)
     {
         id = i;
         go = go1;

@@ -25,6 +25,7 @@ public class API {
                 while (!www.isDone)
                     await Task.Delay(1);
                 var responseString = www.downloadHandler.text;
+                Debug.Log(responseString+urlWithQuery);
                 if (www.isNetworkError || www.isHttpError) {
                     return Option<B>.None;
                 } else {

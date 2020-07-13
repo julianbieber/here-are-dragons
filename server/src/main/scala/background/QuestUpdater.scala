@@ -13,9 +13,11 @@ class QuestUpdater @Inject() (val poIDAO: dao.PoIDAO, val questdao : dao.QuestDA
 
   private var iter :Int = 0;
 
-  def storeNode(node:Node): Unit={
-    //questdao.createQuestFromAPI(node.id,node.lon,node.lat)
+  def storeNode(node:Node,userID:Int): Unit={
     poIDAO.createPoI(node.id.toLong,node.lon,node.lat,node.priority,node.tags.flatMap(_.get("name")))
+    val p = poIDAO.getPoIs()
+    questdao.fillDatabaseFromPoIs(p,userID)
+    //questdao.UnActive(node.id.toLong,userID)
   }
 
   def nullenAuffuellen(s: String):String = {
@@ -49,7 +51,6 @@ class QuestUpdater @Inject() (val poIDAO: dao.PoIDAO, val questdao : dao.QuestDA
           val positionOfPlayer = new Vector2D(pos.longitude, pos.latitude)
 
           val varrr = nullenAuffuellen(CoordinateConverters.lonLatToS2CellID(positionOfPlayer.getY,positionOfPlayer.getX,14).id().toBinaryString)
-          val cid = "0100011110111101011100000110001100000000000000000000000000000000"
 
           val r = new PoI("GetPoI", varrr, "50", "[1,2,5,7,13,14,16,17,19,21]")
           val request = basicRequest.post(uri"http://130.83.245.99:8080").body(writeToString(r))
@@ -69,7 +70,7 @@ class QuestUpdater @Inject() (val poIDAO: dao.PoIDAO, val questdao : dao.QuestDA
               iter = iter + 1
               val nods = readFromString[Nodes](value)
               val n =readFromString[Seq[Node]](nods.nodes)
-              n.foreach(storeNode)
+              n.foreach(storeNode(_,i))
           }
       }
     }

@@ -21,19 +21,28 @@ public class QuestAPI : MonoBehaviour
             return new QuestsResponse { quests = new List<DAOQuest>() };
         }
     }
-    async public static void postQuestErledigt(int questID)
+    async public static void postQuestErledigt(long questID)
     {
         var que = new Dictionary<string, string>();
         que.Add("questID", questID.ToString());
         await API.post<string, string>(Global.baseUrl + "postQuestErledigt", "", que);
     }
+
+    async public static void postActiveQuest(long questID)
+    {
+        var que = new Dictionary<string, string>();
+        que.Add("questID", questID.ToString());
+        await API.post<string, string>(Global.baseUrl + "activateQuest", "", que);
+    }
 }
 [Serializable]
 public class DAOQuest
 {
-    public int questID;
+    public long questID;
     public float longitude;
     public float latitude;
+    public float priority;
+    public String tag;
     public Boolean erledigt=false;
 }
 [Serializable]
