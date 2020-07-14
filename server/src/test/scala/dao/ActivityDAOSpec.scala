@@ -17,9 +17,9 @@ class ActivityDAOSpec extends AnyFlatSpec with Matchers {
 
     activityDAO.startActivity(userId, "RUNNING")
 
-    activityDAO.getCurrentActivity(userId) must be(Some("RUNNING"))
-
-    activityDAO.stopActivity(userId, "RUNNING")
+    val Some((activity, runningStart)) = activityDAO.getCurrentActivity(userId)
+    activity must be("RUNNING")
+    activityDAO.stopActivity(userId, runningStart)
 
     activityDAO.getCurrentActivity(userId) must be(None)
 
@@ -32,18 +32,20 @@ class ActivityDAOSpec extends AnyFlatSpec with Matchers {
     val userId = userDAO.createUser(oneRandom(genString), oneRandom(genString)).get
 
     activityDAO.startActivity(userId, "RUNNING")
-    activityDAO.stopActivity(userId, "RUNNING")
+    val Some((_, runningStart)) = activityDAO.getCurrentActivity(userId)
+    activityDAO.stopActivity(userId, runningStart)
 
     activityDAO.startActivity(userId, "CYCLING")
-    activityDAO.stopActivity(userId, "CYCLING")
+    val Some((_, cyclingStart)) = activityDAO.getCurrentActivity(userId)
+    activityDAO.stopActivity(userId, cyclingStart)
 
-    val activities = activityDAO.getNotProcessedActivities()
+    val activities = activityDAO.getAllActivities()
 
-    activities must have size 4
+    activityDAO.getAllActivities().filterNot(_.processed) must have size 2
 
     activityDAO.setProcessed(activities)
 
-    activityDAO.getNotProcessedActivities() must be(empty)
+    activityDAO.getAllActivities().filterNot(_.processed) must be(empty)
 
   }
 
@@ -54,21 +56,19 @@ class ActivityDAOSpec extends AnyFlatSpec with Matchers {
     val userId = userDAO.createUser(oneRandom(genString), oneRandom(genString)).get
 
     activityDAO.startActivity(userId, "RUNNING")
-    activityDAO.stopActivity(userId, "RUNNING")
+    val Some((_, runningStart1)) = activityDAO.getCurrentActivity(userId)
+    activityDAO.stopActivity(userId, runningStart1)
 
     activityDAO.startActivity(userId, "RUNNING")
-    activityDAO.stopActivity(userId, "RUNNING")
+    val Some((_, runningStart2)) = activityDAO.getCurrentActivity(userId)
+    activityDAO.stopActivity(userId, runningStart2)
 
     activityDAO.startActivity(userId, "CYCLING")
-    activityDAO.stopActivity(userId, "CYCLING")
-    val activitiesBefore = activityDAO.getNotProcessedActivities()
-    activitiesBefore must have size 6
+    val Some((_, cyclingStart)) = activityDAO.getCurrentActivity(userId)
+    activityDAO.stopActivity(userId, cyclingStart)
 
-    activityDAO.combineActivities()
-
-    val activitiesAfter = activityDAO.getNotProcessedActivities()
-    activitiesAfter must have size 4
-
+    val activitiesBefore = activityDAO.getAllActivities()
+    activitiesBefore must have size 2
   }
 
 }

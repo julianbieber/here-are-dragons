@@ -3,11 +3,12 @@ package controllers
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 import javax.inject.Inject
-import dao.{UserDAO,PositionDAO}
+import dao.{PositionDAO, UserDAO}
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
+
 import scala.concurrent.ExecutionContext
-import model.Position.{positionResponse, PositionRequest}
+import model.Position.{PositionRequest, UserPosition, positionResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -16,7 +17,7 @@ class PositionController @Inject()(override val userDAO: UserDAO,val positionDAO
   get("/Positon") { request: Request =>
     withUser(request) { userId =>
       positionDAO.getPosition(userId).map { positionResponse =>
-        response.ok(writeToString(positionResponse))
+        response.ok(writeToString(UserPosition(positionResponse.userID, positionResponse.longitude, positionResponse.latitude)))
       }.getOrElse(response.badRequest)
     }
   }

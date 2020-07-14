@@ -1,11 +1,11 @@
 import com.github.plokhotnyuk.jsoniter_scala.macros.JsonCodecMaker
-import dao.{AttributesTable, DAOPosition}
+import dao.AttributesTable
 import model.Account.{CreateResponse, LoginRequest, LoginResponse}
 import model.Activity.ActivityStart
 import model.Character.{Attributes, Character}
 import model.Dungeon._
 import model.Group.{Group, JoinRequest}
-import model.Position.PositionRequest
+import model.Position.{PositionRequest, UserPosition}
 import model.Quest.QuestsResponse
 import service.Status
 
@@ -24,7 +24,7 @@ package object controllers {
   implicit val skillUsageCodec = JsonCodecMaker.make[SkillUsage]
   implicit val turnCodec = JsonCodecMaker.make[Turn]
   implicit val joinRequestCodec = JsonCodecMaker.make[JoinRequest]
-  implicit val positionCodec = JsonCodecMaker.make[DAOPosition]
+  implicit val positionCodec = JsonCodecMaker.make[UserPosition]
   implicit val GroupCodec = JsonCodecMaker.make[Group]
   implicit val daoQuestcodec = JsonCodecMaker.make[dao.DAOQuest]
   implicit val lOQ = JsonCodecMaker.make[List[dao.DAOQuest]]

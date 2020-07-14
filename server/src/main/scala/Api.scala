@@ -1,4 +1,5 @@
-import background.{Activity, BackgroundExecutor, PoIUpdater, QuestUpdater}
+import background.character.Activity
+import background.{BackgroundExecutor, PoIUpdater, QuestUpdater}
 import com.zaxxer.hikari.HikariDataSource
 import javax.sql.DataSource
 import scalikejdbc.{ConnectionPool, DataSourceConnectionPool}
@@ -46,7 +47,7 @@ object Api extends HttpServer {
       .add[DungeonController]
   }
 
-  val experienceJob = new BackgroundExecutor(new Activity(new ActivityDAO(pool), new ExperienceDAO(pool)),10000)
+  val experienceJob = new BackgroundExecutor(new Activity(new ActivityDAO(pool), new ExperienceDAO(pool), new PositionDAO(pool)),10000)
   val QuestJob = new BackgroundExecutor(new QuestUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)
   val PoIJob = new BackgroundExecutor(new PoIUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)
 }

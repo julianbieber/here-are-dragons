@@ -5,6 +5,7 @@ import model.Group.{Group, JoinRequest}
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.twitter.finagle.http.Request
+import model.Position.UserPosition
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,7 +37,7 @@ class GroupController @Inject() (override val userDAO: UserDAO, val groupDAO: Gr
     withUser(request) { userId =>
       groupDAO.getGroup(userId).map{ internalGroup =>
         val positions = internalGroup.members.map { memberId =>
-          positionDAO.getPosition(memberId).getOrElse(DAOPosition(memberId, 0.0f, 0.0f))
+          positionDAO.getPosition(memberId).map{ daoPosition => UserPosition(daoPosition.userID, daoPosition.longitude, daoPosition.latitude)}.getOrElse(UserPosition(memberId, 0.0f, 0.0f))
         }
         response.ok(writeToString(Group(positions)))
       }.getOrElse(response.notFound)

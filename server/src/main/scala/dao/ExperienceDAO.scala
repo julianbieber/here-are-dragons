@@ -1,6 +1,6 @@
 package dao
 
-import background.ExperienceValue
+import background.character.ExperienceValue
 import javax.inject.Inject
 import scalikejdbc.{ConnectionPool, _}
 
@@ -25,8 +25,8 @@ class ExperienceDAO @Inject() (val pool: ConnectionPool) extends SQLUtil {
       val experiences = sql"SELECT activity_id, amount from public.experiences where userid = $userId".map{ row =>
         ExperienceValue(userId, row.int("activity_id"), row.long("amount"))
       }.list().apply()
-      val sorcererExperience = experiences.find(_.experienceType == 1).map(_.amount).getOrElse(0L)
-      val rangerExperience = experiences.find(_.experienceType == 2).map(_.amount).getOrElse(0L)
+      val rangerExperience = experiences.find(_.experienceType == 1).map(_.amount).getOrElse(0L)
+      val sorcererExperience = experiences.find(_.experienceType == 2).map(_.amount).getOrElse(0L)
       val warriorExperience = experiences.find(_.experienceType == 3).map(_.amount).getOrElse(0L)
       UserExperience(warriorExperience, sorcererExperience, rangerExperience)
     }

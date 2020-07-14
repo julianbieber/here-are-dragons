@@ -11,8 +11,8 @@ class PositionDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def getPosition(userId: Int): Option[DAOPosition] = {
     withReadOnlySession(pool) { implicit session =>
-      sql"SELECT id, longitude, latitude FROM public.position WHERE id = $userId ORDER BY timestamp DESC LIMIT 1".map { row =>
-        DAOPosition(row.int("id"), row.float("longitude"), row.float("latitude"))
+      sql"SELECT id, longitude, latitude, timestamp FROM public.position WHERE id = $userId ORDER BY timestamp DESC LIMIT 1".map { row =>
+        DAOPosition(row.int("id"), row.float("longitude"), row.float("latitude"), toDateTime(row.timestamp("timestamp").toZonedDateTime))
       }.first().apply()
     }
   }
@@ -25,8 +25,8 @@ class PositionDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def getHistory(userId: Int, from: DateTime, to: DateTime): Seq[DAOPosition] = {
     withReadOnlySession(pool) { implicit session =>
-      sql"SELECT longitude, latitude FROM public.position WHERE id = $userId AND timestamp between $from and $to ORDER BY timestamp ASC".map{ row =>
-        DAOPosition(userId, row.float("longitude"), row.float("latitude"))
+      sql"SELECT longitude, latitude, timestamp FROM public.position WHERE id = $userId AND timestamp between $from and $to ORDER BY timestamp ASC".map{ row =>
+        DAOPosition(userId, row.float("longitude"), row.float("latitude"), toDateTime(row.timestamp("timestamp").toZonedDateTime))
       }.list().apply()
     }
   }
@@ -34,4 +34,4 @@ class PositionDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 }
 
 
-case class DAOPosition(userID:Integer,longitude:Float,latitude:Float)
+case class DAOPosition(userID:Integer,longitude:Float,latitude:Float, timestamp: DateTime)
