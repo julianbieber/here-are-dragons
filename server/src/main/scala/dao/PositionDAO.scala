@@ -17,7 +17,7 @@ class PositionDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def setPosition(userId: Int ,lat: Float,long: Float): Unit = {
+  def setPosition(userId: Int ,long: Float,lat: Float): Unit = {
     withSession(pool) { implicit session =>
       sql"INSERT INTO public.position (id, longitude, latitude) VALUES ($userId, $long,$lat)".executeUpdate().apply()
     }

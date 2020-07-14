@@ -1,4 +1,4 @@
-import background.{BackgroundExecutor, Activity, QuestUpdater}
+import background.{Activity, BackgroundExecutor, PoIUpdater, QuestUpdater}
 import com.zaxxer.hikari.HikariDataSource
 import javax.sql.DataSource
 import scalikejdbc.{ConnectionPool, DataSourceConnectionPool}
@@ -8,7 +8,7 @@ import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.{CommonFilters, LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.http.routing.HttpRouter
 import controllers.{ActivityController, CharacterController, DungeonController, ExampleLoggedInController, GroupController, PositionController, QuestController, UserController}
-import dao.{ActivityDAO, ExperienceDAO,QuestDAO,PositionDAO,UserDAO,PoIDAO}
+import dao.{ActivityDAO, ExperienceDAO, PoIDAO, PositionDAO, QuestDAO, UserDAO}
 import net.codingwell.scalaguice.ScalaModule
 
 import scala.concurrent.ExecutionContext
@@ -46,6 +46,7 @@ object Api extends HttpServer {
       .add[DungeonController]
   }
 
-  val experienceJob = new BackgroundExecutor(new Activity(new ActivityDAO(pool), new ExperienceDAO(pool)))
-  //val QuestJob = new BackgroundExecutor(new QuestUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)))
+  val experienceJob = new BackgroundExecutor(new Activity(new ActivityDAO(pool), new ExperienceDAO(pool)),10000)
+  val QuestJob = new BackgroundExecutor(new QuestUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)
+  val PoIJob = new BackgroundExecutor(new PoIUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)
 }

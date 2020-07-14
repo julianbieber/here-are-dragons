@@ -5,6 +5,7 @@ import scalikejdbc._
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.List
+import scala.util.Random
 
 class PoIDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
@@ -16,21 +17,28 @@ class PoIDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def getPoIs(): List[DAOPoI] = {
+  def getPoIs(long:Float, lat:Float): List[DAOPoI] = {
     withReadOnlySession(pool) { implicit session =>
-      val pois: List[DAOPoI] =
-        sql"""SELECT id, longitude, latitude, priority, tags FROM public.poi""".map(f = row =>
-          DAOPoI(
-            row.long("id"),
-            row.float("longitude"),
-            row.float("latitude"),
-            row.float("priority"),
-            row.stringOpt("tags"),
-          )
-        ).list.apply()
-      pois
+      val pois: List[DAOPoI] = {
+          val longitudemin = long - 1
+          val longitudemax = long + 1
+          val latitudemin = lat - 1
+          val latitudemax = lat + 1
+          sql"""SELECT id, longitude, latitude, priority, tags FROM public.poi WHERE (longitude BETWEEN $longitudemin AND $longitudemax) and (latitude BETWEEN $latitudemin AND $latitudemax) """.map(f = rowPoi =>
+            DAOPoI(
+              rowPoi.long("id"),
+              rowPoi.float("longitude"),
+              rowPoi.float("latitude"),
+              rowPoi.float("priority"),
+              rowPoi.stringOpt("tags"),
+            )
+          ).list().apply()
+        }
+      Random.shuffle(pois).take(20)
     }
   }
+
+
 }
 
 

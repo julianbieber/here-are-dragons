@@ -112,7 +112,6 @@ public class FulleListeMitQuests : MonoBehaviour
     async void Update()
     {
         Global.ausgewahlterQuest = getSelectedQuest();
-
         
         int menuIndex = d.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;

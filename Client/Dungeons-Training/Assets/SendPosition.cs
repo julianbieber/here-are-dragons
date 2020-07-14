@@ -28,6 +28,6 @@ public class SendPosition : MonoBehaviour
     public async void Create()
     {
         var pos = fp.CurrentLocation.LatitudeLongitude;
-        PositionAPI.setPosition((float)pos.x, (float)pos.y);
+        PositionAPI.setPosition((float)pos.y, (float)pos.x);
     }
 }

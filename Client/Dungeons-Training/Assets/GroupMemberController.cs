@@ -37,7 +37,7 @@ public class GroupMemberController : MonoBehaviour
                         var memberObject = Instantiate(memberPrefab, new Vector3(0, 0, 0), Quaternion.identity);
                         memberObjects.Add(position.userID, memberObject);
                     }
-                    var worldPosition = map.GeoToWorldPosition(new Vector2d(position.longitude, position.latitude));
+                    var worldPosition = map.GeoToWorldPosition(new Vector2d(position.latitude, position.longitude));
                     memberObjects[position.userID].transform.localPosition = worldPosition;
                     currentMemberIds.Add(position.userID);
                 }

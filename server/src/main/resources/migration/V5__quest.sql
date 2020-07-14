@@ -5,7 +5,7 @@ create table public.quest (
     --activatable_user_ids int[] default array[]::int[]
 
     -- If this Boolean is true, the quest is active, if it is false it is activatable
-    activ boolean not null
-
+    activ boolean not null,
+    PRIMARY KEY (id, userID)
 );
 
