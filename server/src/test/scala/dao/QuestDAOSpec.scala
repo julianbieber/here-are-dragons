@@ -9,7 +9,7 @@ import scala.util.Random.{nextFloat, nextLong};
 
 class QuestDAOSpec extends AnyFlatSpec with Matchers {
 
-  "fillDatabaseWithQuestsFromPoIs" must "fill the Database public.quest with quests" in withPool { pool =>
+  "fillDatabaseFromPoIs" must "fill the Database public.quest with quests" in withPool { pool =>
     val dao = new QuestDAO(pool)
     val DAOP= new PoIDAO(pool)
 
@@ -23,21 +23,18 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
     DAOP.createPoI(poiId, long,lat, priority, tags)
 
     val poiId1 = nextLong()
-    val long1 = nextFloat()
-    val lat1 = nextFloat()
     val priority1 = nextFloat()
     val tags1 = None
 
-    DAOP.createPoI(poiId1, long1,lat1, priority1, tags1)
+    DAOP.createPoI(poiId1, long,lat, priority1, tags1)
 
-    val p = DAOP.getPoIs()
-    dao.fillDatabaseWithQuestsFromPoIs(p)
+    val p = DAOP.getPoIs(long,lat)
+    dao.fillDatabaseFromPoIs(p,0)
 
-    val computedResult = dao.getQuestsFromDatabase()
-    val expectedResult = List(DAOQuest(poiId,long,lat), DAOQuest(poiId1,long1,lat1))
+    val computedResult = dao.getFromDatabase().length
 
 
-    computedResult should be (expectedResult)
+    computedResult should be (2)
   }
   "Make Quest active/activalable" must "set a Quest from active to activalable and vice versa" in withPool { pool =>
     val dao = new QuestDAO(pool)
@@ -51,32 +48,20 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
 
     DAOP.createPoI(poiId, long,lat, priority, tags)
 
-    val poiId1 = nextLong()
-    val long1 = nextFloat()
-    val lat1 = nextFloat()
-    val priority1 = nextFloat()
-    val tags1 = None
+    val p = DAOP.getPoIs(long, lat)
+    dao.fillDatabaseFromPoIs(p,0)
 
-    DAOP.createPoI(poiId1, long1,lat1, priority1, tags1)
+    val computedResult = dao.checkIfActive(poiId,0).get
+    computedResult should be (false)
 
-    val p = DAOP.getPoIs()
-    dao.fillDatabaseWithQuestsFromPoIs(p)
+    dao.makeActive(poiId,0)
+    val computedResult1 = dao.checkIfActive(poiId,0).get
+    computedResult1 should be (true)
 
-    dao.makeQuestActive(poiId,0)
+    dao.makeUnActive(poiId,0)
+    val computedResult2 = dao.checkIfActive(poiId,0).get
+    computedResult2 should be (false)
 
-    val computedResult = dao.getActiveUsersForQuest(poiId).get
-    val expectedResult = Seq(0).toArray
-
-    computedResult should be (expectedResult)
-
-    dao.makeQuestUnActive(poiId,0)
-    val computedResult1 = dao.getActivatableUserForQuest(poiId).get
-
-    val computedResult2 = dao.getActiveUsersForQuest(poiId).get
-    val expectedResult1 : Array[Int] = Array()
-
-    computedResult1 should be (expectedResult)
-    computedResult2 should be (expectedResult1)
   }
 
   "getListOfActivataibleQuestsNerby" must "get List of activatablee quests" in withPool { pool =>
@@ -91,14 +76,14 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
 
     DAOP.createPoI(poiId, long,lat, priority, tags)
 
-    val p = DAOP.getPoIs()
-    dao.fillDatabaseWithQuestsFromPoIs(p)
+    val p = DAOP.getPoIs(long,lat)
+    dao.fillDatabaseFromPoIs(p,0)
     println(p)
 
-    dao.makeQuestUnActive(poiId,0)
+    dao.makeUnActive(poiId,0)
 
     val computedResult = dao.getListOfActivataibleQuestsNerby(long, lat, 999f,0)
-    val expectedResult = new DAOQuest(poiId,long,lat)
+    val expectedResult = new DAOQuest(poiId,long,lat,priority,tags)
 
     computedResult should be (List(expectedResult))
   }

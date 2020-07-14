@@ -2,10 +2,10 @@ package background
 
 import scala.util.control.NonFatal
 
-class BackgroundExecutor(background: Background) {
+class BackgroundExecutor(background: Background, interval : Long) {
   val t = new Thread(() => {
     while (true) {
-      Thread.sleep(10000)
+      Thread.sleep(interval)
       try {
         background.run()
       } catch {

@@ -16,7 +16,6 @@ public class ErkennenObQuestInNäheVonPlayer : MonoBehaviour
     {
         GameObject change = other.gameObject;
         bool schonBahandelt = change.GetComponent<SchonBehandelterQuest>().schonBehandelt;
-        Debug.Log("OntriggerEnter wird ausgeführt"+change.GetComponent<SphereCollider>().radius );
 
         if (change.GetComponent<SphereCollider>().radius == 10&& schonBahandelt  == false)
         {
@@ -37,7 +36,6 @@ public class ErkennenObQuestInNäheVonPlayer : MonoBehaviour
         
         GameObject change = other.gameObject;
         bool schonBahandelt = change.GetComponent<SchonBehandelterQuest>().schonBehandelt;
-        Debug.Log("OntriggerEnxit wird ausgeführt"+change.GetComponent<SphereCollider>().radius);
         if (change.GetComponent<SphereCollider>().radius == 10&&schonBahandelt == false )
         {
             change.GetComponent<SphereCollider>().radius = 50;

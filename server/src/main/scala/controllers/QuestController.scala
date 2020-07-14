@@ -17,19 +17,19 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
 
 
   post("/activateQuest") {request: Request =>
-    println(request.getParam("questID"))
     val y = request.getParam("questID").toLong
     withUser(request) { userId =>
-      questDAO.makeQuestActive(y, userId);
+      //TODO makeQuestAvtive neu machen
+      //questDAO.makeQuestActive(y, userId);
       response.ok
     }
   }
 
   post("/unactivateQuest") {request: Request =>
-    println(request.getParam("questID"))
     val y = request.getParam("questID").toLong
     withUser(request) { userId =>
-      questDAO.makeQuestUnActive(y,userId);
+      //TODO make QUestUnactive neu machen
+      //questDAO.makeQuestUnActive(y,userId);
       response.ok
     }
   }
@@ -40,8 +40,7 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
     withUser(request) { userId =>
       var i = positionDAO.getPosition(userId).get
       try {
-        //response.ok(writeToString(model.Quest.QuestsResponse(questDAO.getListOfQuestsNerby(i.longitude, i.latitude, y))))
-        response.ok
+        response.ok(writeToString(model.Quest.QuestsResponse(questDAO.getListOfActivataibleQuestsNerby(i.longitude, i.latitude, y,userId))))
       } catch {
         case NonFatal(e) => e.printStackTrace()
           response.internalServerError()
@@ -51,9 +50,11 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
 
 
   post("/postQuestErledigt") { request: Request =>
-    val y = request.getParam("questID").toInt
+    val y = request.getParam("questID").toLong
     withUser(request) { userId =>
       //questDAO.setQuestToErledigt(y)
+      //TODO
+      //questDAO.makeQuestUnActive(y,userId)
       response.ok
     }
   }
