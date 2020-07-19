@@ -30,7 +30,7 @@ class PositionDAOSpec extends AnyFlatSpec with Matchers {
     val long = oneRandom(genFloat)
     val lat = oneRandom(genFloat)
 
-    dao.setPosition(userID, lat, long)
+    dao.setPosition(userID, long, lat)
 
     val pos = dao.getPosition(userID).get
 
@@ -40,7 +40,7 @@ class PositionDAOSpec extends AnyFlatSpec with Matchers {
     val long2 = oneRandom(genFloat)
     val lat2 = oneRandom(genFloat)
 
-    dao.setPosition(userID, lat2, long2)
+    dao.setPosition(userID, long2, lat2)
     val pos2 = dao.getPosition(userID).get
 
     pos2.longitude should be (long2)
