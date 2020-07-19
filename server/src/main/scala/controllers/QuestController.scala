@@ -19,8 +19,7 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
   post("/activateQuest") {request: Request =>
     val y = request.getParam("questID").toLong
     withUser(request) { userId =>
-      //TODO makeQuestAvtive neu machen
-      //questDAO.makeQuestActive(y, userId);
+      questDAO.makeActive(y, userId);
       response.ok
     }
   }
@@ -28,12 +27,10 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
   post("/unactivateQuest") {request: Request =>
     val y = request.getParam("questID").toLong
     withUser(request) { userId =>
-      //TODO make QUestUnactive neu machen
-      //questDAO.makeQuestUnActive(y,userId);
+      questDAO.makeUnActive(y,userId);
       response.ok
     }
   }
-
 
   get("/getListOfQuests") { request: Request =>
     val y = request.getParam("distance").toFloat
@@ -48,14 +45,4 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
     }
   }
 
-
-  post("/postQuestErledigt") { request: Request =>
-    val y = request.getParam("questID").toLong
-    withUser(request) { userId =>
-      //questDAO.setQuestToErledigt(y)
-      //TODO
-      //questDAO.makeQuestUnActive(y,userId)
-      response.ok
-    }
-  }
 }

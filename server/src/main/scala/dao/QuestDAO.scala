@@ -92,6 +92,15 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
+  def getOldest(userID: Int): Option[Long] = {
+    withSession(pool) { implicit session =>
+      sql"""SELECT id FROM public.quest WHERE userID =$userID AND activ = false ORDER BY timestamp ASC LIMIT 1""".map { row =>
+        row.long("id")
+      }.first.apply()
+    }
+  }
+
+
 }
 
 case class DAOQuest(questID: Long, longitude: Float, latitude: Float,priority: Float, tag:Option[String])

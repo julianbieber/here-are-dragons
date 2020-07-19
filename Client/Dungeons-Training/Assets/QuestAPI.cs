@@ -21,11 +21,11 @@ public class QuestAPI : MonoBehaviour
             return new QuestsResponse { quests = new List<DAOQuest>() };
         }
     }
-    async public static void postQuestErledigt(long questID)
+    async public static void postUnactivateQuest(long questID)
     {
         var que = new Dictionary<string, string>();
         que.Add("questID", questID.ToString());
-        await API.post<string, string>(Global.baseUrl + "postQuestErledigt", "", que);
+        await API.post<string, string>(Global.baseUrl + "unactivateQuest", "", que);
     }
 
     async public static void postActiveQuest(long questID)
