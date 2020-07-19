@@ -1,8 +1,8 @@
 package model
 
-import dao.DAOPosition
+import model.Position.UserPosition
 
 object Group {
   case class JoinRequest(userName: String)
-  case class Group(users: Seq[DAOPosition])
+  case class Group(users: Seq[UserPosition])
 }

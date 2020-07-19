@@ -6,30 +6,28 @@ import service.Status
 object SkillDAO {
   val skills = IndexedSeq(
     SkillBuilder
-      .create("Fireball")
+      .create("Smolder")
       .withTargetPattern("11111")
-      .withEffectPattern("111")
-      .withDamage(20)
+      .withEffectPattern("1")
+      .withDamage(5)
       .withBurn(2)
-      .withCost(2)
-      .withSpellPower(1f)
+      .withCost(1)
+      .withSpellPower(0.2f)
       .build(),
     SkillBuilder
-      .create("Walk")
-      .withTargetPattern("101")
+      .create("Spark")
+      .withTargetPattern("11111")
+      .withEffectPattern("1")
+      .withDamage(5)
+      .withBurn(2)
       .withCost(1)
-      .movesTo(0)
+      .withSpellPower(0.5f)
       .build(),
     SkillBuilder.create("Shock")
       .withTargetPattern("101")
-      .withCost(1)
-      .withShock(2)
+      .withCost(2)
+      .withShock(1)
       .withSpellPower(0.1f)
-      .build(),
-    SkillBuilder.create("Stun")
-      .withTargetPattern("101")
-      .withCost(1)
-      .withStun(1)
       .build(),
     SkillBuilder.create("Rain")
       .withTargetPattern("1")
@@ -37,6 +35,19 @@ object SkillDAO {
       .withWet(5)
       .withCost(2)
       .build(),
+    SkillBuilder
+      .create("Walk")
+      .withTargetPattern("101")
+      .withCost(1)
+      .movesTo(0)
+      .build(),
+
+    SkillBuilder.create("Stun")
+      .withTargetPattern("101")
+      .withCost(1)
+      .withStun(1)
+      .build(),
+
     SkillBuilder.create("KD")
       .withTargetPattern("101")
       .withKD(1)

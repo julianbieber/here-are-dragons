@@ -10,6 +10,8 @@ import util.TimeUtil
 
 class PositionDAOSpec extends AnyFlatSpec with Matchers {
 
+  private val comparableTimestamp = TimeUtil.now
+
   def genPosition(userId: Int): Gen[DAOPosition] = for {
     lat <- genFloat
     long <- genFloat
@@ -17,7 +19,8 @@ class PositionDAOSpec extends AnyFlatSpec with Matchers {
     DAOPosition(
       userId,
       longitude = long,
-      latitude = lat
+      latitude = lat,
+      comparableTimestamp
     )
   }
 
@@ -27,7 +30,7 @@ class PositionDAOSpec extends AnyFlatSpec with Matchers {
     val long = oneRandom(genFloat)
     val lat = oneRandom(genFloat)
 
-    dao.setPosition(userID, lat, long)
+    dao.setPosition(userID, long, lat)
 
     val pos = dao.getPosition(userID).get
 
@@ -37,7 +40,7 @@ class PositionDAOSpec extends AnyFlatSpec with Matchers {
     val long2 = oneRandom(genFloat)
     val lat2 = oneRandom(genFloat)
 
-    dao.setPosition(userID, lat2, long2)
+    dao.setPosition(userID, long2, lat2)
     val pos2 = dao.getPosition(userID).get
 
     pos2.longitude should be (long2)
@@ -53,7 +56,7 @@ class PositionDAOSpec extends AnyFlatSpec with Matchers {
       dao.setPosition(user, lat = pos.latitude, long = pos.longitude)
     }
 
-    val dbHistory = dao.getHistory(user, TimeUtil.now.minusSeconds(10000), TimeUtil.now.plusSeconds(100000))
+    val dbHistory = dao.getHistory(user, TimeUtil.now.minusSeconds(10000), TimeUtil.now.plusSeconds(100000)).map(_.copy(timestamp = comparableTimestamp))
 
     dbHistory should be(history)
 

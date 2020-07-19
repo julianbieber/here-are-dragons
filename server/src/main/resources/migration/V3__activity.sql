@@ -8,9 +8,9 @@ insert into public.activity_type (name)
 
 create table public.activity (
     userid int not null references users(id),
-    timestamp timestamp not null,
+    start_timestamp timestamp not null,
     activity_id int not null references activity_type(id),
-    start boolean,
-    stop boolean,
-    PRIMARY KEY (userid, timestamp)
+    end_timestamp timestamp default null,
+    processed boolean default false,
+    PRIMARY KEY (userid, start_timestamp)
 )
