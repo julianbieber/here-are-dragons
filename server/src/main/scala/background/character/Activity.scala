@@ -2,21 +2,58 @@ package background.character
 
 import background.Background
 import com.github.dmarcous.s2utils.geo.GeographyUtilities
-import dao.{ActivityDAO, DAOPosition, ExperienceDAO, PositionDAO}
+import dao._
 import javax.inject.Inject
 import org.joda.time.Period
 
-class Activity @Inject() (activityDAO: ActivityDAO, experienceDAO: ExperienceDAO, positionDAO: PositionDAO) extends Background {
+class Activity @Inject()(activityDAO: ActivityDAO, experienceDAO: ExperienceDAO, positionDAO: PositionDAO, talentUnlockDAO: TalentUnlockDAO, talentDAO: TalentDAO) extends Background {
+  override def run(): Unit = {
+    val experiences = calculateMissingExperiences()
+    experienceDAO.addExperiences(experiences)
+  }
+
   private def calculateMissingExperiences(): Seq[ExperienceValue] = {
     val activities = activityDAO.getNotProcessedActivities()
     activityDAO.setProcessed(activities)
-    activities.flatMap{ activity =>
+    activities.flatMap { activity =>
       val positions = positionDAO.getHistory(activity.user, activity.startTimestamp, activity.endTimestamp.get).sortBy(_.timestamp.getMillis)
       if (positions.nonEmpty) {
-        Option( ExperienceValue(activity.user, activity.activity, ExperienceCalculator.forActivity(activity.activity, new Period(positions.head.timestamp, positions.last.timestamp), averageSpeed(positions))))
+        talentUnlockDAO
+          .getUnlocks(activity.user)
+          .flatMap(_.currentlyUnlocking)
+          .toSeq
+          .flatMap(i => talentDAO.getTalents(Seq(i)))
+          .headOption
+          .foreach { currentUnlock =>
+            if (isFullfilledBySingleActivity(currentUnlock, positions)) {
+              talentUnlockDAO.unlock(activity.user)
+            }
+          }
+
+
+        Option(ExperienceValue(activity.user, activity.activity, ExperienceCalculator.forActivity(activity.activity, new Period(positions.head.timestamp, positions.last.timestamp), averageSpeed(positions))))
       } else {
         None
       }
+    }
+  }
+
+  private def isFullfilledBySingleActivity(talentRow: TalentRow, positions: Seq[DAOPosition]): Boolean = {
+    talentRow match {
+      case TalentRow(_, _, _, _, _, Some(distance), None, None, _) => forDistance(distance, positions).nonEmpty
+      case TalentRow(_, _, _, _, _, None, Some(speed), None, _) => averageSpeed(positions) >= speed
+      case TalentRow(_, _, _, _, _, None, None, Some(time), _) => new Period(positions.head.timestamp, positions.last.timestamp).getMinutes >= time
+      case TalentRow(_, _, _, _, _, Some(distance), Some(speed), None, _) =>getMaxSpeedForDistance(distance, positions) >= speed
+    }
+  }
+
+  private def getMaxSpeedForDistance(distanceInMeters: Double, positions: Seq[DAOPosition]): Double = {
+    if (positions.isEmpty) {
+      0.0
+    } else {
+      positions.indices.map { startIndex =>
+        averageSpeed(forDistance(distanceInMeters, positions.view(startIndex, positions.length)))
+      }.max
     }
   }
 
@@ -25,27 +62,17 @@ class Activity @Inject() (activityDAO: ActivityDAO, experienceDAO: ExperienceDAO
       0.0
     } else {
       val duration = new Period(positions.head.timestamp, positions.last.timestamp)
-      val fullDistance = positions.tail.foldLeft((0.0, positions.head)){ case ((distance, point), nextPoint) =>
+      val fullDistance = positions.tail.foldLeft((0.0, positions.head)) { case ((distance, point), nextPoint) =>
         distance + GeographyUtilities.haversineDistance(point.longitude, point.latitude, nextPoint.longitude, nextPoint.latitude) -> nextPoint
       }
       (fullDistance._1 / 1000.0) / (duration.getSeconds / 3600)
     }
   }
 
-  private def getMaxSpeedForDistance(distanceInMeters: Double, positions: Seq[DAOPosition]): Double = {
-    if (positions.isEmpty) {
-      0.0
-    } else {
-      positions.indices.map{ startIndex =>
-        averageSpeed(forDistance(distanceInMeters, positions.view(startIndex, positions.length)))
-      }.max
-    }
-  }
-
   private def forDistance(distanceInMeters: Double, positions: Iterable[DAOPosition]): Iterable[DAOPosition] = {
     var distance = 0.0
     var point = positions.head
-    val positionsForDistance = positions.tail.takeWhile{ nextPoint =>
+    val positionsForDistance = positions.tail.takeWhile { nextPoint =>
       distance += GeographyUtilities.haversineDistance(point.longitude, point.latitude, nextPoint.longitude, nextPoint.latitude)
       point = nextPoint
       distance < distanceInMeters
@@ -55,11 +82,6 @@ class Activity @Inject() (activityDAO: ActivityDAO, experienceDAO: ExperienceDAO
     } else {
       positionsForDistance
     }
-  }
-
-  override def run(): Unit = {
-    val experiences = calculateMissingExperiences()
-    experienceDAO.addExperiences(experiences)
   }
 
 }
