@@ -20,7 +20,7 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
             nextUpdate++;
             if (Questerfullt && q.ausgewählterQuest.isSome)
             {
-                QuestAPI.postQuestErledigt(q.ausgewählterQuest.value.questID);
+                QuestAPI.postUnactivateQuest(q.ausgewählterQuest.value.questID);
                 Global.ausgewahlterQuest.value.erledigt = true;
             }
         }

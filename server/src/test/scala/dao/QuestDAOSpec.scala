@@ -78,7 +78,6 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
 
     val p = DAOP.getPoIs(long,lat)
     dao.fillDatabaseFromPoIs(p,0)
-    println(p)
 
     dao.makeUnActive(poiId,0)
 
@@ -86,6 +85,37 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
     val expectedResult = new DAOQuest(poiId,long,lat,priority,tags)
 
     computedResult should be (List(expectedResult))
+  }
+
+  "getOldest" must "get the QuestID of the oldest Quest" in withPool { pool =>
+    val dao = new QuestDAO(pool)
+    val DAOP= new PoIDAO(pool)
+
+    val poiId = nextLong()
+    val long = nextFloat()
+    val lat = nextFloat()
+    val priority = nextFloat()
+    val tags = None
+
+    DAOP.createPoI(poiId, long,lat, priority, tags)
+
+    val p = DAOP.getPoIs(long,lat)
+    dao.fillDatabaseFromPoIs(p,0)
+
+    val poiId1 = nextLong()
+    val priority1 = nextFloat()
+
+    DAOP.createPoI(poiId1, long,lat, priority1, tags)
+
+    val p1 = DAOP.getPoIs(long,lat)
+    dao.fillDatabaseFromPoIs(p1,0)
+
+    dao.getOldest(0)
+
+    val computedResult = dao.getOldest(0).get
+    val expectedResult = poiId
+
+    computedResult should be (expectedResult)
   }
 }
 
