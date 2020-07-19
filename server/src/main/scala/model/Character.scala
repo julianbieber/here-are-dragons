@@ -73,4 +73,27 @@ object Character {
     val requirements = IndexedSeq(0L, 1000L)
     val maxAttributes = IndexedSeq(0, 2)
   }
+
+  case class Talent(
+    id: Int,
+    name: String,
+    skillUnlock: Int,
+    activityId: Int,
+    distance: Option[Int],
+    speed: Option[Int],
+    time: Option[Int],
+    timeInDay: Option[Int]
+  )
+
+  case class TalentTreeNode(
+    talent: Talent,
+    next: Seq[TalentTreeNode],
+  )
+
+  case class TalentResponse(
+    unlocked: Seq[TalentTreeNode],
+    unlocking: Option[Talent],
+    unlockOptions: Seq[Talent]
+  )
+
 }

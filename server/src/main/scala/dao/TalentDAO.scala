@@ -1,6 +1,7 @@
 package dao
 
 import javax.inject.Inject
+import model.Character.{Talent, TalentTreeNode}
 import scalikejdbc._
 
 class TalentDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
@@ -41,42 +42,34 @@ class TalentDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
 case class TalentRow(id: Int, name: String, skillUnlock: Int, nextTalents: Seq[Int], activityId: Int, distance: Option[Int], speed: Option[Int], time: Option[Int], timeInDay: Option[Int])
 
-case class TalentTreeNode(
-  id: Int,
-  name: String,
-  skillUnlock: Int,
-  next: Seq[TalentTreeNode],
-  activityId: Int,
-  distance: Option[Int],
-  speed: Option[Int],
-  time: Option[Int],
-  timeInDay: Option[Int]
-)
-
-
 
 object TalentTree {
   def fromRows(rows: Seq[TalentRow]): Seq[TalentTreeNode] = {
-    val roots = rows.filterNot(r => rows.flatMap(_.nextTalents).contains(r.id))
+    val roots = findRoots(rows)
     roots.map(fill(_, rows))
   }
 
+  def findRoots(rows: Seq[TalentRow]): Seq[TalentRow] = rows.filterNot(r => rows.flatMap(_.nextTalents).contains(r.id))
+
   def fill(row: TalentRow, rows: Seq[TalentRow]): TalentTreeNode = {
-    if (row.nextTalents.isEmpty) {
+    if (!row.nextTalents.exists(rows.map(_.id).contains)) {
       createNode(row)
     } else {
-      val children = row.nextTalents.map{ id =>
-        rows.find(_.id == id).get
+      val children = row.nextTalents.flatMap{ id =>
+        rows.find(_.id == id)
       }.map(fill(_, rows))
       createNode(row).copy(next = children)
     }
   }
 
   def createNode(row: TalentRow): TalentTreeNode = TalentTreeNode(
-    id = row.id,
+    talent = createTalent(row),
+    next = Seq()
+  )
+
+  def createTalent(row: TalentRow): Talent = Talent(id = row.id,
     name = row.name,
     skillUnlock = row.skillUnlock,
-    next = Seq(),
     activityId = row.activityId,
     distance = row.distance,
     speed = row.speed,
