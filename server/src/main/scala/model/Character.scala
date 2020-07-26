@@ -36,20 +36,6 @@ object Character {
       evasion <= cap.evasion
     }
 
-    def toUnit(idInDungeon: Int, userId: Int, selectedSkills: Seq[Skill]): PlayerUnit = {
-      PlayerUnit(
-        id = idInDungeon,
-        userId = userId,
-        health = constitution * 10,
-        ap = 4,
-        maxAP = 6,
-        apGain = 4,
-        status = Status.empty,
-        attributes = this,
-        selectedSkills
-      )
-    }
-
     def add(other: Attributes): Attributes = {
       copy(
         strength = strength + other.strength,

@@ -9,13 +9,13 @@ import util._
  * Sets the boundaries for the dungeon generation
  */
 object Difficulty {
-  def generator(difficulty: Int): DungeonGenerator = {
+  def generator(difficulty: Int, playerCount: Int): DungeonGenerator = {
     val mobsRange = difficultyRangeToMobRange.reverse.find(_._1 <= difficulty).getOrElse(difficultyRangeToMobRange.head)._2
     val mobs = Rng.between(mobsRange._1, mobsRange._2)
 
     val allowedPatterns = minDifficultyPerPattern.filter(_._1 <= difficulty).map(_._2)
 
-    DungeonGenerator(mobs, allowedPatterns, (difficulty / 100.0f * 15).toInt)
+    DungeonGenerator(mobs, allowedPatterns, (difficulty / 100.0f * 15).toInt * math.pow(playerCount, 1.4).toInt)
   }
 
   /**
@@ -54,14 +54,13 @@ object Difficulty {
  * @param attributes
  */
 case class DungeonGenerator(numberOfEnemies: Int, enemyPatterns: Seq[EnemyPattern], attributes: Int) {
-  def generate(userId: Int, players: Seq[PlayerUnit]): Dungeon = {
+  def generate(userIds: Seq[Int], players: Seq[PlayerUnit]): Dungeon = {
     val enemies = (0 to numberOfEnemies).map{ i =>
       enemyPatterns.randomOne.generate(players.size + i, attributes)
     }
     val units = players ++ enemies
     service.Dungeon(
-      userId = Option(userId),
-      groupId = None,
+      userIds = userIds,
       units = units.toBuffer,
       currentTurn = 0,
       units.map(_.id)
