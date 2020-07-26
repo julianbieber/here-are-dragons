@@ -4,6 +4,8 @@ import model.Character.Attributes
 import model.Dungeon.Skill
 
 sealed trait DungeonUnit {
+  def countDownCDs(): DungeonUnit
+
   def id: Int
 
   val ap: Int
@@ -29,7 +31,8 @@ case class PlayerUnit(
   maxAP: Int,
   apGain: Int,
   var status: Status,
-  attributes: Attributes
+  attributes: Attributes,
+  skills: Seq[Skill]
 ) extends DungeonUnit {
   override def applySkill(status: Status, damage: Int): DungeonUnit = {
     status.add(status)
@@ -57,7 +60,13 @@ case class PlayerUnit(
     } else {
       Empty(id, 0, status)
     }
+  }
 
+  override def countDownCDs(): DungeonUnit = {
+    val newSkills = skills.map{ skill =>
+      skill.copy(remainingCoolDown = math.max(skill.remainingCoolDown - 1, 0))
+    }
+    copy(skills = newSkills)
   }
 }
 
@@ -93,7 +102,13 @@ case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], ap: Int,
     } else {
       Empty(id, 0, status)
     }
+  }
 
+  override def countDownCDs(): DungeonUnit = {
+    val newSkills = skills.map{ skill =>
+      skill.copy(remainingCoolDown = math.max(skill.remainingCoolDown - 1, 0))
+    }
+    copy(skills = newSkills)
   }
 }
 
@@ -111,4 +126,6 @@ case class Empty(id: Int, prefabId: Int, var status: Status) extends DungeonUnit
     status.countDown()
     this
   }
+
+  override def countDownCDs(): DungeonUnit = this
 }

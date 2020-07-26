@@ -1,6 +1,6 @@
 package model
 
-import model.Dungeon.ExtendedSkillBar
+import model.Dungeon.{ExtendedSkillBar, Skill}
 import service.{PlayerUnit, Status}
 
 object Character {
@@ -36,7 +36,7 @@ object Character {
       evasion <= cap.evasion
     }
 
-    def toUnit(idInDungeon: Int, userId: Int): PlayerUnit = {
+    def toUnit(idInDungeon: Int, userId: Int, selectedSkills: Seq[Skill]): PlayerUnit = {
       PlayerUnit(
         id = idInDungeon,
         userId = userId,
@@ -45,7 +45,8 @@ object Character {
         maxAP = 6,
         apGain = 4,
         status = Status.empty,
-        attributes = this
+        attributes = this,
+        selectedSkills
       )
     }
 
