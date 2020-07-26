@@ -15,6 +15,7 @@ public class FulleListeMitQuests : MonoBehaviour
     // Die Drpodownlist d ist die Dropdownliste in der die noch zu erreichenden Quests, ausgewählt werden können.
     public Dropdown d;
     //newList ist die Liste der Quests, von denen in diesem Moment ausgewählt werden kann.
+    public GameObject panel;
     private List<DAOQuest> newList = new List<DAOQuest>();
     private List<long> questIds = new List<long>();
 
@@ -45,7 +46,7 @@ public class FulleListeMitQuests : MonoBehaviour
         Die Methode getFilling erhält die Quests in der Nähe vom Server und hat als Augabewert eine TaksList von Stings, die
         die Quest IDs erhält.
     */
-    async Task<List<String>> getFilling()
+    async public Task<List<String>> getFilling()
     {
         //TODO: Erstelle eine Funktion, mit der nurnoch Quests ausgewählt werden, in einem anulus von der Position des Spielers
         List<String> Quets = new List<String>();
@@ -116,9 +117,9 @@ public class FulleListeMitQuests : MonoBehaviour
         int menuIndex = d.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;
         string value = menuOptions[menuIndex].text;
-
-        if (Global.ausgewahlterQuest.isSome && Global.ausgewahlterQuest.value.erledigt & value.Equals("kein Quest"))
+        if (Global.ausgewahlterQuest.isSome && Global.ausgewahlterQuest.value.erledigt )
         {
+            Global.ausgewahlterQuest=Option<DAOQuest>.None;
             await getFilling();
             FillList();
         }

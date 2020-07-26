@@ -18,9 +18,10 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
             Quest q = new Quest(Global.ausgewahlterQuest, Player);
             bool Questerfullt = q.istPlayerAnPositionVonAusgewahltemQuest();
             nextUpdate++;
-            if (Questerfullt && q.ausgewählterQuest.isSome)
+            if (Questerfullt && q.ausgewählterQuest.isSome&&!Global.ausgewahlterQuest.value.erledigt)
             {
-                QuestAPI.postUnactivateQuest(q.ausgewählterQuest.value.questID);
+                Debug.Log("waas");
+                QuestAPI.postUnactivateQuest(Global.ausgewahlterQuest.value.questID);
                 Global.ausgewahlterQuest.value.erledigt = true;
             }
         }

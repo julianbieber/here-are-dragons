@@ -36,7 +36,7 @@ public class InstantiateQuests : MonoBehaviour
         var map = LocationProviderFactory.Instance.mapManager;
         if (Time.time >= nextUpdate )
         {
-            nextUpdate = nextUpdate + 100f;
+            nextUpdate = nextUpdate + 10f;
             var I = await QuestAPI.getListOfQuestsNearby(distanceInMeter);
             newList = I.quests;
             List<long> loIn = new List<long>();

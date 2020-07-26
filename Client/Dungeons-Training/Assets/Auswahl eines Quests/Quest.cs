@@ -20,8 +20,9 @@ public class Quest
         if (ausgewählterQuest.isSome)
         {
             var questPosition = map.GeoToWorldPosition(new Vector2d(ausgewählterQuest.value.latitude, ausgewählterQuest.value.longitude));
-            if (GetDistanceBetweenPoints(positionSpieler, questPosition) < 20.0f)
+            if (GetDistanceBetweenPoints(positionSpieler, questPosition) < 50f)
             {
+                Debug.Log("was gehttttt");
                 return true;
             }
         }
