@@ -4,20 +4,37 @@ import java.util.concurrent.atomic.AtomicInteger
 
 import model.Character.Attributes
 import model.Dungeon.Skill
-import service.{Dungeon, DungeonGenerator}
+import service.{Dungeon, DungeonGenerator, PlayerUnit, Status}
 
 import scala.collection.mutable
 
 object DungeonDAO {
 
-  def newDungeon(userId: Int, playerAttributes: Attributes, playerSkills: Seq[Skill], generator: DungeonGenerator): (Int, Dungeon) = {
+  def newDungeon(userIds: Seq[Int], playerAttributes: Seq[Attributes], playerSkills: Seq[Seq[Skill]], generator: DungeonGenerator): (Int, Dungeon) = {
     val id = maxId.incrementAndGet()
-    val dungeon = generator.generate(userId, Seq(playerAttributes.toUnit(0, userId, playerSkills)))
+    val players = userIds.zip(playerAttributes.zip(playerSkills)).zipWithIndex.map{ case ((userId, (attributes, skills)), id) =>
+      combineToPlayerUnit(id, userId, attributes, skills)
+    }
+    val dungeon = generator.generate(userIds, players)
 
     dungeons.synchronized {
       dungeons.put(id, dungeon)
     }
     id -> dungeon
+  }
+
+  private def combineToPlayerUnit(id: Int, userId: Int, attributes: Attributes, skills: Seq[Skill]): PlayerUnit = {
+    PlayerUnit(
+      id = id,
+      userId = userId,
+      health = attributes.constitution * 10,
+      ap = 4,
+      maxAP = 6,
+      apGain = 4,
+      status = Status.empty,
+      attributes = attributes,
+      skills
+    )
   }
 
   def getDungeon(id: Int): Option[Dungeon] = dungeons.synchronized {
@@ -32,15 +49,7 @@ object DungeonDAO {
   def getDungeonForUser(userId: Int): Option[(Int, Dungeon)] = {
     dungeons.synchronized {
       dungeons.find { case (_, dungeon) =>
-        dungeon.userId == Option(userId)
-      }
-    }
-  }
-
-  def getDungeonForGroup(groupId: String): Option[(Int, Dungeon)] = {
-    dungeons.synchronized {
-      dungeons.find { case (_, dungeon) =>
-        dungeon.groupId == Option(groupId)
+        dungeon.userIds.contains(userId)
       }
     }
   }

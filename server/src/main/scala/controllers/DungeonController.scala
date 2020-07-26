@@ -25,9 +25,8 @@ class DungeonController @Inject() (
 
   get("/dungeons") { request: Request =>
     withUserAuto(request) { userId =>
-      val groupDungeon = groupDAO.getGroup(userId).flatMap(g => DungeonDAO.getDungeonForGroup(g.id).map(_._1))
       val spDungeon = DungeonDAO.getDungeonForUser(userId).map(_._1)
-      AvailableDungeons(Seq(groupDungeon, spDungeon).flatten)
+      AvailableDungeons(spDungeon.toSeq)
     }
   }
 
@@ -36,7 +35,11 @@ class DungeonController @Inject() (
       val openRequest = readFromString[OpenRequest](request.getContentString())
       //questDAO.getQuests(openRequest.questId).map { quest =>
         // TODO if user has completed quest
-      val (id, dungeon) = service.newSPDungeon(userId, openRequest.questId, attributesDAO.readAttributes(userId).selected, skillbarDAO.getSkillBar(userId).map(_.selected.map(SkillDAO.skills(_))).getOrElse(Seq()))
+      val userIds = groupDAO.getGroup(userId).map{ group =>
+        group.members
+      }.getOrElse(Seq(userId))
+
+      val (id, dungeon) = service.newDungeon(userIds, openRequest.questId, userIds.map(attributesDAO.readAttributes(_).selected), userIds.map(skillbarDAO.getSkillBar(_).map(_.selected.map(SkillDAO.skills(_))).getOrElse(Seq())))
       dungeonToResponse(id, userId, dungeon)
       //}
     }

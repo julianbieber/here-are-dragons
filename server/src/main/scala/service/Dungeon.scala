@@ -5,8 +5,7 @@ import model.Dungeon.{Skill, SkillUsage}
 import scala.collection.mutable
 
 case class Dungeon(
-  userId: Option[Int],
-  groupId: Option[String],
+  userIds: Seq[Int],
   units: mutable.Buffer[DungeonUnit],
   var currentTurn: Int,
   turnOrder: Seq[Int]
