@@ -23,6 +23,7 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def makeActive(questID: Long, userId: Int): Unit = {
     withSession(pool) { implicit session =>
+      sql"UPDATE public.quest SET activ = false WHERE userID = $userId".executeUpdate().apply()
       sql"UPDATE public.quest SET activ = true WHERE id = $questID AND userID = $userId".executeUpdate().apply()
     }
   }
@@ -59,9 +60,9 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def deleteQuest(questid: Long): Unit = {
+  def deleteQuest(questid: Long, userID: Int): Unit = {
     withSession(pool) { implicit session =>
-      sql"DELETE FROM public.quest WHERE id = $questid".execute().apply()
+      sql"DELETE FROM public.quest WHERE id = $questid AND userID = $userID".execute().apply()
     }
   }
 

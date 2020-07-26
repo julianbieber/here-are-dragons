@@ -17,7 +17,7 @@ class QuestUpdater @Inject()(val poIDAO: dao.PoIDAO, val questdao: dao.QuestDAO,
         pos => {
           val oldest = questdao.getOldest(user)
           if(lastExchange == 100 && oldest.isDefined){
-            questdao.deleteQuest(oldest.get)
+            questdao.deleteQuest(oldest.get,user)
             lastExchange = 0
           }
           val poisCloseToUser = poIDAO.getPoIs(pos.longitude, pos.latitude)

@@ -27,7 +27,7 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
   post("/unactivateQuest") {request: Request =>
     val y = request.getParam("questID").toLong
     withUser(request) { userId =>
-      questDAO.makeUnActive(y,userId);
+      questDAO.deleteQuest(y,userId)
       response.ok
     }
   }
