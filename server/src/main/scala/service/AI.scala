@@ -5,9 +5,9 @@ import model.Dungeon.SkillUsage
 
 class AI @Inject()() {
   def decideAction(npc: NPC, dungeon: Dungeon): Option[SkillUsage] = {
-    npc.skills.sortBy(_.damage).collect { case skill if skill.apCost <= npc.ap =>
+    npc.skills.collect { case skill if skill.apCost <= npc.ap && skill.remainingCoolDown == 0 =>
       skill
-    }.lastOption.flatMap { skill =>
+    }.sortBy(_.damage).lastOption.flatMap { skill =>
       DungeonService.identifyTargetable(dungeon, skill, dungeon.findUnitById(npc.id)._2).headOption.map(target =>
         SkillUsage(target, skill)
       )

@@ -39,6 +39,16 @@ case class Dungeon(
     currentTurn = (currentTurn + 1) % turnOrder.length
   }
 
+  def countDownCDs(): Unit = {
+    units.transform{ unit =>
+      if (isCurrentTurn(unit.id)) {
+        unit.countDownCDs()
+      } else {
+        unit
+      }
+    }
+  }
+
   def completed: (Boolean, Boolean) = {
     !units.exists(_.isInstanceOf[NPC]) -> !units.exists(_.isInstanceOf[PlayerUnit])
   }
@@ -46,7 +56,8 @@ case class Dungeon(
   def isAllowedToUse(unitId: Int, skillUsage: SkillUsage): Boolean = {
     currentTurnUnit.id == unitId &&
       skillUsage.skill.apCost <= currentTurnUnit.ap &&
-      DungeonService.identifyTargetable(this, skillUsage.skill, findUnitById(unitId)._2).contains(skillUsage.targetPosition)
+      DungeonService.identifyTargetable(this, skillUsage.skill, findUnitById(unitId)._2).contains(skillUsage.targetPosition) &&
+      skillUsage.skill.remainingCoolDown == 0
   }
 
   def currentTurnUnit: DungeonUnit = findUnitById(turnOrder(currentTurn))._1
@@ -84,8 +95,20 @@ case class Dungeon(
     units.transform{ unit =>
       if (unit.id == casterId) {
         unit match {
-          case p: PlayerUnit => p.copy(ap = p.ap - skill.apCost)
-          case p: NPC => p.copy(ap = p.ap - skill.apCost)
+          case p: PlayerUnit => p.copy(ap = p.ap - skill.apCost, skills = p.skills.map{ s =>
+            if (s.id == skill.id) {
+              s.copy(remainingCoolDown = s.coolDown)
+            } else {
+              s
+            }
+          })
+          case p: NPC => p.copy(ap = p.ap - skill.apCost, skills = p.skills.map{ s =>
+              if (s.id == skill.id) {
+                s.copy(remainingCoolDown = s.coolDown)
+              } else {
+                s
+              }
+            })
           case empty: Empty => empty
         }
       } else {

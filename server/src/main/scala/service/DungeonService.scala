@@ -7,9 +7,9 @@ import model.Dungeon.{Skill, SkillUsage}
 
 class DungeonService @Inject()(ai: AI) {
 
-  def newSPDungeon(userId: Int, difficulty: Int, player: Attributes): (Int, Dungeon) = {
+  def newSPDungeon(userId: Int, difficulty: Int, playerAttributes: Attributes, playerSkills: Seq[Skill]): (Int, Dungeon) = {
     val generator = Difficulty.generator(difficulty)
-    val dungeon = DungeonDAO.newDungeon(userId, player, generator)
+    val dungeon = DungeonDAO.newDungeon(userId, playerAttributes, playerSkills, generator)
 
     executeNPCS(dungeon._2)
     dungeon

@@ -85,7 +85,8 @@ case class SkillBuilder(
   stunDuration: Int = 0,
   knockDownDuration: Int = 0,
   moves: Boolean = false,
-  movementOffset: Int = 0
+  movementOffset: Int = 0,
+  coolDown: Int = 1
 ) {
   def withTargetPattern(p: String): SkillBuilder = copy(targetPattern = p)
   def withEffectPattern(p: String): SkillBuilder = copy(effectPattern = p)
@@ -100,6 +101,7 @@ case class SkillBuilder(
   def withStun(d: Int): SkillBuilder = copy(stunDuration = d)
   def withKD(d: Int): SkillBuilder = copy(knockDownDuration = d)
   def movesTo(offset: Int): SkillBuilder = copy(moves = true, movementOffset = offset)
+  def withCD(cd: Int): SkillBuilder = copy(coolDown = cd)
 
   def build(): Skill = {
     Skill(
@@ -120,7 +122,9 @@ case class SkillBuilder(
         knockedDown = knockDownDuration
       ),
       moves,
-      movementOffset
+      movementOffset,
+      coolDown,
+      0
     )
   }
 

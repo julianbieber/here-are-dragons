@@ -3,15 +3,16 @@ package dao
 import java.util.concurrent.atomic.AtomicInteger
 
 import model.Character.Attributes
+import model.Dungeon.Skill
 import service.{Dungeon, DungeonGenerator}
 
 import scala.collection.mutable
 
 object DungeonDAO {
 
-  def newDungeon(userId: Int, playerCharacter: Attributes, generator: DungeonGenerator): (Int, Dungeon) = {
+  def newDungeon(userId: Int, playerAttributes: Attributes, playerSkills: Seq[Skill], generator: DungeonGenerator): (Int, Dungeon) = {
     val id = maxId.incrementAndGet()
-    val dungeon = generator.generate(userId, Seq(playerCharacter.toUnit(0, userId)))
+    val dungeon = generator.generate(userId, Seq(playerAttributes.toUnit(0, userId, playerSkills)))
 
     dungeons.synchronized {
       dungeons.put(id, dungeon)

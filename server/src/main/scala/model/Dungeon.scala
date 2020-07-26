@@ -22,7 +22,8 @@ object Dungeon {
     userId: Option[Int],
     health: Option[Int],
     prefabId: Option[Int],
-    status: Status
+    status: Status,
+    skills: Seq[Skill]
   )
 
   case class Turn(
@@ -47,7 +48,9 @@ object Dungeon {
     dexterityScaling: Float,
     status: Status,
     moves: Boolean,
-    movementOffset: Int
+    movementOffset: Int,
+    coolDown: Int,
+    remainingCoolDown: Int
   )
 
   case class SkillBar(
