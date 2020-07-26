@@ -4,6 +4,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
 import testUtil.SQLSpec._
 import testUtil.GeneratorUtil._
+import util.TimeUtil
 
 class ActivityDAOSpec extends AnyFlatSpec with Matchers {
 

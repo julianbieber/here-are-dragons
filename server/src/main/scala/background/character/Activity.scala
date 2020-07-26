@@ -4,7 +4,8 @@ import background.Background
 import com.github.dmarcous.s2utils.geo.GeographyUtilities
 import dao._
 import javax.inject.Inject
-import org.joda.time.Period
+import org.joda.time.{Minutes, Period}
+import util.TimeUtil
 
 class Activity @Inject()(activityDAO: ActivityDAO, experienceDAO: ExperienceDAO, positionDAO: PositionDAO, talentUnlockDAO: TalentUnlockDAO, talentDAO: TalentDAO) extends Background {
   override def run(): Unit = {
@@ -15,6 +16,7 @@ class Activity @Inject()(activityDAO: ActivityDAO, experienceDAO: ExperienceDAO,
   private def calculateMissingExperiences(): Seq[ExperienceValue] = {
     val activities = activityDAO.getNotProcessedActivities()
     activityDAO.setProcessed(activities)
+    checkTimeInDayUnlocks()
     activities.flatMap { activity =>
       val positions = positionDAO.getHistory(activity.user, activity.startTimestamp, activity.endTimestamp.get).sortBy(_.timestamp.getMillis)
       if (positions.nonEmpty) {
@@ -81,6 +83,27 @@ class Activity @Inject()(activityDAO: ActivityDAO, experienceDAO: ExperienceDAO,
       Seq()
     } else {
       positionsForDistance
+    }
+  }
+
+  private def checkTimeInDayUnlocks(): Unit = {
+    val user2Unlock = talentUnlockDAO.getAllUnlocks().collect{ case UnlockRow(userId, Some(currentlyUnlocking), _) =>
+      userId -> currentlyUnlocking
+    }
+    val talents = talentDAO.getTalents(user2Unlock.map(_._2))
+    val user2Talent = user2Unlock.map{ case (user, talentId) =>
+      user -> talents.find(_.id == talentId).get
+    }
+
+    val now = TimeUtil.now
+    user2Talent.collect{ case (user, TalentRow(_, _, _, _, activityId, _, _, _, Some(timeInDay))) =>
+      val activeTime = activityDAO.getActivitiesBetween(user, activityId, now.minusDays(1), now).map{ activity =>
+        Minutes.minutesBetween(activity.startTimestamp, activity.endTimestamp.get).getMinutes
+      }.sum
+
+      if (activeTime > timeInDay) {
+        talentUnlockDAO.unlock(user)
+      }
     }
   }
 

@@ -15,7 +15,7 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
         col.int("id")
       }.first().apply().getOrElse(throw new RuntimeException(s"Unsupported activityType: $activityType"))
       val time: DateTime = TimeUtil.now
-      val notProcessed = notProcessedForUser(user, activityId, time.plusMinutes(1)).sortBy(_.endTimestamp.get.getMillis)
+      val notProcessed = notProcessedForUser(user, activityId, time.minusMinutes(1)).sortBy(_.endTimestamp.get.getMillis)
       if (notProcessed.isEmpty) {
         sql"INSERT INTO public.activity (userId, start_timestamp, activity_id) VALUES ($user, $time, $activityId)".executeUpdate().apply()
       } else {
@@ -79,7 +79,7 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   }
 
   private def notProcessedForUser(user: Int, activityId: Int, maxEnd: DateTime)(implicit session: DBSession): Seq[DAOActivity] = {
-    sql"SELECT userid, start_timestamp, end_timestamp FROM public.activity WHERE userid = $user and activity_id = $activityId and processed = false and end_timestamp is not NULL and end_timestamp < $maxEnd"
+    sql"SELECT userid, start_timestamp, end_timestamp FROM public.activity WHERE userid = $user and activity_id = $activityId and processed = false and end_timestamp is not NULL and end_timestamp > $maxEnd"
       .map { row =>
         val startTimestamp = toDateTime(row.dateTime("start_timestamp"))
         val endTimestamp = toDateTime(row.dateTime("end_timestamp"))
@@ -92,6 +92,14 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       sql"UPDATE public.activity SET processed = true where userid = {u} and start_timestamp = {t}".batchByName(activities.map { activity =>
         Seq("u" -> activity.user, "t" -> activity.startTimestamp)
       }: _*).apply()
+    }
+  }
+
+  def getActivitiesBetween(userId: Int, activityType: Int, start: DateTime, end: DateTime): Seq[DAOActivity] = {
+    withReadOnlySession(pool) { implicit session: DBSession =>
+      sql"select userid, start_timestamp, end_timestamp, processed FROM public.activity where userid = $userId and activity_id = $activityType and start_timestamp >= $start and end_timestamp <= $end and end_timestamp is not null".map{ row =>
+        DAOActivity(userId, activityType, toDateTime(row.dateTime("start_timestamp")), Option(toDateTime(row.dateTime("end_timestamp"))), row.boolean("processed"))
+      }.list().apply()
     }
   }
 }
