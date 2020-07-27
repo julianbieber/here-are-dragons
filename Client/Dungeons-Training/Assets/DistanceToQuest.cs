@@ -20,11 +20,8 @@ public class DistanceToQuest : MonoBehaviour
         if(Time.time>=nextUpdate){
             nextUpdate=Mathf.FloorToInt(Time.time)+1;
             if(Global.ausgewahlterQuest.isSome){
-                var map = LocationProviderFactory.Instance.mapManager;
-                var coordQuest = map.GeoToWorldPosition(new Vector2d(Global.ausgewahlterQuest.value.latitude, Global.ausgewahlterQuest.value.longitude));
-                var coordPlayer = player.GetComponent<Transform>().position;
-                var length = (coordQuest-coordPlayer).magnitude;
-                text.GetComponent<Text>().text = length.ToString();
+                Quest quest = new Quest(Option<DAOQuest>.Some(Global.ausgewahlterQuest.value),player);
+                text.GetComponent<Text>().text = Mathd.Floor(quest.getDistanceToPlayer()).ToString();
             }
             else{
                 text.GetComponent<Text>().text = "Inf";

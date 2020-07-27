@@ -43,6 +43,27 @@ public class FulleListeMitQuests : MonoBehaviour
         d.AddOptions(Quets);
     }
     /*
+        OnEnable wird einmal aufgerufen, wenn die Dropdownliste der Quests aktiviert wird.
+    */
+    public void OnEnable(){
+
+        int selectedQuestIndex = d.GetComponent<Dropdown>().value;
+        List<Dropdown.OptionData> questOptions = d.GetComponent<Dropdown>().options;
+
+        for (int i = 1 ; i<questOptions.Count && newList.Count>0 && i != selectedQuestIndex ; i++){
+
+            DAOQuest q = newList[i-1];
+            Quest quest = new Quest(Option<DAOQuest>.Some(q),Player);
+
+            double distance = quest.getDifficulty();
+            int indexFirstTab = questOptions[i].text.IndexOf("|");
+
+            if(indexFirstTab!=-1){
+                questOptions[i].text = distance + questOptions[i].text.Substring(indexFirstTab);
+            }
+        }
+    }
+    /*
         Die Methode getFilling erhält die Quests in der Nähe vom Server und hat als Augabewert eine TaksList von Stings, die
         die Quest IDs erhält.
     */
@@ -56,13 +77,16 @@ public class FulleListeMitQuests : MonoBehaviour
         questIds.Add(-1);
         foreach (DAOQuest q in newList)
         {
+            Quest quest = new Quest(Option<DAOQuest>.Some(q),Player);
+            double distance = quest.getDifficulty();
+
             if (questInBestimmtenAbstand(q)& q.tag != null)
             {
-                Quets.Add(q.tag+"|"+typeOfPoI(q.priority));
+                Quets.Add(distance+"|"+q.tag+"|"+typeOfPoI(q.priority));
             }
             if(questInBestimmtenAbstand(q)& q.tag == null)
             {
-                Quets.Add(typeOfPoI(q.priority));
+                Quets.Add(distance+"|"+typeOfPoI(q.priority));
             }
             questIds.Add(q.questID);
         }
@@ -113,7 +137,6 @@ public class FulleListeMitQuests : MonoBehaviour
     async void Update()
     {
         Global.ausgewahlterQuest = getSelectedQuest();
-        
         int menuIndex = d.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;
         string value = menuOptions[menuIndex].text;
