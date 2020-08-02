@@ -6,6 +6,7 @@ public class Character : MonoBehaviour
 {
 
     public Option<PlayerCharacter> player = Option<PlayerCharacter>.None;
+    public Skillbar skillbar;
 
     private int nextUpdate = 0;
     // Start is called before the first frame update
@@ -20,8 +21,12 @@ public class Character : MonoBehaviour
         if (Time.time >= nextUpdate) {
             nextUpdate = (int)(Time.time) + 2;
 
-            var p = await CharacterAPI.getCharacter();
-            player = p;
+            player = await CharacterAPI.getCharacter();
+
+            if (player.isSome && player.value.skillBar.selected != null && skillbar != null) {
+                skillbar.updateCharacter(player.value.skillBar.selected, 100, true);
+            }
+
         }
         
     }

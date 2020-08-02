@@ -850,7 +850,6 @@ MonoBehaviour:
   - {fileID: 2106169506}
   - {fileID: 621312427}
   dm: {fileID: 0}
-  character: {fileID: 1284297165}
   tooltipBox: {fileID: 1275721616}
   tooltipBackground: {fileID: 109931449}
 --- !u!1 &473884743
@@ -2884,6 +2883,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d44da1322d94ddf429a5a7e8f82874b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  skillbar: {fileID: 465467103}
 --- !u!4 &1284297166
 Transform:
   m_ObjectHideFlags: 0

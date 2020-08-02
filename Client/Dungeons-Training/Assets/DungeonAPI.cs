@@ -80,13 +80,15 @@ public static class DungeonAPI
             return new NPCUnit {
                 prefabId = response.prefabId,
                 health = response.health,
-                status = response.status
+                status = response.status,
+                skills = response.skills
             };
         } else if (response.tyype == "player") {
             return new PlayerUnit {
                 userId = response.userId,
                 health = response.health,
-                status = response.status
+                status = response.status,
+                skills = response.skills
             };
         } else {
             throw new System.ArgumentException("Unrecognized unit type", response.tyype);
@@ -121,6 +123,7 @@ public class UnitResponse {
     public int health;
     public int prefabId;
     public Status status;
+    public List<Skill> skills;
 }
 
 [Serializable]

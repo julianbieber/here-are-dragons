@@ -1241,7 +1241,6 @@ MonoBehaviour:
   - {fileID: 1356372248}
   - {fileID: 790341496}
   dm: {fileID: 942243729}
-  character: {fileID: 371468564}
   tooltipBox: {fileID: 1310096472}
   tooltipBackground: {fileID: 1300069369}
 --- !u!1 &887090206
@@ -1363,6 +1362,7 @@ MonoBehaviour:
   endBackground: {fileID: 947077413}
   endText: {fileID: 887090208}
   leaveButton: {fileID: 1020092188}
+  skillbar: {fileID: 877840628}
 --- !u!4 &942243730
 Transform:
   m_ObjectHideFlags: 0

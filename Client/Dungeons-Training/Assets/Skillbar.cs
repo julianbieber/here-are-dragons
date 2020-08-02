@@ -9,11 +9,13 @@ public class Skillbar : MonoBehaviour
 {
     public List<Button> skillButtons;
     public DungeonController dm;
-    public Character character;
     public Text tooltipBox;
     public Image tooltipBackground;
     
     private int nextUpdate = 0;
+    private List<Skill> skills;
+    private int ap;
+    private bool myTurn;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,30 +26,38 @@ public class Skillbar : MonoBehaviour
     // Update is called once per frame
     async void Update()
     {
-        if (character.player.isSome && character.player.value.skillBar.selected.Count <= skillButtons.Count) {
-            for (int i = 0; i < skillButtons.Count; ++i) {
-                if (i < character.player.value.skillBar.selected.Count) {
-                    var skill = character.player.value.skillBar.selected[i];
-                    var skillButton = skillButtons[i];
-                    skillButton.GetComponentInChildren<Text>().text = skill.name;
-                } 
-            }
-        }
         
     }
 
+    public void updateCharacter(List<Skill> skills, int ap, bool myTurn) {
+        this.skills = skills;
+        this.ap = ap;
+        this.myTurn = myTurn;
+        for (int i = 0; i < skillButtons.Count; ++i) {
+            if (i < skills.Count) {
+                var skill = skills[i];
+                var skillButton = skillButtons[i];
+                skillButton.GetComponentInChildren<Text>().text = skill.name;
+                if (skill.remainingCoolDown > 0 || skill.apCost > ap || !myTurn) {
+                    skillButton.GetComponent<Image>().color = Color.red;
+                }
+            } 
+        }
+    }
+
     public void cast(int skillId) {
-        if (character.player.isSome && character.player.value.skillBar.selected.Count > skillId) {
-            var skill = character.player.value.skillBar.selected[skillId];
-        
+        if (skills != null && skills.Count > skillId) {
+            var skill = skills[skillId];
             displayTooltip(skill);
-            dm.makeTargettableForPattern(skill);
+            if (skill.remainingCoolDown == 0 && skill.apCost <= ap && myTurn) {
+                dm.makeTargettableForPattern(skill);    
+            }
         }
     }
 
     public void show(int skillId) {
-        if (character.player.isSome && character.player.value.skillBar.selected.Count > skillId) {
-            var skill = character.player.value.skillBar.selected[skillId];
+        if (skills != null && skills.Count > skillId) {
+            var skill = skills[skillId];
         
             displayTooltip(skill);
         }
@@ -104,12 +114,14 @@ public class Skill {
     public string targetPattern;
     public string effectPattern; 
     public int apCost;
-
     public int damage;
-
+    public float strengthScaling;
+    public float spellPowerScaling;
+    public float dexterityScaling;
     public Status status;
-
     public bool moves;
     public int movementOffset;
+    public int coolDown;
+    public int remainingCoolDown;
 
 }
