@@ -22,6 +22,8 @@ public class DungeonController : MonoBehaviour
 
     public GameObject leaveButton;
 
+    public Skillbar skillbar;
+
     private Color winColor = Color.green;
     private Color loseColor = Color.red;
     private Color drawColor = Color.yellow;
@@ -143,6 +145,7 @@ public class DungeonController : MonoBehaviour
             leaveButton.SetActive(false);
         }
 
+        skillbar.updateCharacter((dungeon.units[getSelf()] as PlayerUnit).skills, dungeon.ap, dungeon.myTurn);
         
     }
 
@@ -239,12 +242,14 @@ public class PlayerUnit : Unit {
     public int userId;
     public int health;
     public Status status;
+    public List<Skill> skills;
 }
 
 public class NPCUnit : Unit {
     public int prefabId;
     public int health;
     public Status status;
+    public List<Skill> skills;
 }
 
 public class EmptyUnit : Unit {

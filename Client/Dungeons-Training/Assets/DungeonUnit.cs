@@ -25,12 +25,10 @@ public class DungeonUnit : MonoBehaviour
     void Start()
     {
         //reset();
-        Debug.Log("---");
     }
 
     public void make(Unit unit) {
         reset();
-        Debug.Log("display");
         if (unit is PlayerUnit) {
             var p = unit as PlayerUnit;
             player.SetActive(true);
@@ -65,7 +63,6 @@ public class DungeonUnit : MonoBehaviour
         foreach(var o in empties) {
             o.SetActive(false);
         }
-        Debug.Log("reset");
     }
 
     void displayStatus(Status status) {
