@@ -16,11 +16,15 @@ class TalentDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   }
 
   def getTalents(talents: Seq[Int]): Seq[TalentRow] = {
-    withReadOnlySession(pool) { implicit session =>
-      sql"select id, name, skill_unlock, next_talents, activity_id, distance, speed, time, time_in_day from public.talents where id = any (${talents})"
-        .map(readRow)
-        .list()
-        .apply()
+    if (talents.nonEmpty) {
+      withReadOnlySession(pool) { implicit session =>
+        sql"select id, name, skill_unlock, next_talents, activity_id, distance, speed, time, time_in_day from public.talents where id = any (${talents})"
+          .map(readRow)
+          .list()
+          .apply()
+      }
+    } else {
+      Seq()
     }
   }
 

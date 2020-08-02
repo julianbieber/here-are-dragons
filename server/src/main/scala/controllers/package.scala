@@ -1,8 +1,8 @@
 import com.github.plokhotnyuk.jsoniter_scala.macros.{CodecMakerConfig, JsonCodecMaker}
-import dao.AttributesTable
+import dao.{AttributesTable, TalentRow}
 import model.Account.{CreateResponse, LoginRequest, LoginResponse}
 import model.Activity.ActivityStart
-import model.Character.{Attributes, Character, TalentResponse}
+import model.Character.{Attributes, Character, Talent, TalentResponse}
 import model.Dungeon._
 import model.Group.{Group, JoinRequest}
 import model.Position.{PositionRequest, UserPosition}
@@ -34,4 +34,5 @@ package object controllers {
   implicit val attributesCodec = JsonCodecMaker.make[Attributes]
   implicit val attributesTableCodec = JsonCodecMaker.make[AttributesTable]
   implicit val talentResponseCodec = JsonCodecMaker.make[TalentResponse](CodecMakerConfig.withAllowRecursiveTypes(true))
+  implicit val talentCodec = JsonCodecMaker.make[Talent]
 }

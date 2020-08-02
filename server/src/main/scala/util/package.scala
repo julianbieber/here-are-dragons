@@ -11,7 +11,7 @@ package object util {
       Random.shuffle(seq)
     }
 
-    def randomOne: A = seq(Rng.between(0, seq.length))
+    def randomOne: A = seq(Rng.between(0, seq.length - 1))
   }
 
 }

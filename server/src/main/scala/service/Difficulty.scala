@@ -37,8 +37,9 @@ object Difficulty {
   }
 
   private[service] val difficultyRangeToMobRange = Seq(
-    10 -> (2 -> 4),
-    50 -> (3 -> 6),
+    1 -> (2 -> 3),
+    10 -> (2 -> 5),
+    50 -> (3 -> 7),
     90 -> (1 -> 1)
   )
 
