@@ -10,7 +10,6 @@ class DungeonService @Inject()(ai: AI) {
   def newDungeon(userIds: Seq[Int], difficulty: Int, playerAttributes: Seq[Attributes], playerSkills: Seq[Seq[Skill]]): (Int, Dungeon) = {
     val generator = Difficulty.generator(difficulty, userIds.length)
     val dungeon = DungeonDAO.newDungeon(userIds, playerAttributes, playerSkills, generator)
-
     executeNPCS(dungeon._2)
     dungeon
   }

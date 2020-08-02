@@ -8,7 +8,7 @@ import com.twitter.finagle.http.{Request, Response}
 import com.twitter.finatra.http.HttpServer
 import com.twitter.finatra.http.filters.{CommonFilters, LoggingMDCFilter, TraceIdMDCFilter}
 import com.twitter.finatra.http.routing.HttpRouter
-import controllers.{ActivityController, CharacterController, DungeonController, ExampleLoggedInController, GroupController, PositionController, QuestController, UserController}
+import controllers.{ActivityController, CharacterController, DungeonController, ExampleLoggedInController, GroupController, PositionController, QuestController, TalentController, UserController}
 import dao.{ActivityDAO, ExperienceDAO, PoIDAO, PositionDAO, QuestDAO, TalentDAO, TalentUnlockDAO, UserDAO}
 import net.codingwell.scalaguice.ScalaModule
 
@@ -45,9 +45,10 @@ object Api extends HttpServer {
       .add[QuestController]
       .add[CharacterController]
       .add[DungeonController]
+      .add[TalentController]
   }
 
-  val experienceJob = new BackgroundExecutor(new Activity(new ActivityDAO(pool), new ExperienceDAO(pool), new PositionDAO(pool), new TalentUnlockDAO(pool), new TalentDAO(pool)),10000)
+  /*val experienceJob = new BackgroundExecutor(new Activity(new ActivityDAO(pool), new ExperienceDAO(pool), new PositionDAO(pool), new TalentUnlockDAO(pool), new TalentDAO(pool)),10000)
   val QuestJob = new BackgroundExecutor(new QuestUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)
-  val PoIJob = new BackgroundExecutor(new PoIUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)
+  val PoIJob = new BackgroundExecutor(new PoIUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)*/
 }

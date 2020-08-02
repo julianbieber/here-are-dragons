@@ -39,7 +39,9 @@ class DungeonController @Inject() (
         group.members
       }.getOrElse(Seq(userId))
 
-      val (id, dungeon) = service.newDungeon(userIds, openRequest.questId, userIds.map(attributesDAO.readAttributes(_).selected), userIds.map(skillbarDAO.getSkillBar(_).map(_.selected.map(SkillDAO.skills(_))).getOrElse(Seq())))
+      val selectedAttributes = userIds.map(attributesDAO.readAttributes(_).selected)
+      val skills = userIds.map(skillbarDAO.getSkillBar(_).map(_.selected.map(SkillDAO.skills(_))).getOrElse(Seq()))
+      val (id, dungeon) = service.newDungeon(userIds, openRequest.questId, selectedAttributes, skills)
       dungeonToResponse(id, userId, dungeon)
       //}
     }

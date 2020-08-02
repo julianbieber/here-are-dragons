@@ -41,8 +41,6 @@ class PoIUpdater @Inject()(val poIDAO: dao.PoIDAO, val questdao: dao.QuestDAO, v
 
           implicit val backend = HttpURLConnectionBackend()
           val response = request.send()
-          println(response.header("Content-Length"))
-          println(response.body)
 
           response.body match {
 

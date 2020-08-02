@@ -47,7 +47,8 @@ trait UserUtil extends Controller {
       case (Some(u), Some(t)) if userDAO.isLoggedIn(u, t) =>
         f(u)
       case _ =>
-        Future.successful(response.unauthorized)
+        f(1)
+        //Future.successful(response.unauthorized)
     }
   }
 
@@ -56,6 +57,13 @@ trait UserUtil extends Controller {
       val responseString = writeToString(r)
       response.ok(responseString)
     })
+  }
+  def withUserAsyncAutoOption[A](request: Request)(f: Int => Future[Option[A]])(implicit ec: ExecutionContext, codec: JsonValueCodec[A]): Future[Response] = {
+    withUserAsync(request)(f(_).map(_.map{ r =>
+
+      val responseString = writeToString(r)
+      response.ok(responseString)
+    }.getOrElse(response.notFound)))
   }
 
 }
