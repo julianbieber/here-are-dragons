@@ -155,12 +155,13 @@ public class FulleListeMitQuests : MonoBehaviour
         int menuIndex = d.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;
         string value = menuOptions[menuIndex].text;
-        Global.difficulty = Option<int>.Some(int.Parse(value.Substring(0,value.IndexOf("|"))));
+        
 
         foreach (DAOQuest q in newList)
         {
             if (questIds[menuIndex].ToString().Equals(q.questID.ToString()))
             {
+                Global.difficulty = Option<int>.Some(int.Parse(value.Substring(0,value.IndexOf("|"))));
                 return Option<DAOQuest>.Some(q);
             }
         }

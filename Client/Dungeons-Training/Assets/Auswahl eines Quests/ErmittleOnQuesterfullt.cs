@@ -19,7 +19,7 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
     {
         if(i==1){
             i=0;
-            text.text="";
+            text.text=" ";
         }
         if(i>1) i =i-1;
         if (Time.time > nextUpdate * 10)
