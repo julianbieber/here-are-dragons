@@ -32,7 +32,6 @@ public class TalentAPI
 
 [Serializable]
 public class TalentResponse {
-    public List<TalentTreeNode> unlocked;
     public Talent unlocking;
     public List<Talent> unlockOptions;
 }
@@ -47,10 +46,4 @@ public class Talent {
     public int speed;
     public int time;
     public int timeInDay;
-}
-
-[Serializable]
-public class TalentTreeNode {
-    Talent talent;
-    List<TalentTreeNode> next;
 }
