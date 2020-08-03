@@ -4,6 +4,7 @@ using UnityEngine;
 using Mapbox.Unity.Location;
 using Mapbox.Utils;
 using Mapbox.Map;
+using Mapbox.Unity.Utilities;
 
 public class Quest
 {
@@ -20,9 +21,8 @@ public class Quest
         if (ausgewählterQuest.isSome)
         {
             var questPosition = map.GeoToWorldPosition(new Vector2d(ausgewählterQuest.value.latitude, ausgewählterQuest.value.longitude));
-            if (GetDistanceBetweenPoints(positionSpieler, questPosition) < 50f)
+            if (GetDistanceBetweenPoints(positionSpieler, questPosition) < 5f)
             {
-                Debug.Log("was gehttttt");
                 return true;
             }
         }
@@ -42,6 +42,25 @@ public class Quest
         }
         return false;
     }
+    public double getDistanceToPlayer(){
+        var map = LocationProviderFactory.Instance.mapManager;
+
+        var positionSpieler = map.WorldToGeoPosition(Player.transform.position);
+        var questPosition = new Vector2d(ausgewählterQuest.value.latitude,ausgewählterQuest.value.longitude);
+
+        var distanceVector = (positionSpieler-questPosition);
+        return Conversions.LatLonToMeters(distanceVector.x,distanceVector.y).magnitude;
+    }
+
+    public double getDifficulty(){
+        double distance = getDistanceToPlayer();
+
+        if(distance>1000) return 100;
+        
+
+        return Mathd.Floor(distance/10);
+    }
+
     public float GetDistanceBetweenPoints(Vector3 point1, Vector3 point2)
     {
         var a = (point2.x - point1.x);
