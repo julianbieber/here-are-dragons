@@ -78,7 +78,6 @@ object Character {
   )
 
   case class TalentResponse(
-    unlocked: Seq[TalentTreeNode],
     unlocking: Option[Talent],
     unlockOptions: Seq[Talent]
   )

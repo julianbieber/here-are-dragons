@@ -30,13 +30,11 @@ class TalentController @Inject() (override val userDAO: UserDAO, executionContex
             ).filterNot(u => isUnlocked(u.id) || isUnlocking(u.id) || isAvailable(u.id))
 
           TalentResponse(
-            unlocked = TalentTree.fromRows(unlocked),
             unlocking = unlocking.headOption.map(TalentTree.createTalent),
             unlockOptions = (available ++ triviallyUnlockable).map(TalentTree.createTalent)
           )
 
         }.getOrElse(TalentResponse(
-          Seq(),
           None,
           TalentTree
             .findRoots(talentDAO.getTalents()
@@ -67,13 +65,11 @@ class TalentController @Inject() (override val userDAO: UserDAO, executionContex
             ).filterNot(u => isUnlocked(u.id) || isUnlocking(u.id) || isAvailable(u.id))
 
           TalentResponse(
-            unlocked = TalentTree.fromRows(unlocked),
             unlocking = unlocking.headOption.map(TalentTree.createTalent),
             unlockOptions = (available ++ triviallyUnlockable).map(TalentTree.createTalent)
           )
 
         }.getOrElse(TalentResponse(
-          Seq(),
           None,
           TalentTree
             .findRoots(talentDAO.getTalents()
