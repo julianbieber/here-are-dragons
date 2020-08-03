@@ -228,6 +228,7 @@ public class DungeonController : MonoBehaviour
 
 public class Dungeon {
     public int id;
+    public int currentLevel;
     public List<Unit> units;
     public bool myTurn;
     public int ap;
