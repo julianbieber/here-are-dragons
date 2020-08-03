@@ -30,6 +30,8 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
             if (Questerfullt && q.ausgewählterQuest.isSome&&!Global.ausgewahlterQuest.value.erledigt)
             {
                 text.text = "Quest abgeschlossen";
+                //TODO Group auswählen
+                DifficultyAPI.postDifficulty(Global.difficulty.value, false);
                 i = 2000;
                 QuestAPI.postUnactivateQuest(Global.ausgewahlterQuest.value.questID);
                 Global.ausgewahlterQuest.value.erledigt = true;

@@ -6,7 +6,6 @@ import org.scalatest.matchers.should.Matchers
 import testUtil.GeneratorUtil._
 import testUtil.SQLSpec._
 
-import scala.util.Random.{nextFloat, nextLong}
 
 class DifficultyDAOSpec extends AnyFlatSpec with Matchers {
   "setDifficulty" must "fillDatabase with difficulty" in withPool{ pool =>

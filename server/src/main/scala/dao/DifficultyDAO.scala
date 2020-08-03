@@ -8,7 +8,7 @@ import scalikejdbc._
 import scala.collection.immutable.List
 import scala.collection.mutable
 
-class DifficultyDAO @Inject()(val pool: ConnectionPool, userDAO: UserDAO)  extends SQLUtil{
+class DifficultyDAO @Inject()(val pool: ConnectionPool)  extends SQLUtil{
 
   def setDifficulty(user: Int, difficulty:Int, group:Boolean): Unit = {
     withSession(pool) { implicit session =>

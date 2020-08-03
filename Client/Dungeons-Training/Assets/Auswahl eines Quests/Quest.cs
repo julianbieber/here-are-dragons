@@ -55,7 +55,7 @@ public class Quest
     public double getDifficulty(){
         double distance = getDistanceToPlayer();
 
-        if(distance>10000) return 100;
+        if(distance>1000) return 100;
         
 
         return Mathd.Floor(distance/10);
