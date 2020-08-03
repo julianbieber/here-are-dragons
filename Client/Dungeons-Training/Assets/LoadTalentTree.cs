@@ -30,7 +30,6 @@ public class LoadTalentTree : MonoBehaviour
         //currentTalentTree = await TalentAPI.getTalents();
         currentTalentTree = Option<TalentResponse>.Some(
             new TalentResponse {
-                unlocked = new List<TalentTreeNode>(),
                 unlocking = null,
                 unlockOptions = unlockOptions
             }
@@ -71,7 +70,8 @@ public class LoadTalentTree : MonoBehaviour
             }
             var numberOfButtons = displayedUnlockButtons.Count;
             for (int i = relevantUnlocks.Count; i < numberOfButtons; ++i) {
-                displayedUnlockButtons.RemoveAt(tree.unlockOptions.Count);
+                displayedUnlockButtons[displayedUnlockButtons.Count - 1].Destroy();
+                displayedUnlockButtons.RemoveAt(displayedUnlockButtons.Count - 1);
             }
             
             if (displayedUnlockButtons.Count % 2 == 0) {
