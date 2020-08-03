@@ -44,10 +44,12 @@ class DifficultySpec extends AnyFlatSpec with Matchers {
 
   it must "allow a total of 40 points per lvl 100 mob" in {
     (0 to 100).map { difficulty =>
-      val (minMobs, maxMobs) = Difficulty.difficultyRangeToMobRange.reverse.find(_._1 <= difficulty).getOrElse(difficultyRangeToMobRange.head)._2
-      (minMobs to maxMobs).foreach { mobs =>
-        Difficulty.totalAttributes(difficulty, mobs) must be <= 40
-      }
+       Difficulty.difficultyRangeToMobRange.reverse.find(_._1 <= difficulty).getOrElse(difficultyRangeToMobRange.head)._2.map{ case (minMobs, maxMobs) =>
+         val min = math.max(1, minMobs)
+         (min to maxMobs).foreach { mobs =>
+           Difficulty.totalAttributes(difficulty, mobs) must be <= 40
+         }
+       }
     }
   }
 

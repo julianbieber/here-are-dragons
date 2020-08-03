@@ -10,12 +10,12 @@ import util._
  */
 object Difficulty {
   def generator(difficulty: Int, playerCount: Int): DungeonGenerator = {
-    val mobsRange = difficultyRangeToMobRange.reverse.find(_._1 <= difficulty).getOrElse(difficultyRangeToMobRange.head)._2
-    val mobs = Rng.between(mobsRange._1, mobsRange._2)
+    val mobsRanges = difficultyRangeToMobRange.reverse.find(_._1 <= difficulty).getOrElse(difficultyRangeToMobRange.head)._2
+    val mobs = mobsRanges.map(mobsRange => Rng.between(mobsRange._1, mobsRange._2)).filterNot(_ == 0)
 
     val allowedPatterns = minDifficultyPerPattern.filter(_._1 <= difficulty).map(_._2)
 
-    DungeonGenerator(Seq(mobs), allowedPatterns, (difficulty / 100.0f * 15).toInt * math.pow(playerCount, 1.4).toInt)
+    DungeonGenerator(mobs, allowedPatterns, (difficulty / 100.0f * 15).toInt * math.pow(playerCount, 1.4).toInt)
   }
 
   /**
@@ -37,10 +37,10 @@ object Difficulty {
   }
 
   private[service] val difficultyRangeToMobRange = Seq(
-    1 -> (2 -> 3),
-    10 -> (2 -> 5),
-    50 -> (3 -> 7),
-    90 -> (1 -> 1)
+    1 -> Seq(2 -> 3),
+    10 -> Seq(2 -> 5, 0 -> 2),
+    50 -> Seq(3 -> 7, 3 -> 6, 3 -> 7, 0 -> 3),
+    90 -> Seq(4 -> 7, 5 -> 7, 6 -> 7, 2 -> 3, 1 -> 1)
   )
 
   val minDifficultyPerPattern = Seq(
@@ -50,7 +50,7 @@ object Difficulty {
 
 /**
  * Combines enemy patterns into a dungeon
- * @param numberOfEnemies
+ * @param numberOfEnemiesPerLevel
  * @param enemyPatterns
  * @param attributes
  */

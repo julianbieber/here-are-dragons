@@ -52,11 +52,9 @@ class DungeonController @Inject() (
     DungeonResponse(
       dungeonId = id,
       currentLevel = dungeon.currentLevel,
-      units = dungeon.units.map(_.map(unitToResponse)),
-      myTurn =  dungeon.units(dungeon.currentLevel).zipWithIndex.find {
-        case (PlayerUnit(unitId, _, _, _, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
-        case _ => false
-      }.map(_._2).contains(dungeon.currentTurn),
+      levels = dungeon.units.length,
+      units = dungeon.units(dungeon.currentLevel).map(unitToResponse),
+      myTurn = dungeon.findUser(userId)._1.id == dungeon.currentTurn,
       ap = dungeon.units(dungeon.currentLevel).find{
         case PlayerUnit(_, u, _, _, _, _, _, _, _) => u == userId
         case _ => false
@@ -94,12 +92,12 @@ class DungeonController @Inject() (
       val dungeonId = request.params("dungeonId").toInt
       val attemptedSkillUsage = readFromString[SkillUsage](request.getContentString())
       DungeonDAO.getDungeon(dungeonId).flatMap{ dungeon =>
-        val (playerUnit, unitId) = dungeon.findUser(userId)
+        val (playerUnit, _) = dungeon.findUser(userId)
         playerUnit.skills.find(_.id == attemptedSkillUsage.skill.id).flatMap{ actualSkillUsage =>
 
           val skillUsage = attemptedSkillUsage.copy(skill = actualSkillUsage)
 
-          service.applyAction(unitId, skillUsage, dungeon).map{ updated =>
+          service.applyAction(playerUnit.id, skillUsage, dungeon).map{ updated =>
             DungeonDAO.updateDungeon(dungeonId, updated)
           }
         }

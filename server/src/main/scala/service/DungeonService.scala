@@ -17,9 +17,11 @@ class DungeonService @Inject()(ai: AI) {
   def endTurn(unitId: Int, dungeon: Dungeon): Option[Dungeon] = {
     if (dungeon.isCurrentTurn(unitId)) {
       dungeon.provideAP(unitId)
-      dungeon.moveTurnPointer()
+      dungeon.countDownCDs()
       dungeon.applyStatuses()
+      dungeon.moveTurnPointer()
       executeNPCS(dungeon)
+      dungeon.conditionallyMoveToNetFloor()
       Option(dungeon)
     } else {
       None
@@ -27,7 +29,7 @@ class DungeonService @Inject()(ai: AI) {
   }
 
   private def executeNPCS(dungeon: Dungeon): Unit = {
-    while (!dungeon.currentTurnUnit.isInstanceOf[PlayerUnit] && dungeon.units.exists(_.isInstanceOf[PlayerUnit])) {
+    while (!dungeon.currentTurnUnit.isInstanceOf[PlayerUnit] && dungeon.units.exists(_.exists(_.isInstanceOf[PlayerUnit]))) {
       dungeon.currentTurnUnit match {
         case npc: NPC =>
           var actionO = ai.decideAction(npc, dungeon)
@@ -38,8 +40,10 @@ class DungeonService @Inject()(ai: AI) {
           dungeon.provideAP(npc.id)
         case _ =>
       }
-      dungeon.moveTurnPointer()
+      dungeon.countDownCDs()
       dungeon.applyStatuses()
+      dungeon.moveTurnPointer()
+      dungeon.conditionallyMoveToNetFloor()
     }
   }
 
@@ -58,14 +62,13 @@ class DungeonService @Inject()(ai: AI) {
 object DungeonService {
   def identifyTargetable(dungeon: Dungeon, skill: Skill, casterPosition: Int): Seq[Int] = {
     val casterInPatternIndex = skill.targetPattern.length / 2
-
     skill.targetPattern.zipWithIndex.flatMap { case (c: Char, i) =>
       if (c == '1') {
         Some(i - casterInPatternIndex + casterPosition)
       } else {
         None
       }
-    }.filter(_ >= 0).filter(_ < dungeon.units.length)
+    }.filter(_ >= 0).filter(_ < dungeon.units(dungeon.currentLevel).length)
   }
 
   def identifyHits(dungeon: Dungeon, skill: Skill, target: Int): Seq[Int] = {
@@ -77,7 +80,7 @@ object DungeonService {
       } else {
         None
       }
-    }.filter(_ >= 0).filter(_ < dungeon.units.length)
+    }.filter(_ >= 0).filter(_ < dungeon.units(dungeon.currentLevel).length)
   }
 
 }

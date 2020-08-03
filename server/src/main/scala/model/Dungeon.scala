@@ -11,7 +11,8 @@ object Dungeon {
   case class DungeonResponse(
     dungeonId: Int,
     currentLevel: Int,
-    units: Seq[Seq[UnitResponse]],
+    levels: Int,
+    units: Seq[UnitResponse],
     myTurn: Boolean,
     ap: Int,
     won: Boolean,
