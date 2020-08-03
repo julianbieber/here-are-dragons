@@ -145,8 +145,9 @@ public class DungeonController : MonoBehaviour
             leaveButton.SetActive(false);
         }
 
-        skillbar.updateCharacter((dungeon.units[getSelf()] as PlayerUnit).skills, dungeon.ap, dungeon.myTurn);
-        
+        if(getSelf() != -1){
+            skillbar.updateCharacter((dungeon.units[getSelf()] as PlayerUnit).skills, dungeon.ap, dungeon.myTurn);
+        }
     }
 
     public void makeTargettableForPattern(Skill skill) {
