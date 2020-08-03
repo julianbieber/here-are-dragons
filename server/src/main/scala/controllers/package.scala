@@ -33,6 +33,6 @@ package object controllers {
   implicit val statusCodec = JsonCodecMaker.make[Status]
   implicit val attributesCodec = JsonCodecMaker.make[Attributes]
   implicit val attributesTableCodec = JsonCodecMaker.make[AttributesTable]
-  implicit val talentResponseCodec = JsonCodecMaker.make[TalentResponse](CodecMakerConfig.withAllowRecursiveTypes(true))
+  implicit val talentResponseCodec = JsonCodecMaker.make[TalentResponse]
   implicit val talentCodec = JsonCodecMaker.make[Talent]
 }
