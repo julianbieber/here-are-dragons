@@ -8,8 +8,6 @@ using System;
 public class ActivityTracker : MonoBehaviour
 {
    
-
-    public Text debug;
     private AndroidJavaClass pluginClass;
 
     // Start is called before the first frame update
@@ -22,7 +20,6 @@ public class ActivityTracker : MonoBehaviour
             pluginClass = new AndroidJavaClass("com.example.activitytracking.Tracker");
             pluginClass.CallStatic("initialize", context, activity, Global.baseUrl + "activity", Global.userId.value, Global.token.value);
         } catch (Exception e) {
-            debug.text = e.Message;
         }
     }
 
@@ -31,14 +28,9 @@ public class ActivityTracker : MonoBehaviour
     {
         if (pluginClass != null) {
             try{
-                debug.text = pluginClass.CallStatic<string>("getLog");
             } catch (Exception e) {
-                debug.text += e.Message;
             } 
-
-        } else {
-            debug.text = "pluginClass == null";
-        }
+        } 
     }
     
 }
