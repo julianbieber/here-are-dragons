@@ -51,12 +51,13 @@ class DungeonController @Inject() (
     val (won, lost) = dungeon.completed
     DungeonResponse(
       dungeonId = id,
-      units = dungeon.units.map(unitToResponse),
-      myTurn =  dungeon.units.zipWithIndex.find {
+      currentLevel = dungeon.currentLevel,
+      units = dungeon.units.map(_.map(unitToResponse)),
+      myTurn =  dungeon.units(dungeon.currentLevel).zipWithIndex.find {
         case (PlayerUnit(unitId, _, _, _, _, _, _, _, _), _) => dungeon.turnOrder(dungeon.currentTurn) == unitId
         case _ => false
       }.map(_._2).contains(dungeon.currentTurn),
-      ap = dungeon.units.find{
+      ap = dungeon.units(dungeon.currentLevel).find{
         case PlayerUnit(_, u, _, _, _, _, _, _, _) => u == userId
         case _ => false
       }.map(_.asInstanceOf[PlayerUnit].ap).getOrElse(0),

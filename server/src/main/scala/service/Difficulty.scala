@@ -15,7 +15,7 @@ object Difficulty {
 
     val allowedPatterns = minDifficultyPerPattern.filter(_._1 <= difficulty).map(_._2)
 
-    DungeonGenerator(mobs, allowedPatterns, (difficulty / 100.0f * 15).toInt * math.pow(playerCount, 1.4).toInt)
+    DungeonGenerator(Seq(mobs), allowedPatterns, (difficulty / 100.0f * 15).toInt * math.pow(playerCount, 1.4).toInt)
   }
 
   /**
@@ -54,17 +54,26 @@ object Difficulty {
  * @param enemyPatterns
  * @param attributes
  */
-case class DungeonGenerator(numberOfEnemies: Int, enemyPatterns: Seq[EnemyPattern], attributes: Int) {
+case class DungeonGenerator(numberOfEnemiesPerLevel: Seq[Int], enemyPatterns: Seq[EnemyPattern], attributes: Int) {
   def generate(userIds: Seq[Int], players: Seq[PlayerUnit]): Dungeon = {
-    val enemies = (0 to numberOfEnemies).map{ i =>
-      enemyPatterns.randomOne.generate(players.size + i, attributes)
+    val floors = numberOfEnemiesPerLevel.map { numberOfEnemies =>
+      (0 to numberOfEnemies).map { i =>
+        enemyPatterns.randomOne.generate(players.size + i, attributes).asInstanceOf[DungeonUnit]
+      }
+    }.zipWithIndex.map{ case (floor, i) =>
+      if (i == 0) {
+        players ++ floor
+      } else {
+        floor
+      }
     }
-    val units = players ++ enemies
+
     service.Dungeon(
       userIds = userIds,
-      units = units.toBuffer,
+      currentLevel = 0,
+      units = floors.map(_.toBuffer),
       currentTurn = 0,
-      units.map(_.id)
+      turnOrder = floors.head.map(_.id),
     )
   }
 }
