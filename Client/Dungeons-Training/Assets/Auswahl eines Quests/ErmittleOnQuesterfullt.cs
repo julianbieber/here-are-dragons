@@ -15,7 +15,7 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
     {
         nextUpdate = 1;
     }
-    void Update()
+    async void Update()
     {
         if(i==1){
             i=0;
@@ -30,8 +30,8 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
             if (Questerfullt && q.ausgewählterQuest.isSome&&!Global.ausgewahlterQuest.value.erledigt)
             {
                 text.text = "Quest abgeschlossen";
-                //TODO Group auswählen
-                DifficultyAPI.postDifficulty(Global.difficulty.value, false);
+                List<Position> a =  await GroupAPI.getGroup();
+                DifficultyAPI.postDifficulty(Global.difficulty.value, (a.Count>0));
                 i = 2000;
                 QuestAPI.postUnactivateQuest(Global.ausgewahlterQuest.value.questID);
                 Global.ausgewahlterQuest.value.erledigt = true;

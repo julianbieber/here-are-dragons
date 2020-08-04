@@ -34,7 +34,7 @@ class PoIDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
             )
           ).list().apply()
         }
-      Random.shuffle(pois).take(20)
+      Random.shuffle(pois).take(34)
     }
   }
 

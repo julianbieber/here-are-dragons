@@ -1,7 +1,10 @@
 package dao
 
+import java.sql
+
 import javax.inject.Inject
 import scalikejdbc._
+
 import scala.collection.immutable.List
 
 class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
@@ -9,17 +12,61 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def fillDatabaseFromPoIs(listOfPoIs: List[DAOPoI], userID: Int): Unit = {
     withSession(pool) { implicit session =>
-      for (poi <- listOfPoIs) {
-        val countQuest =
-          sql"""SELECT COUNT(*) FROM public.quest WHERE (userID = $userID)""".map { countQuestsForUser =>
-            countQuestsForUser.int(1)
-          }.first().apply().get
-        if (countQuest < 20) {
-          sql"INSERT INTO public.quest (id,userID,activ) VALUES (${poi.poiID},$userID,false) ON CONFLICT (id,userID) DO NOTHING".executeUpdate().apply()
+
+      var countQuest = countQuests(userID)
+
+      if (countQuest < 20) {
+        val connectedQuests: List[Array] = {
+          sql"""SELECT ids FROM public.quest WHERE userID = $userID """.map { rowQuest =>
+            rowQuest.array("ids")
+          }.list().apply()
+        }
+        var help = countChains(connectedQuests)
+        var i = 0
+        // 4 Mail 3 er Kette
+        while (help(0) < 10&&listOfPoIs.length>i) {
+          sql"INSERT INTO public.quest (id,userID,activ) VALUES (${listOfPoIs(i).poiID},$userID,false) ON CONFLICT (id,userID) DO NOTHING".executeUpdate().apply()
+          help(0) = help(0) + 1
+          i = i + 1
+        }
+        while (help(1) < 6&&listOfPoIs.length>i) {
+          sql"INSERT INTO public.quest (id,userID,activ) VALUES (${listOfPoIs(i).poiID},$userID,false) ON CONFLICT (id,userID) DO NOTHING".executeUpdate().apply()
+          i = i + 2
+        }
+        while (help(2) < 4&&listOfPoIs.length>i) {
+          sql"INSERT INTO public.quest (id,userID,activ) VALUES (${listOfPoIs(i).poiID},$userID,false) ON CONFLICT (id,userID) DO NOTHING".executeUpdate().apply()
+          i = i + 3
         }
       }
     }
   }
+
+
+
+
+  def countChains(lis:List[List[Long]]):Array[Int]={
+    var result = Array(0,0,0)
+    for(l <- lis) {
+      val a = l.length;
+      if(a==1) result(0)=result(0)+1
+      if(a==2) result(1)=result(1)+1
+      if(a==3) result(2)=result(2)+1
+    }
+    result
+  }
+
+
+  def countQuests(userID: Int):Integer = {
+    withSession(pool) { implicit session =>
+      val countQuest =
+        sql"""SELECT COUNT(*) FROM public.quest WHERE (userID = $userID)""".map { countQuestsForUser =>
+          countQuestsForUser.int(1)
+        }.first().apply().get
+      countQuest
+    }
+  }
+
+  def
 
   def makeActive(questID: Long, userId: Int): Unit = {
     withSession(pool) { implicit session =>
@@ -105,5 +152,6 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 }
 
 case class DAOQuest(questID: Long, longitude: Float, latitude: Float,priority: Float, tag:Option[String])
+
 
 

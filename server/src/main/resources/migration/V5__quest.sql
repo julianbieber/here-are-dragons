@@ -1,5 +1,6 @@
 create table public.quest (
     id bigint not null,
+    ids bigint[] default array[]::bigint[],
     --active_user_ids int[] default array[]::int[],
     userID int not null,
     --activatable_user_ids int[] default array[]::int[]
