@@ -57,8 +57,8 @@ object Character {
   }
 
   object Levels {
-    val requirements = IndexedSeq(0L, 1000L)
-    val maxAttributes = IndexedSeq(0, 2)
+    val requirements = IndexedSeq(0L, 1000L, 2000L, 6000L, 12000L)
+    val maxAttributes = IndexedSeq(0, 2, 5, 10, 15)
   }
 
   case class Talent(

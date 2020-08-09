@@ -35,7 +35,7 @@ case class PlayerUnit(
   skills: Seq[Skill]
 ) extends DungeonUnit {
   override def applySkill(status: Status, damage: Int): DungeonUnit = {
-    status.add(status)
+    this.status.add(status)
     val newHealth = health - damage
     if (newHealth <= 0) {
       Empty(id, 0, status)
@@ -72,22 +72,18 @@ case class PlayerUnit(
 
 case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], ap: Int, maxAP: Int, apGain: Int, var status: Status, attributes: Attributes) extends DungeonUnit {
   override def applySkill(status: Status, damage: Int): DungeonUnit = {
-    status.add(status)
-    val newAP = if (status.knockedDown > 0 || status.stunned > 0){
-      0
-    } else {
-      ap
-    }
+    this.status.add(status)
+
     val newHealth = health - damage
     if (newHealth <= 0) {
       Empty(id, 0, status)
     } else {
-      copy(health = newHealth, ap = newAP)
+      copy(health = newHealth)
     }
   }
 
   override def gainAP(): DungeonUnit = {
-    copy(ap = math.min(maxAP, ap + apGain))
+    copy(ap = math.max(0, math.min(maxAP, ap + status.calculateAPGain(apGain))))
   }
 
   override def applyStatus(): DungeonUnit = {

@@ -6,16 +6,17 @@ import scala.collection.mutable
 
 case class Dungeon(
   userIds: Seq[Int],
-  units: mutable.Buffer[DungeonUnit],
+  var currentLevel: Int,
+  units: Seq[mutable.Buffer[DungeonUnit]],
   var currentTurn: Int,
-  turnOrder: Seq[Int]
+  var turnOrder: Seq[Int]
 ) {
   def isCurrentTurn(unitId: Int): Boolean = {
     currentTurnUnit.id == unitId
   }
 
   def provideAP(unitId: Int): Unit = {
-    units.transform { unit =>
+    units(currentLevel).transform { unit =>
       if (unit.id == unitId) {
         unit.gainAP()
       } else {
@@ -25,7 +26,7 @@ case class Dungeon(
   }
 
   def applyStatuses(): Unit = {
-    units.transform{ unit =>
+    units(currentLevel).transform{ unit =>
       if (isCurrentTurn(unit.id)) {
         unit.applyStatus()
       } else {
@@ -35,11 +36,21 @@ case class Dungeon(
   }
 
   def moveTurnPointer(): Unit = {
+    turnOrder = turnOrder.filterNot(id => findUnitById(id)._1.isInstanceOf[Empty])
     currentTurn = (currentTurn + 1) % turnOrder.length
   }
 
+  def conditionallyMoveToNetFloor(): Unit = {
+    if (!units(currentLevel).exists(_.isInstanceOf[NPC]) && currentLevel < units.length - 1) {
+      val players = units(currentLevel).filter(_.isInstanceOf[PlayerUnit])
+      currentLevel += 1
+      units(currentLevel).prependAll(players)
+      turnOrder = units(currentLevel).map(_.id)
+    }
+  }
+
   def countDownCDs(): Unit = {
-    units.transform{ unit =>
+    units(currentLevel).transform{ unit =>
       if (isCurrentTurn(unit.id)) {
         unit.countDownCDs()
       } else {
@@ -49,7 +60,7 @@ case class Dungeon(
   }
 
   def completed: (Boolean, Boolean) = {
-    !units.exists(_.isInstanceOf[NPC]) -> !units.exists(_.isInstanceOf[PlayerUnit])
+    !units.forall(_.exists(_.isInstanceOf[NPC])) -> !units.forall(_.exists(_.isInstanceOf[PlayerUnit]))
   }
 
   def isAllowedToUse(unitId: Int, skillUsage: SkillUsage): Boolean = {
@@ -62,25 +73,27 @@ case class Dungeon(
   def currentTurnUnit: DungeonUnit = findUnitById(turnOrder(currentTurn))._1
 
   def findUser(userId: Int): (PlayerUnit, Int) = {
-    units.zipWithIndex.collectFirst { case (unit: PlayerUnit, i) if unit.userId == userId => unit -> i }.get
+    units(currentLevel).zipWithIndex.collectFirst { case (unit: PlayerUnit, i) if unit.userId == userId => unit -> i }.get
   }
 
-  def findUnitById(unitId: Int): (DungeonUnit, Int) = units.zipWithIndex.collectFirst { case (unit, i) if unit.id == unitId => unit -> i }.get
+  def findUnitById(unitId: Int): (DungeonUnit, Int) = units(currentLevel).zipWithIndex.collectFirst { case (unit, i) if unit.id == unitId => unit -> i }.get
 
-  private def swap(unitPosition: Int, position: Int): Unit = {
-    val tmp = units(position)
+  private def swap(source: Int, target: Int): Unit = {
+    val oldTargetUnit = units(currentLevel)(target)
+    val targetStatus = oldTargetUnit.status.locationBased
+    val oldSourceUnit = units(currentLevel)(source)
+    oldTargetUnit.status = oldSourceUnit.status.locationBased
+    oldSourceUnit.status.add(targetStatus)
 
-    units(position) = units(unitPosition)
-    units(position).status.add(tmp.status)
-    tmp.status = units(unitPosition).status.locationBased
-    units(unitPosition) = tmp
+    units(currentLevel)(source) = oldTargetUnit
+    units(currentLevel)(target) = oldSourceUnit
   }
 
   def applySkill(casterId: Int, skill: Skill, targetPosition: Int): Unit = {
     val (_, casterPosition) = findUnitById(casterId)
-    val hits = DungeonService.identifyHits(this, skill, targetPosition)
-    val hitUnitIds = hits.map(units(_).id)
-    units.transform { unit =>
+    val hitPositions = DungeonService.identifyHits(this, skill, targetPosition)
+    val hitUnitIds = hitPositions.map(units(currentLevel)(_).id)
+    units(currentLevel).transform { unit =>
       if (hitUnitIds.contains(unit.id)) {
         unit.applySkill(skill.status, DamageCalc(findUnitById(casterId)._1, unit, skill))
       } else {
@@ -91,7 +104,7 @@ case class Dungeon(
       executeMovement(casterPosition, targetPosition, skill.movementOffset)
     }
 
-    units.transform{ unit =>
+    units(currentLevel).transform{ unit =>
       if (unit.id == casterId) {
         unit match {
           case p: PlayerUnit => p.copy(ap = p.ap - skill.apCost, skills = p.skills.map{ s =>
@@ -122,7 +135,7 @@ case class Dungeon(
     } else {
       target + offset
     }
-    if (units(newPosition).isInstanceOf[Empty]) {
+    if (units(currentLevel)(newPosition).isInstanceOf[Empty]) {
       swap(originalPosition, newPosition)
     }
   }
