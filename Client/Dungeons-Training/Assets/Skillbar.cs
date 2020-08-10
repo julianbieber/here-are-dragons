@@ -40,6 +40,8 @@ public class Skillbar : MonoBehaviour
                 skillButton.GetComponentInChildren<Text>().text = skill.name;
                 if (skill.remainingCoolDown > 0 || skill.apCost > ap || !myTurn) {
                     skillButton.GetComponent<Image>().color = Color.red;
+                } else {
+                    skillButton.GetComponent<Image>().color = Color.green;
                 }
             } 
         }
