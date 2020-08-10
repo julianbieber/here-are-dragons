@@ -63,7 +63,7 @@ public static class DungeonAPI
         return new Dungeon {
             id = response.dungeonId,
             currentLevel = response.currentLevel,
-            units = response.units[response.currentLevel].Select(u => convertUnitResponse(u)).ToList(),
+            units = response.units.Select(u => convertUnitResponse(u)).ToList(),
             myTurn = response.myTurn,
             ap = response.ap,
             won = response.won,
@@ -111,7 +111,7 @@ public class OpenDungeonRequest {
 public class DungeonResponse {
     public int dungeonId;
     public int currentLevel;
-    public List<List<UnitResponse>> units;
+    public List<UnitResponse> units;
     public bool myTurn;
     public int ap;
     public bool won;
