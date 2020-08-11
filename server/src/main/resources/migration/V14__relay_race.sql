@@ -16,8 +16,7 @@ create table public.group_talents (
     activity_id int,
     distance int default null,
     speed int default null,
-    time int default null,
-    time_in_day int default null
+    time int default null
 );
 
 create table public.group_talent_unlocks (

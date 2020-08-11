@@ -1,7 +1,7 @@
 package dao
 
 import javax.inject.Inject
-import model.Character.{Talent, TalentTreeNode}
+import model.Character.Talent
 import scalikejdbc._
 
 class TalentDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
@@ -48,28 +48,7 @@ case class TalentRow(id: Int, name: String, skillUnlock: Int, nextTalents: Seq[I
 
 
 object TalentTree {
-  def fromRows(rows: Seq[TalentRow]): Seq[TalentTreeNode] = {
-    val roots = findRoots(rows)
-    roots.map(fill(_, rows))
-  }
-
   def findRoots(rows: Seq[TalentRow]): Seq[TalentRow] = rows.filterNot(r => rows.flatMap(_.nextTalents).contains(r.id))
-
-  def fill(row: TalentRow, rows: Seq[TalentRow]): TalentTreeNode = {
-    if (!row.nextTalents.exists(rows.map(_.id).contains)) {
-      createNode(row)
-    } else {
-      val children = row.nextTalents.flatMap{ id =>
-        rows.find(_.id == id)
-      }.map(fill(_, rows))
-      createNode(row).copy(next = children)
-    }
-  }
-
-  def createNode(row: TalentRow): TalentTreeNode = TalentTreeNode(
-    talent = createTalent(row),
-    next = Seq()
-  )
 
   def createTalent(row: TalentRow): Talent = Talent(id = row.id,
     name = row.name,

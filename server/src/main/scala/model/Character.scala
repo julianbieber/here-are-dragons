@@ -72,14 +72,21 @@ object Character {
     timeInDay: Option[Int]
   )
 
-  case class TalentTreeNode(
-    talent: Talent,
-    next: Seq[TalentTreeNode],
+  case class GroupTalent(
+    id: Int,
+    name: String,
+    skillUnlock: Int,
+    activityId: Int,
+    distance: Option[Int],
+    speed: Option[Int],
+    time: Option[Int]
   )
 
   case class TalentResponse(
     unlocking: Option[Talent],
-    unlockOptions: Seq[Talent]
+    unlockOptions: Seq[Talent],
+    groupUnlocking: Option[GroupTalent],
+    groupUnlockOptions: Seq[GroupTalent]
   )
 
 }
