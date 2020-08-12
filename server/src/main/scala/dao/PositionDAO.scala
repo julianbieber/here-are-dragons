@@ -6,6 +6,7 @@ import java.util.UUID
 import javax.inject.Inject
 import org.joda.time.DateTime
 import scalikejdbc._
+import util.TimeUtil
 
 class PositionDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
@@ -19,7 +20,8 @@ class PositionDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def setPosition(userId: Int ,long: Float,lat: Float): Unit = {
     withSession(pool) { implicit session =>
-      sql"INSERT INTO public.position (id, longitude, latitude) VALUES ($userId, $long,$lat)".executeUpdate().apply()
+      val now = TimeUtil.now
+      sql"INSERT INTO public.position (id, longitude, latitude, timestamp) VALUES ($userId, $long,$lat, $now)".executeUpdate().apply()
     }
   }
 

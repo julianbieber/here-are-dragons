@@ -9,7 +9,7 @@ import util.TimeUtil
 
 class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
-  def startActivity(user: Int, activityType: String): Unit = {
+  def startActivity(user: Int, activityType: String): DateTime = {
     withSession(pool) { implicit session: DBSession =>
       val activityId = sql"SELECT id FROM public.activity_type WHERE name = $activityType".map { col =>
         col.int("id")
@@ -18,6 +18,7 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       val notProcessed = notProcessedForUser(user, activityId, time.minusMinutes(1)).sortBy(_.endTimestamp.get.getMillis)
       if (notProcessed.isEmpty) {
         sql"INSERT INTO public.activity (userId, start_timestamp, activity_id) VALUES ($user, $time, $activityId)".executeUpdate().apply()
+        time
       } else {
         val toDelete = notProcessed.tail
         val toUpdate = notProcessed.head
@@ -27,6 +28,7 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
             Seq("u" -> activity.user, "t" -> activity.startTimestamp)
           }: _*).apply()
         }
+        toUpdate.startTimestamp
       }
     }
   }
@@ -35,6 +37,7 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   def stopActivity(user: Int, start: DateTime): Unit = {
     withSession(pool) { implicit session: DBSession =>
       val time: DateTime = TimeUtil.now
+    println("stop time", time)
       sql"update public.activity set end_timestamp = $time where userid = $user and start_timestamp = $start".executeUpdate().apply()
     }
   }
