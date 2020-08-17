@@ -1,6 +1,6 @@
 package background.character
 
-import dao.{ActivityDAO, PositionDAO, RelayRaceDAO, UserDAO}
+import dao.{ActivityDAO, GroupTalentDAO, GroupTalentUnlockDAO, PositionDAO, RelayRaceDAO, UserDAO}
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
@@ -16,6 +16,8 @@ class RelayRacesSpec extends AnyFlatSpec with Matchers with MockFactory  {
     val activityDAO = new ActivityDAO(pool)
     val positionDAO = new PositionDAO(pool)
     val relayRaceDAO = new RelayRaceDAO(pool)
+    val groupTalentDAO = new GroupTalentDAO(pool)
+    val groupTalentUnlockDAO = new GroupTalentUnlockDAO(pool)
 
     val group = "group"
     val users = Seq(1, 2, 3)
@@ -43,7 +45,7 @@ class RelayRacesSpec extends AnyFlatSpec with Matchers with MockFactory  {
 
     val race = relayRaceDAO.getNotProcessedRelayRaces().head
 
-    val uut = new RelayRaces(activityDAO, positionDAO, relayRaceDAO)
+    val uut = new RelayRaces(activityDAO, positionDAO, relayRaceDAO, groupTalentDAO, groupTalentUnlockDAO)
     val route = uut.findRoute(race)
     route.map(_.latitude) must contain theSameElementsAs((0 to 15).map(_.toFloat / 10))
   }
