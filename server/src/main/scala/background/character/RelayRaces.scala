@@ -1,15 +1,30 @@
 package background.character
 
 import background.Background
+import background.character.RouteUtil.{averageSpeed, forDistance, getMaxSpeedForDistance}
 import com.github.dmarcous.s2utils.geo.GeographyUtilities
 import dao._
 import javax.inject.Inject
+import org.joda.time.Period
 
-class RelayRaces @Inject()(activityDAO: ActivityDAO, positionDAO: PositionDAO, relayRaceDAO: RelayRaceDAO) extends Background {
+class RelayRaces @Inject()(activityDAO: ActivityDAO, positionDAO: PositionDAO, relayRaceDAO: RelayRaceDAO, groupTalentDAO: GroupTalentDAO, groupTalentUnlockDAO: GroupTalentUnlockDAO) extends Background {
   override def run(): Unit = {
     val races = relayRaceDAO.getNotProcessedRelayRaces()
 
-    races.map(findRoute)
+    races.map(r => r -> findRoute(r)).map{case (race, route) =>
+      groupTalentUnlockDAO.getUnlocks(race.users).flatMap(_.currentlyUnlocking).map { unlocking =>
+        val unlockingTalent = groupTalentDAO.getTalents(Seq(unlocking)).head
+        val unlocked = unlockingTalent match {
+          case GroupTalentRow(_, _, _, _, _, _, Some(distance), None, None) => forDistance(distance, route).nonEmpty
+          case GroupTalentRow(_, _, _, _, _, _, None, Some(speed), None) => averageSpeed(route) >= speed
+          case GroupTalentRow(_, _, _, _, _, _, None, None, Some(time)) => new Period(route.head.timestamp, route.last.timestamp).getMinutes >= time
+          case GroupTalentRow(_, _, _, _, _, _, Some(distance), Some(speed), None) =>getMaxSpeedForDistance(distance, route) >= speed
+        }
+        if (unlocked) {
+          groupTalentUnlockDAO.unlock(race.users)
+        }
+      }
+    }
   }
 
 
@@ -26,7 +41,7 @@ class RelayRaces @Inject()(activityDAO: ActivityDAO, positionDAO: PositionDAO, r
 
     val (last, exceptLastRun) = user2Movement
       .sliding(2, 1)
-      .foldLeft((0, Seq[DAOPosition]())) {
+      .foldLeft((0, Seq[DAOPosition]())) { 
         case ((start, acc), Seq((_, movement1), (_, movement2))) =>
           val (stop1, start2) = findOverlap(movement1, movement2).get
           (start2, acc ++ movement1.slice(start, stop1))
