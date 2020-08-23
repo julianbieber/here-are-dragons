@@ -2,8 +2,6 @@ package dao
 
 import javax.inject.Inject
 import scalikejdbc._
-
-import scala.collection.JavaConverters._
 import scala.collection.immutable.List
 import scala.util.Random
 

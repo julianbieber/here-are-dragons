@@ -1,10 +1,7 @@
 package dao
 
-import java.sql
-
 import javax.inject.Inject
 import scalikejdbc._
-
 import scala.collection.immutable.List
 
 class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
@@ -13,39 +10,35 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   def fillDatabaseFromPoIs(listOfPoIs: List[DAOPoI], userID: Int): Unit = {
     withSession(pool) { implicit session =>
 
-      var countQuest = countQuests(userID)
-
-      if (countQuest < 20) {
-        val connectedQuests: List[Array] = {
+      if (countQuests(userID) < 20) {
+        val connectedQuests: List[Seq[Long]] =
           sql"""SELECT ids FROM public.quest WHERE userID = $userID """.map { rowQuest =>
-            rowQuest.array("ids")
+            rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].map(_.longValue()).toSeq
           }.list().apply()
-        }
-        var help = countChains(connectedQuests)
-        var i = 0
-        // 4 Mail 3 er Kette
-        while (help(0) < 10&&listOfPoIs.length>i) {
-          sql"INSERT INTO public.quest (id,userID,activ) VALUES (${listOfPoIs(i).poiID},$userID,false) ON CONFLICT (id,userID) DO NOTHING".executeUpdate().apply()
-          help(0) = help(0) + 1
-          i = i + 1
-        }
-        while (help(1) < 6&&listOfPoIs.length>i) {
-          sql"INSERT INTO public.quest (id,userID,activ) VALUES (${listOfPoIs(i).poiID},$userID,false) ON CONFLICT (id,userID) DO NOTHING".executeUpdate().apply()
-          i = i + 2
-        }
-        while (help(2) < 4&&listOfPoIs.length>i) {
-          sql"INSERT INTO public.quest (id,userID,activ) VALUES (${listOfPoIs(i).poiID},$userID,false) ON CONFLICT (id,userID) DO NOTHING".executeUpdate().apply()
-          i = i + 3
+
+        val help = countChains(connectedQuests)
+        var iteratorPoIs = 0
+        var stepInQuest = 0
+
+        while (stepInQuest < 3) {
+          while (help(stepInQuest) < (10 - (5 - stepInQuest) * stepInQuest) && listOfPoIs.length > iteratorPoIs + stepInQuest) {
+            val ids: Array[Long] = {
+              if (stepInQuest == 0) Array(listOfPoIs(iteratorPoIs).poiID)
+              else if (stepInQuest == 1) Array(listOfPoIs(iteratorPoIs).poiID, listOfPoIs(iteratorPoIs + 1).poiID)
+              else Array(listOfPoIs(iteratorPoIs).poiID, listOfPoIs(iteratorPoIs + 1).poiID, listOfPoIs(iteratorPoIs + 2).poiID)
+            }
+            sql"INSERT INTO public.quest (id,ids, userID,activ) VALUES (${listOfPoIs(iteratorPoIs).poiID},$ids,$userID,false) ON CONFLICT (id,userID) DO NOTHING".executeUpdate().apply()
+            help(stepInQuest) = help(stepInQuest) + 1
+            iteratorPoIs = iteratorPoIs + stepInQuest + 1
+          }
+          stepInQuest = stepInQuest + 1
         }
       }
     }
   }
 
-
-
-
-  def countChains(lis:List[List[Long]]):Array[Int]={
-    var result = Array(0,0,0)
+  def countChains(lis:List[Seq[Long]]):Array[Int]={
+    val result = Array(0,0,0)
     for(l <- lis) {
       val a = l.length;
       if(a==1) result(0)=result(0)+1
@@ -56,17 +49,13 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   }
 
 
-  def countQuests(userID: Int):Integer = {
-    withSession(pool) { implicit session =>
-      val countQuest =
-        sql"""SELECT COUNT(*) FROM public.quest WHERE (userID = $userID)""".map { countQuestsForUser =>
-          countQuestsForUser.int(1)
-        }.first().apply().get
-      countQuest
-    }
+  def countQuests(userID: Int)(implicit session: DBSession): Integer = {
+    val countQuest =
+      sql"""SELECT COUNT(*) FROM public.quest WHERE (userID = $userID)""".map { countQuestsForUser =>
+        countQuestsForUser.int(1)
+      }.first().apply().get
+    countQuest
   }
-
-  def
 
   def makeActive(questID: Long, userId: Int): Unit = {
     withSession(pool) { implicit session =>
@@ -92,10 +81,11 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   def getFromDatabase(): List[DAOQuest] = {
     withSession(pool) { implicit session =>
       val daoquests: List[DAOQuest] =
-        sql"""SELECT DISTINCT id FROM public.quest""".map(rowQuest =>
+        sql"""SELECT DISTINCT id,ids FROM public.quest""".map(rowQuest =>
           sql"""SELECT longitude, latitude, priority, tags FROM public.poi WHERE id = ${rowQuest.long("id")}""".map(rowPoi =>
             DAOQuest(
               rowQuest.long("id"),
+              rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].toSeq.map(_.longValue()),
               rowPoi.float("longitude"),
               rowPoi.float("latitude"),
               rowPoi.float("priority"),
@@ -125,10 +115,11 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
     withReadOnlySession(pool) { implicit session =>
       val daoquests: List[DAOQuest] =
-        sql"""SELECT id FROM public.quest WHERE userID = $userId """.map { rowQuest =>
+        sql"""SELECT id,ids FROM public.quest WHERE userID = $userId """.map { rowQuest =>
           sql"""SELECT longitude, latitude, priority, tags FROM public.poi WHERE (longitude BETWEEN $longitudemin AND $longitudemax) and (latitude BETWEEN $latitudemin AND $latitudemax) AND (id = ${rowQuest.long("id")})""".map(rowPoi =>
             DAOQuest(
               rowQuest.long("id"),
+              rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].toSeq.map(_.longValue()),
               rowPoi.float("longitude"),
               rowPoi.float("latitude"),
               rowPoi.float("priority"),
@@ -148,10 +139,23 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
+  def getPositionOfNextQuest(progress:Int, questID:Long, userID:Int):Option[Array[Float]] = {
+    withSession(pool) { implicit session =>
+      val connectedQuests: Seq[Long] =
+        sql"""SELECT ids FROM public.quest WHERE userID = $userID AND id =$questID""".map { rowQuest =>
+          rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].map(_.longValue()).toSeq
+        }.first().apply().get
+      val lonlat :Option[Array[Float]]=
+        sql"""SELECT longitude, latitude FROM public.poi WHERE (id = ${connectedQuests(progress)})""".map(rowPoi =>
+        Array(rowPoi.float("longitude"),rowPoi.float("latitude"))
+        ).first().apply()
+      lonlat
+    }
+  }
 
 }
 
-case class DAOQuest(questID: Long, longitude: Float, latitude: Float,priority: Float, tag:Option[String])
+case class DAOQuest(questID: Long,questIDs :Seq[Long], longitude: Float, latitude: Float,priority: Float, tag:Option[String])
 
 
 
