@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 using System;
+using System.Text;
 
 public class CharacterAPI
 {
@@ -25,13 +26,10 @@ public class CharacterAPI
         }
     }
 
-    public static async void unselectSkill(int id) {
+    public static void unselectSkill(int id) {
         var query = new Dictionary<string, string>();
         query.Add("skill", id.ToString());
-        var response = await API.delete<PlayerSkillBar>(Global.baseUrl + "character/skills/select", query);
-        if (!response.isSome) {
-            Debug.Log("Failed to select skill");
-        }
+        API.delete<PlayerSkillBar>(Global.baseUrl + "character/skills/select", query);
     }
 
     public static async void unlockAttribute(Attributes diff) {
@@ -88,6 +86,29 @@ public class Attributes {
 
     public int sum() {
         return strength + constitution + spellPower + willPower + dexterity + evasion;
+    }
+
+    public string printable() {
+        StringBuilder b = new StringBuilder();
+        b.Append("Strength: ");
+        b.Append(strength);
+        b.Append("\n");
+        b.Append("con: ");
+        b.Append(constitution);
+        b.Append("\n");
+        b.Append("spellpower: ");
+        b.Append(spellPower);
+        b.Append("\n");
+        b.Append("will: ");
+        b.Append(willPower);
+        b.Append("\n");
+        b.Append("dex: ");
+        b.Append(dexterity);
+        b.Append("\n");
+        b.Append("eva: ");
+        b.Append(evasion);
+        b.Append("\n");
+        return b.ToString();
     }
 }
 

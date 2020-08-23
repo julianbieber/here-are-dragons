@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ActivityToggle : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class ActivityToggle : MonoBehaviour
     void Start()
     {
         active = false;
+        GetComponent<Image>().color = Color.gray;
+        GetComponentInChildren<Text>().text = "Start relay race (" + activity + ")";
     }
 
     // Update is called once per frame
@@ -22,12 +25,16 @@ public class ActivityToggle : MonoBehaviour
     }
 
     public void toggle() {
-        if (active) {
-            ActivityAPI.stopActivity(activity);
-            active = false;
-        } else {
-            ActivityAPI.startActivity(activity);
+        if (!active) {
+            ActivityAPI.startRelayRace(activity);
             active = true;
+            GetComponent<Image>().color = Color.red;
+            GetComponentInChildren<Text>().text = "Stop relay race (" + activity + ")";
+        } else {
+            ActivityAPI.stopRelayRace(activity);
+            GetComponent<Image>().color = Color.gray;
+            GetComponentInChildren<Text>().text = "Start relay race (" + activity + ")";
+            active = false;
         }
     }
 

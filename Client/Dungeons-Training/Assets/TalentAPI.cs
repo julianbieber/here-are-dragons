@@ -34,6 +34,8 @@ public class TalentAPI
 public class TalentResponse {
     public Talent unlocking;
     public List<Talent> unlockOptions;
+    public GroupTalent groupUnlocking;
+    public List<GroupTalent> groupUnlockOptions;
 }
 
 [Serializable]
@@ -46,4 +48,16 @@ public class Talent {
     public int speed;
     public int time;
     public int timeInDay;
+}
+
+
+[Serializable]
+public class GroupTalent {
+    public int id;
+    public string name;
+    public int skillUnlock;
+    public int activityId;
+    public int distance;
+    public int speed;
+    public int time;
 }
