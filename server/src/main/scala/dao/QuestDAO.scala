@@ -152,7 +152,7 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       if(connectedQuests.length>progress) {
         val lonlat: Option[Array[Float]] =
           sql"""SELECT longitude, latitude FROM public.poi WHERE (id = ${connectedQuests(progress)})""".map(rowPoi =>
-            Array(rowPoi.float("longitude"), rowPoi.float("latitude"))
+            Array(rowPoi.float("latitude"), rowPoi.float("longitude"))
           ).first().apply()
         lonlat.getOrElse(Array())
       }else{
@@ -168,6 +168,16 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
           rowQuest.long("id")
         }.first().apply().get
       activeQuestId
+    }
+  }
+
+  def setProgress(questId:Long,userId:Int):Unit ={
+    withSession(pool) { implicit session =>
+      val progress: Int =
+        sql"""SELECT progres FROM public.quest WHERE userID = $userId AND id =$questId""".map { rowQuest =>
+          rowQuest.int("progres")
+        }.first().apply().get
+      sql"UPDATE public.quest SET progres = ${progress+1} WHERE id = $questId AND userID = $userId".executeUpdate().apply()
     }
   }
 
