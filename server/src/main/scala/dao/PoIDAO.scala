@@ -2,8 +2,6 @@ package dao
 
 import javax.inject.Inject
 import scalikejdbc._
-
-import scala.collection.JavaConverters._
 import scala.collection.immutable.List
 import scala.util.Random
 
@@ -34,7 +32,7 @@ class PoIDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
             )
           ).list().apply()
         }
-      Random.shuffle(pois).take(20)
+      Random.shuffle(pois).take(34)
     }
   }
 
