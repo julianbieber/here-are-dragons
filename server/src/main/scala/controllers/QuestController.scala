@@ -49,6 +49,7 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
     withUser(request){ userId =>
       val activeQuest =  questDAO.getActiveQuestID(userId)
       val nextPosition = questDAO.getPositionOfNextQuest(activeQuest,userId)
+      questDAO.setProgress(activeQuest,userId)
       response.ok(writeToString(model.Quest.nextPosition(nextPosition)))
     }
   }
