@@ -43,7 +43,7 @@ object Character {
         spellPower = spellPower + other.spellPower,
         willPower = willPower + other.willPower,
         dexterity = dexterity + other.dexterity,
-        evasion = strength + other.evasion
+        evasion = evasion + other.evasion
       )
     }
 
