@@ -7,6 +7,8 @@ services:
       dockerfile: ./api.dockerfile
     ports:
       - "8888:8888"
+    depends_on:
+      - db
     links:
       - db
 
@@ -27,6 +29,8 @@ services:
     volumes:
       - ./src/main/resources/migration:/flyway/sql:Z
     depends_on:
+      - db
+    links:
       - db
 
 volumes:
