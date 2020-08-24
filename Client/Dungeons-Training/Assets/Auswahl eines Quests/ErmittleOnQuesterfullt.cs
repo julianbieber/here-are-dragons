@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using Mapbox.Utils;
+using Mapbox.Unity.Location;
+using System.Linq;
+using Mapbox.Unity.Utilities;
 public class ErmittleOnQuesterfullt : MonoBehaviour
 {
     private int nextUpdate;
@@ -29,12 +32,22 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
             nextUpdate++;
             if (Questerfullt && q.ausgewählterQuest.isSome&&!Global.ausgewahlterQuest.value.erledigt)
             {
-                text.text = "Quest abgeschlossen";
-                List<Position> a =  await GroupAPI.getGroup();
-                DifficultyAPI.postDifficulty(Global.difficulty.value, (a.Count>0));
-                i = 2000;
-                QuestAPI.postUnactivateQuest(Global.ausgewahlterQuest.value.questID);
-                Global.ausgewahlterQuest.value.erledigt = true;
+                var b = await QuestAPI.getNextQuestPosition();
+                if(b.lanlot.Equals(new float[0])){
+                    text.text = "Quest abgeschlossen";
+                    List<Position> a =  await GroupAPI.getGroup();
+                    DifficultyAPI.postDifficulty(Global.difficulty.value, (a.Count>0));
+                    i = 2000;
+                    QuestAPI.postUnactivateQuest(Global.ausgewahlterQuest.value.questID);
+                    Global.ausgewahlterQuest.value.erledigt = true;
+                }else{
+                    var map = LocationProviderFactory.Instance.mapManager;
+                    var coord = map.GeoToWorldPosition(new Vector2d(Global.ausgewahlterQuest.value.latitude, Global.ausgewahlterQuest.value.longitude));
+                    Global.ausgewahlterQuest.value.latitude = b.lanlot[0];
+                    Global.ausgewahlterQuest.value.longitude = b.lanlot[1];
+                    GameObject Quest = GameObject.Find(Global.ausgewahlterQuest.value.questID.ToString());
+                    Quest.transform.position = coord;
+                }
             }
         }
     }

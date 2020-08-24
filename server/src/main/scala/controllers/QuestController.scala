@@ -45,4 +45,12 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
     }
   }
 
+  get("/nextQuestPosition") { request :Request =>
+    withUser(request){ userId =>
+      val activeQuest =  questDAO.getActiveQuestID(userId)
+      val nextPosition = questDAO.getPositionOfNextQuest(activeQuest,userId)
+      response.ok(writeToString(model.Quest.nextPosition(nextPosition)))
+    }
+  }
+
 }

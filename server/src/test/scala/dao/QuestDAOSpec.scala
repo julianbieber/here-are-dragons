@@ -122,5 +122,34 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
 
     computedResult should be (expectedResult)
   }
+  " getPositionOfNextQuest" must "get the Position of the next Quest in the row" in withPool { pool =>
+    val dao = new QuestDAO(pool)
+    val DAOP = new PoIDAO(pool)
+
+    val poiId = nextLong()
+    val long = nextFloat()
+    val lat = nextFloat()
+
+    val priority = nextFloat()
+    val tags = None
+
+    DAOP.createPoI(poiId, long, lat, priority, tags)
+
+    val poiId1 = nextLong()
+    val priority1 = nextFloat()
+    val tags1 = None
+
+    DAOP.createPoI(poiId1, long, lat, priority1, tags1)
+    var i: Long = 1
+    while (i <= 34) {
+      DAOP.createPoI(i, long, lat, priority, tags)
+      i = i + 1
+    }
+
+    val p = DAOP.getPoIs(long, lat)
+    dao.fillDatabaseFromPoIs(p, 0)
+    print()
+    dao.getPositionOfNextQuest(dao.getFromDatabase()(0).questID, 0).length should be <=2
+  }
 }
 

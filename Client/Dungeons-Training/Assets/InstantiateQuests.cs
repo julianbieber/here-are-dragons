@@ -19,7 +19,7 @@ public class InstantiateQuests : MonoBehaviour
     private List<DAOQuest> newList = new List<DAOQuest>();
     private List<long> loI = new List<long>();
 
-    private List<Hilfsobjetct> loL = new List<Hilfsobjetct>();
+    public List<Hilfsobjetct> loL = new List<Hilfsobjetct>();
 
 
 

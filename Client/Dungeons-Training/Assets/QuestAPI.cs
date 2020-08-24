@@ -34,6 +34,17 @@ public class QuestAPI : MonoBehaviour
         que.Add("questID", questID.ToString());
         await API.post<string, string>(Global.baseUrl + "activateQuest", "", que);
     }
+
+    async public static Task<nextPosition> getNextQuestPosition()
+    {
+        var que = new Dictionary<string, string>();
+        var response = await API.get<nextPosition>(Global.baseUrl + "nextQuestPosition",que);
+        if(response.isSome) return response.value;
+        else {
+            Debug.Log("Quest abgeschlossen");
+            return new nextPosition { lanlot = new float[0] };
+        }
+    }
 }
 [Serializable]
 public class DAOQuest
@@ -44,9 +55,15 @@ public class DAOQuest
     public float priority;
     public String tag;
     public Boolean erledigt=false;
+
 }
 [Serializable]
 public class QuestsResponse
 {
     public List<DAOQuest> quests;
+}
+[Serializable]
+public class nextPosition
+{
+    public float[] lanlot;
 }

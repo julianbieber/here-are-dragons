@@ -139,17 +139,35 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def getPositionOfNextQuest(progress:Int, questID:Long, userID:Int):Option[Array[Float]] = {
+  def getPositionOfNextQuest( questID:Long, userID:Int):Array[Float] = {
     withSession(pool) { implicit session =>
       val connectedQuests: Seq[Long] =
         sql"""SELECT ids FROM public.quest WHERE userID = $userID AND id =$questID""".map { rowQuest =>
           rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].map(_.longValue()).toSeq
         }.first().apply().get
-      val lonlat :Option[Array[Float]]=
-        sql"""SELECT longitude, latitude FROM public.poi WHERE (id = ${connectedQuests(progress)})""".map(rowPoi =>
-        Array(rowPoi.float("longitude"),rowPoi.float("latitude"))
-        ).first().apply()
-      lonlat
+      val progress: Int =
+        sql"""SELECT progres FROM public.quest WHERE userID = $userID AND id =$questID""".map { rowQuest =>
+          rowQuest.int("progres")
+        }.first().apply().get
+      if(connectedQuests.length>progress) {
+        val lonlat: Option[Array[Float]] =
+          sql"""SELECT longitude, latitude FROM public.poi WHERE (id = ${connectedQuests(progress)})""".map(rowPoi =>
+            Array(rowPoi.float("longitude"), rowPoi.float("latitude"))
+          ).first().apply()
+        lonlat.getOrElse(Array())
+      }else{
+        Array()
+      }
+    }
+  }
+
+  def getActiveQuestID(userID:Int): Long ={
+    withSession(pool) { implicit session =>
+      val activeQuestId :Long =
+        sql"""SELECT id FROM public.quest WHERE userID = $userID AND activ = true""".map { rowQuest =>
+          rowQuest.long("id")
+        }.first().apply().get
+      activeQuestId
     }
   }
 
