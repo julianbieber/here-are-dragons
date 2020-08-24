@@ -11,12 +11,13 @@ public class LoadTalentTree : MonoBehaviour
     public GameObject TreeNodePrefab; 
     private Option<TalentResponse> currentTalentTree;
     private List<GameObject> displayedUnlockButtons;
+    private List<GameObject> displayedGroupUnlockButtons;
+    public GameObject currentUnlock;
+    public GameObject currentUnlockGroup;
     private float screenWidth;
     private float screenHeight;
     public int unlockButtonSize;
     public Text tooltip;
-
-    
     
     // Start is called before the first frame update
     async void Start()
@@ -39,6 +40,8 @@ public class LoadTalentTree : MonoBehaviour
         screenWidth = canvas.GetComponent<RectTransform>().rect.width;
         
         displayedUnlockButtons = new List<GameObject>();
+        displayedGroupUnlockButtons = new List<GameObject>();
+
     }
 
     // Update is called once per frame
@@ -65,6 +68,7 @@ public class LoadTalentTree : MonoBehaviour
                 displayedUnlockButtons[i].transform.SetParent(canvas.transform);
                 displayedUnlockButtons[i].transform.SetAsLastSibling();
                 var displayButton = displayedUnlockButtons[i].GetComponent<TalentDisplay>();
+                displayButton.loadTalentTree = this;
                 displayButton.tooltip = tooltip;
                 displayButton.setTalent(relevantUnlocks[i]);
             }
@@ -76,16 +80,62 @@ public class LoadTalentTree : MonoBehaviour
             
             if (displayedUnlockButtons.Count % 2 == 0) {
                 for (int i = 0; i < displayedUnlockButtons.Count / 2; ++i) {
-                    displayedUnlockButtons[i].transform.localPosition = new Vector3(- unlockButtonSize * (displayedUnlockButtons.Count / 2 - 1) + i * unlockButtonSize - unlockButtonSize  /2, - 750,0);
+                    displayedUnlockButtons[i].transform.localPosition = new Vector3(- unlockButtonSize * (displayedUnlockButtons.Count / 2 - 1) + i * unlockButtonSize - unlockButtonSize  /2, - 550,0);
                 }
                 for (int i = displayedUnlockButtons.Count / 2; i < displayedUnlockButtons.Count; ++i) {
-                    displayedUnlockButtons[i].transform.localPosition = new Vector3((i-  displayedUnlockButtons.Count/2) * unlockButtonSize + unlockButtonSize  /2, -750,0);
+                    displayedUnlockButtons[i].transform.localPosition = new Vector3((i-  displayedUnlockButtons.Count/2) * unlockButtonSize + unlockButtonSize  /2, - 550,0);
                 }
             } else {
                 for (int i = 0; i < displayedUnlockButtons.Count; ++i) {
-                    displayedUnlockButtons[i].transform.localPosition = new Vector3(-unlockButtonSize * (displayedUnlockButtons.Count / 2) + i * unlockButtonSize, - 750,0);
+                    displayedUnlockButtons[i].transform.localPosition = new Vector3(-unlockButtonSize * (displayedUnlockButtons.Count / 2) + i * unlockButtonSize, - 550,0);
                 }
             }
+            if (tree.unlocking != null) {
+                currentUnlock.GetComponent<TalentDisplay>().setTalent(tree.unlocking);
+                currentUnlock.SetActive(true);
+            } else {
+                currentUnlock.SetActive(false);
+            }
+
+            // Group
+            var relevantGroupUnlocks = tree.groupUnlockOptions.Where(t => t.activityId == activityId).ToList();
+            
+            for (int i = 0; i < relevantGroupUnlocks.Count; ++i) {
+                if (i >= displayedGroupUnlockButtons.Count) {
+                    displayedGroupUnlockButtons.Add(Instantiate(UnlockButtonPrefab));
+                }
+                displayedGroupUnlockButtons[i].transform.SetParent(canvas.transform);
+                displayedGroupUnlockButtons[i].transform.SetAsLastSibling();
+                var displayButton = displayedGroupUnlockButtons[i].GetComponent<TalentDisplay>();
+                displayButton.loadTalentTree = this;
+                displayButton.tooltip = tooltip;
+                displayButton.setTalent(relevantGroupUnlocks[i]);
+            }
+            var numberOfGroupButtons = displayedGroupUnlockButtons.Count;
+            for (int i = relevantGroupUnlocks.Count; i < numberOfGroupButtons; ++i) {
+                displayedGroupUnlockButtons[displayedGroupUnlockButtons.Count - 1].Destroy();
+                displayedGroupUnlockButtons.RemoveAt(displayedGroupUnlockButtons.Count - 1);
+            }
+            
+            if (displayedGroupUnlockButtons.Count % 2 == 0) {
+                for (int i = 0; i < displayedGroupUnlockButtons.Count / 2; ++i) {
+                    displayedGroupUnlockButtons[i].transform.localPosition = new Vector3(- unlockButtonSize * (displayedGroupUnlockButtons.Count / 2 - 1) + i * unlockButtonSize - unlockButtonSize  /2, - 750,0);
+                }
+                for (int i = displayedGroupUnlockButtons.Count / 2; i < displayedGroupUnlockButtons.Count; ++i) {
+                    displayedGroupUnlockButtons[i].transform.localPosition = new Vector3((i-  displayedGroupUnlockButtons.Count/2) * unlockButtonSize + unlockButtonSize  /2, - 750,0);
+                }
+            } else {
+                for (int i = 0; i < displayedGroupUnlockButtons.Count; ++i) {
+                    displayedGroupUnlockButtons[i].transform.localPosition = new Vector3(-unlockButtonSize * (displayedGroupUnlockButtons.Count / 2) + i * unlockButtonSize, - 750,0);
+                }
+            }
+            if (tree.groupUnlocking != null) {
+                currentUnlockGroup.GetComponent<TalentDisplay>().setTalent(tree.groupUnlocking);
+                currentUnlockGroup.SetActive(true);
+            } else {
+                currentUnlockGroup.SetActive(false);
+            }
+            
 
             
         }

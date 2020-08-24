@@ -85,7 +85,7 @@ public class API {
                 }
             }
     }
-    public static async Task<Option<B>> delete<B>(string url, Dictionary<string, string> queryParemeters) {
+    public static async void delete<B>(string url, Dictionary<string, string> queryParemeters) {
         var urlWithQuery = url + queryString(queryParemeters);
         using (var www = UnityWebRequest.Delete(urlWithQuery))
             {
@@ -99,12 +99,7 @@ public class API {
                 
                 while (!www.isDone)
                     await Task.Delay(1);
-                var responseString = www.downloadHandler.text;
-                if (www.isNetworkError || www.isHttpError) {
-                    return Option<B>.None;
-                } else {
-                    return Option<B>.Some(JsonUtility.FromJson<B>(responseString));
-                }
+                
             }
     }
 

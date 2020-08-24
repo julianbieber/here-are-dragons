@@ -17,10 +17,16 @@ public class TalentAPI
         }
     }
 
-    public static async Task<Option<Talent>> startUnlocking(int talentId) {
+    public static async Task<Option<Talent>> startUnlocking(int talentId, bool group) {
         var query = new Dictionary<string, string>();
         query.Add("id", talentId.ToString());
-        var response = await API.get<Talent>(Global.baseUrl + "talents", query);
+        if (group) {
+            query.Add("group", "true");
+        } else {
+            query.Add("group", "false");
+        }
+        
+        var response = await API.post<string, Talent>(Global.baseUrl + "talents/startUnlock", "", query);
         if (response.isSome) {
             return response;
         } else {
@@ -34,6 +40,8 @@ public class TalentAPI
 public class TalentResponse {
     public Talent unlocking;
     public List<Talent> unlockOptions;
+    public GroupTalent groupUnlocking;
+    public List<GroupTalent> groupUnlockOptions;
 }
 
 [Serializable]
@@ -46,4 +54,16 @@ public class Talent {
     public int speed;
     public int time;
     public int timeInDay;
+}
+
+
+[Serializable]
+public class GroupTalent {
+    public int id;
+    public string name;
+    public int skillUnlock;
+    public int activityId;
+    public int distance;
+    public int speed;
+    public int time;
 }

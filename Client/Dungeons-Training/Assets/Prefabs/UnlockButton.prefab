@@ -122,14 +122,14 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5345717678931545428}
         m_MethodName: select
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &5345717678931545428
 MonoBehaviour:
@@ -144,6 +144,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tooltip: {fileID: 0}
+  talent:
+    id: 0
+    name: 
+    skillUnlock: 0
+    activityId: 0
+    distance: 0
+    speed: 0
+    time: 0
+    timeInDay: 0
+  groupTalent:
+    id: 0
+    name: 
+    skillUnlock: 0
+    activityId: 0
+    distance: 0
+    speed: 0
+    time: 0
+  loadTalentTree: {fileID: 0}
 --- !u!1 &6356390051341372300
 GameObject:
   m_ObjectHideFlags: 0
