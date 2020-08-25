@@ -13,7 +13,7 @@ public class DeaktivierePAnel : MonoBehaviour
             // Sende Request an Server, damit der Server den aktiven Quest kennt, dazu den global quest senden
             if(Global.ausgewahlterQuest.isSome){
                 var questid = (long) Global.ausgewahlterQuest.value.questID;
-                QuestAPI.postActiveQuest(questid);
+                QuestAPI.postActiveQuest(questid,Global.difficulty.value);
             }
         }
     }

@@ -57,10 +57,13 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     countQuest
   }
 
-  def makeActive(questID: Long, userId: Int): Unit = {
+  def makeActive(questID: Long, userId: Int,difficulty:Int): Unit = {
     withSession(pool) { implicit session =>
+      sql"UPDATE public.quest SET progres = ${0} WHERE activ = true AND userID = $userId".executeUpdate().apply()
+      sql"UPDATE public.quest SET difficulty = ${0} WHERE activ = true AND userID = $userId".executeUpdate().apply()
       sql"UPDATE public.quest SET activ = false WHERE userID = $userId".executeUpdate().apply()
       sql"UPDATE public.quest SET activ = true WHERE id = $questID AND userID = $userId".executeUpdate().apply()
+      sql"UPDATE public.quest SET difficulty = ${difficulty} WHERE activ = true AND userID = $userId".executeUpdate().apply()
     }
   }
 
@@ -109,13 +112,12 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     //distance wird in Metern übergeben und danach mit der Methode toDegree in GeoCoordinaten umgerechnet
     val distanceInDegree = toMeter(distance)
     val longitudemin = longitude - distanceInDegree;
-    val longitudemax = longitude + distanceInDegree;
+    val longitudemax = longitude + distanceInDegree;  
     val latitudemin = latitude - distanceInDegree;
     val latitudemax = latitude + distanceInDegree;
-
     withReadOnlySession(pool) { implicit session =>
       val daoquests: List[DAOQuest] =
-        sql"""SELECT id,ids FROM public.quest WHERE userID = $userId """.map { rowQuest =>
+        sql"""SELECT id,ids,progres FROM public.quest WHERE userID = $userId """.map { rowQuest =>
           sql"""SELECT longitude, latitude, priority, tags FROM public.poi WHERE (longitude BETWEEN $longitudemin AND $longitudemax) and (latitude BETWEEN $latitudemin AND $latitudemax) AND (id = ${rowQuest.long("id")})""".map(rowPoi =>
             DAOQuest(
               rowQuest.long("id"),
@@ -127,7 +129,32 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
             )
           ).list().apply()
         }.list().apply().flatten
-      daoquests
+      val activeQuestId :Long =
+        sql"""SELECT id FROM public.quest WHERE userID = $userId AND activ = true""".map { rowQuest =>
+          rowQuest.long("id")
+        }.first().apply().getOrElse(0)
+      val connectedQuests: Seq[Long] =
+        sql"""SELECT ids FROM public.quest WHERE userID = $userId AND id =$activeQuestId""".map { rowQuest =>
+          rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].map(_.longValue()).toSeq
+      }.first().apply().getOrElse(List(0))
+      val progress: Int =
+        sql"""SELECT progres FROM public.quest WHERE userID = $userId AND id =$activeQuestId""".map { rowQuest =>
+          rowQuest.int("progres")
+        }.first().apply().getOrElse(0)
+      val latlon: Option[Array[Float]] =
+        sql"""SELECT longitude, latitude FROM public.poi WHERE (id = ${connectedQuests(progress)})""".map(rowPoi =>
+          Array(rowPoi.float("latitude"), rowPoi.float("longitude"))
+        ).first().apply()
+      var result = List[DAOQuest]()
+      for( i <-daoquests){
+        if(i.questID==activeQuestId){
+          val j= DAOQuest(i.questID,i.questIDs,latlon.get(1),latlon.get(0),i.priority,i.tag)
+          result = j :: result
+        }else{
+          result = i :: result
+        }
+      }
+      result
     }
   }
 
@@ -144,11 +171,11 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       val connectedQuests: Seq[Long] =
         sql"""SELECT ids FROM public.quest WHERE userID = $userID AND id =$questID""".map { rowQuest =>
           rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].map(_.longValue()).toSeq
-        }.first().apply().get
+        }.first().apply().getOrElse(throw new RuntimeException("Keine Liste von QuestIds vorhanden"))
       val progress: Int =
         sql"""SELECT progres FROM public.quest WHERE userID = $userID AND id =$questID""".map { rowQuest =>
           rowQuest.int("progres")
-        }.first().apply().get
+        }.first().apply().getOrElse(throw new RuntimeException("Kein Progress von Quest vorhanden"))
       if(connectedQuests.length>progress) {
         val lonlat: Option[Array[Float]] =
           sql"""SELECT longitude, latitude FROM public.poi WHERE (id = ${connectedQuests(progress)})""".map(rowPoi =>
@@ -166,7 +193,7 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       val activeQuestId :Long =
         sql"""SELECT id FROM public.quest WHERE userID = $userID AND activ = true""".map { rowQuest =>
           rowQuest.long("id")
-        }.first().apply().get
+        }.first().apply().getOrElse(throw new RuntimeException("keine aktive Quest vorhanden"))
       activeQuestId
     }
   }
@@ -176,11 +203,10 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       val progress: Int =
         sql"""SELECT progres FROM public.quest WHERE userID = $userId AND id =$questId""".map { rowQuest =>
           rowQuest.int("progres")
-        }.first().apply().get
+        }.first().apply().getOrElse(throw new RuntimeException("kein Progress in Datenbank gefunden"))
       sql"UPDATE public.quest SET progres = ${progress+1} WHERE id = $questId AND userID = $userId".executeUpdate().apply()
     }
   }
-
 }
 
 case class DAOQuest(questID: Long,questIDs :Seq[Long], longitude: Float, latitude: Float,priority: Float, tag:Option[String])

@@ -28,10 +28,11 @@ public class QuestAPI : MonoBehaviour
         await API.post<string, string>(Global.baseUrl + "unactivateQuest", "", que);
     }
 
-    async public static void postActiveQuest(long questID)
+    async public static void postActiveQuest(long questID,int difficulty)
     {
         var que = new Dictionary<string, string>();
         que.Add("questID", questID.ToString());
+        que.Add("difficulty", difficulty.ToString());
         await API.post<string, string>(Global.baseUrl + "activateQuest", "", que);
     }
 
@@ -42,7 +43,7 @@ public class QuestAPI : MonoBehaviour
         if(response.isSome) return response.value;
         else {
             Debug.Log("Quest abgeschlossen");
-            return new nextPosition { lanlot = new float[0] };
+            return new nextPosition { latlong = new float[0] };
         }
     }
 }
@@ -56,6 +57,7 @@ public class DAOQuest
     public String tag;
     public Boolean erledigt=false;
 
+
 }
 [Serializable]
 public class QuestsResponse
@@ -65,5 +67,5 @@ public class QuestsResponse
 [Serializable]
 public class nextPosition
 {
-    public float[] lanlot;
+    public float[] latlong;
 }

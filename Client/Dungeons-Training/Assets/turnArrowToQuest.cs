@@ -18,7 +18,7 @@ public class turnArrowToQuest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Time.time>=nextUpdate){
+        if(true){//Time.time>=nextUpdate
             nextUpdate=Mathf.FloorToInt(Time.time)+1;
             if(Global.ausgewahlterQuest.isSome){
                 var map = LocationProviderFactory.Instance.mapManager;

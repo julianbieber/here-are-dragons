@@ -5,6 +5,7 @@ create table public.quest (
     userID int not null,
     --activatable_user_ids int[] default array[]::int[]
     progres int not null default 0,
+    difficulty int not null default 0,
 
     -- If this Boolean is true, the quest is active, if it is false it is activatable
     activ boolean not null,
