@@ -140,9 +140,9 @@ public class FulleListeMitQuests : MonoBehaviour
         int menuIndex = d.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;
         string value = menuOptions[menuIndex].text;
-        if (Global.ausgewahlterQuest.isSome && Global.ausgewahlterQuest.value.erledigt )
+        if (Global.erledigt.value)
         {
-            Global.ausgewahlterQuest=Option<DAOQuest>.None;
+            Global.erledigt = Option<bool>.Some(false);
             await getFilling();
             FillList();
         }

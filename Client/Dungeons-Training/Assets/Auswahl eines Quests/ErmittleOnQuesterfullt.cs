@@ -30,21 +30,27 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
             Quest q = new Quest(Global.ausgewahlterQuest, Player);
             bool Questerfullt = q.istPlayerAnPositionVonAusgewahltemQuest();
             nextUpdate++;
+            Debug.Log(Global.ausgewahlterQuest.isSome);
             if (Questerfullt && q.ausgewählterQuest.isSome&&!Global.ausgewahlterQuest.value.erledigt)
             {
                 var b = await QuestAPI.getNextQuestPosition();
-                if(b.lanlot.Equals(new float[0])){
-                    text.text = "Quest abgeschlossen";
+                Debug.Log(b.latlong);
+                if(b.latlong==null || !(b.latlong.GetLength(0)).Equals(2) ){
+                    text.text = "Quest abgeschlossen ! :)";
                     List<Position> a =  await GroupAPI.getGroup();
                     DifficultyAPI.postDifficulty(Global.difficulty.value, (a.Count>0));
                     i = 2000;
                     QuestAPI.postUnactivateQuest(Global.ausgewahlterQuest.value.questID);
                     Global.ausgewahlterQuest.value.erledigt = true;
+                    Global.erledigt = Option<bool>.Some(true);
+                    GameObject Quest = GameObject.Find(Global.ausgewahlterQuest.value.questID.ToString());
+                    Destroy(Quest);
+                    Global.ausgewahlterQuest=Option<DAOQuest>.None;
                 }else{
                     var map = LocationProviderFactory.Instance.mapManager;
+                    Global.ausgewahlterQuest.value.latitude = b.latlong[0];
+                    Global.ausgewahlterQuest.value.longitude = b.latlong[1];
                     var coord = map.GeoToWorldPosition(new Vector2d(Global.ausgewahlterQuest.value.latitude, Global.ausgewahlterQuest.value.longitude));
-                    Global.ausgewahlterQuest.value.latitude = b.lanlot[0];
-                    Global.ausgewahlterQuest.value.longitude = b.lanlot[1];
                     GameObject Quest = GameObject.Find(Global.ausgewahlterQuest.value.questID.ToString());
                     Quest.transform.position = coord;
                 }

@@ -18,8 +18,9 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
 
   post("/activateQuest") {request: Request =>
     val y = request.getParam("questID").toLong
+    val diff = request.getParam("difficulty").toInt
     withUser(request) { userId =>
-      questDAO.makeActive(y, userId);
+      questDAO.makeActive(y, userId,diff);
       response.ok
     }
   }
@@ -31,6 +32,8 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
       response.ok
     }
   }
+
+
 
   get("/getListOfQuests") { request: Request =>
     val y = request.getParam("distance").toFloat
@@ -48,8 +51,8 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
   get("/nextQuestPosition") { request :Request =>
     withUser(request){ userId =>
       val activeQuest =  questDAO.getActiveQuestID(userId)
-      val nextPosition = questDAO.getPositionOfNextQuest(activeQuest,userId)
       questDAO.setProgress(activeQuest,userId)
+      val nextPosition = questDAO.getPositionOfNextQuest(activeQuest,userId)
       response.ok(writeToString(model.Quest.nextPosition(nextPosition)))
     }
   }
