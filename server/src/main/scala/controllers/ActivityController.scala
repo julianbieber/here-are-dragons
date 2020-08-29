@@ -62,4 +62,12 @@ class ActivityController @Inject() (override val userDAO: UserDAO, executionCont
       }
     }
   }
+
+  put("/calisthenics") { request: Request =>
+    withUserAsync(request) { userId =>
+      Future {
+        response.ok()
+      }
+    }
+  }
 }
