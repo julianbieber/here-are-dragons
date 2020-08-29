@@ -60,7 +60,7 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
     val computedResult = dao.checkIfActive(poiId,0).get
     computedResult should be (false)
 
-    dao.makeActive(poiId,0)
+    dao.makeActive(poiId,0,0)
     val computedResult1 = dao.checkIfActive(poiId,0).get
     computedResult1 should be (true)
 

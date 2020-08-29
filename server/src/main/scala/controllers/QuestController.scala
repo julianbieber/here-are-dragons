@@ -48,6 +48,19 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
     }
   }
 
+  get("/calculateDifficulty"){request: Request =>
+    val y = request.getParam("questID").toLong
+    withUser(request) { userId =>
+      val i = positionDAO.getPosition(userId).get
+      try {
+        response.ok(writeToString(model.Quest.Difficulty(questDAO.calculateDifficulty(i.longitude, i.latitude, y,userId))))
+      } catch {
+        case NonFatal(e) => e.printStackTrace()
+          response.internalServerError()
+      }
+    }
+  }
+
   get("/nextQuestPosition") { request :Request =>
     withUser(request){ userId =>
       val activeQuest =  questDAO.getActiveQuestID(userId)

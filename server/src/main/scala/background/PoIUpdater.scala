@@ -34,7 +34,7 @@ class PoIUpdater @Inject()(val poIDAO: dao.PoIDAO, val questdao: dao.QuestDAO, v
       positiondao.getPosition(i).map {
         pos => {
 
-          val cellid = nullenAuffuellen(CoordinateConverters.lonLatToS2CellID(pos.longitude, pos.latitude, 14).id().toBinaryString)
+          val cellid = nullenAuffuellen(CoordinateConverters.lonLatToS2CellID(pos.longitude, pos.latitude, 12).id().toBinaryString)
 
           val r = PoI("GetPoI", cellid, "50", "[1,2,5,7,13,14,16,17,19,21]")
           val request = basicRequest.post(uri"http://130.83.245.99:8080").body(writeToString(r))

@@ -6,7 +6,7 @@ import model.Character.{Attributes, Character, Talent, TalentResponse}
 import model.Dungeon._
 import model.Group.{Group, JoinRequest}
 import model.Position.{PositionRequest, UserPosition}
-import model.Quest.{QuestsResponse,nextPosition}
+import model.Quest.{QuestsResponse,nextPosition,Difficulty}
 import service.Status
 
 package object controllers {
@@ -36,4 +36,5 @@ package object controllers {
   implicit val talentResponseCodec = JsonCodecMaker.make[TalentResponse]
   implicit val talentCodec = JsonCodecMaker.make[Talent]
   implicit val nextQuestPositionCodec = JsonCodecMaker.make[nextPosition]
+  implicit val difficultyCodec = JsonCodecMaker.make[Difficulty]
 }
