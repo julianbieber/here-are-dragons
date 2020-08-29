@@ -159,3 +159,5 @@ sysinfo.txt
 **/lint/outputs/
 **/lint/tmp/
 # lint/reports/
+#
+**/venv/
