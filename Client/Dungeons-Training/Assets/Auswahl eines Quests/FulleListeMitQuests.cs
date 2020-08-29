@@ -45,7 +45,7 @@ public class FulleListeMitQuests : MonoBehaviour
     /*
         OnEnable wird einmal aufgerufen, wenn die Dropdownliste der Quests aktiviert wird.
     */
-    public void OnEnable(){
+    async public void OnEnable(){
 
         int selectedQuestIndex = d.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> questOptions = d.GetComponent<Dropdown>().options;
@@ -55,7 +55,9 @@ public class FulleListeMitQuests : MonoBehaviour
             DAOQuest q = newList[i-1];
             Quest quest = new Quest(Option<DAOQuest>.Some(q),Player);
 
-            double distance = quest.getDifficulty();
+            var diffi = await QuestAPI.getDifficulty(q.questID);
+            double distance = diffi.difficulty;
+
             int indexFirstTab = questOptions[i].text.IndexOf("|");
 
             if(indexFirstTab!=-1){
@@ -78,7 +80,8 @@ public class FulleListeMitQuests : MonoBehaviour
         foreach (DAOQuest q in newList)
         {
             Quest quest = new Quest(Option<DAOQuest>.Some(q),Player);
-            double distance = quest.getDifficulty();
+            var diffi = await QuestAPI.getDifficulty(q.questID);
+            double distance = diffi.difficulty;
 
             if (questInBestimmtenAbstand(q)& q.tag != null)
             {

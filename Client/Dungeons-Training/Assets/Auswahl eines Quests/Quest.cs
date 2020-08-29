@@ -52,14 +52,6 @@ public class Quest
         return Conversions.LatLonToMeters(distanceVector.x,distanceVector.y).magnitude;
     }
 
-    public double getDifficulty(){
-        double distance = getDistanceToPlayer();
-
-        if(distance>1000) return 100;
-        
-
-        return Mathd.Floor(distance/10);
-    }
 
     public float GetDistanceBetweenPoints(Vector3 point1, Vector3 point2)
     {

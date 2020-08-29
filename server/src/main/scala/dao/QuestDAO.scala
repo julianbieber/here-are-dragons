@@ -2,7 +2,9 @@ package dao
 
 import javax.inject.Inject
 import scalikejdbc._
+
 import scala.collection.immutable.List
+import com.github.dmarcous.s2utils.geo.GeographyUtilities
 
 class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
@@ -108,6 +110,30 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def toMeter(distanceFromPosition: Float): Float = distanceFromPosition / 11100f
 
+
+  def calculateDifficulty(longitude:Float, latitude:Float, questId:Long, userId:Int):Int = {
+    withReadOnlySession(pool) { implicit session =>
+      val quests: Array[Long] =
+        sql"""SELECT ids FROM public.quest WHERE userID = $userId AND id=$questId """.map { rowQuest =>
+          rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].toSeq.map(_.longValue())
+        }.list().apply.flatten.toArray
+
+      val positions: List[Position] =
+        sql"""SELECT longitude, latitude FROM public.poi WHERE id = any(${quests})""".map { rowPoi =>
+          Position(rowPoi.float("longitude").toDouble ,rowPoi.float("latitude").toDouble)
+        }.list().apply()
+
+      val difficulty = positions.foldLeft((0.0,Position(longitude,latitude))){case ((distance, point), nextPoint) =>
+      distance + GeographyUtilities.haversineDistance(point.longitude, point.latitude, nextPoint.longitude, nextPoint.latitude) -> nextPoint}
+
+      if((difficulty._1/50).toInt+1>100) 100
+      else (difficulty._1/50).toInt+1
+    }
+
+  }
+
+
+
   def getListOfActivataibleQuestsNerby(longitude: Float, latitude: Float, distance: Float, userId: Int): List[DAOQuest] = {
     //distance wird in Metern übergeben und danach mit der Methode toDegree in GeoCoordinaten umgerechnet
     val distanceInDegree = toMeter(distance)
@@ -210,6 +236,6 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 }
 
 case class DAOQuest(questID: Long,questIDs :Seq[Long], longitude: Float, latitude: Float,priority: Float, tag:Option[String])
-
+case class Position(longitude: Double, latitude: Double)
 
 
