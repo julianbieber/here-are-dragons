@@ -9,8 +9,10 @@ services:
       - "8888:8888"
     depends_on:
       - db
+      - calisthenics
     links:
       - db
+      - calisthenics
 
   db:
     image: postgres
@@ -32,6 +34,14 @@ services:
       - db
     links:
       - db
+
+  calisthenics:
+    build:
+      context: calisthenics_classifier
+      dockerfile: ./Dockerfile
+    ports:
+    - "5000:5000"
+
 
 volumes:
   db:

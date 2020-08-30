@@ -4,7 +4,7 @@ create table public.activity_type (
 );
 
 insert into public.activity_type (name)
-(values ('RUNNING'), ('CYCLING'), ('OTHER'));
+(values ('RUNNING'), ('CYCLING'), ('PUSH'), ('PULL'));
 
 create table public.activity (
     userid int not null references users(id),

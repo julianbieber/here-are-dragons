@@ -45,7 +45,7 @@ class CalisthenicsDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def setProcessed(user2Time: Seq[(Int, DateTime)]): Unit = {
     withSession(pool) { implicit session: DBSession =>
-      sql"UPDATE public.calisthenics SET processed = true where userid = {u} and timestamp = {t}".batchByName(user2Time.map { case(userId, timestamp) =>
+      sql"UPDATE public.calisthenics SET processed = true where user_id = {u} and timestamp = {t}".batchByName(user2Time.map { case(userId, timestamp) =>
         Seq("u" -> userId, "t" -> timestamp)
       }: _*).apply()
     }
