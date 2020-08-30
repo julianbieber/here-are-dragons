@@ -5,10 +5,11 @@ import com.twitter.finagle.http.Request
 import dao.{ActivityDAO, GroupDAO, RelayRaceDAO, UserDAO}
 import javax.inject.Inject
 import model.Activity._
+import service.CalisthenicsService
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ActivityController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, activityDAO: ActivityDAO, groupDAO: GroupDAO, relayRaceDAO: RelayRaceDAO) extends UserUtil {
+class ActivityController @Inject() (override val userDAO: UserDAO, executionContext: ExecutionContext, activityDAO: ActivityDAO, groupDAO: GroupDAO, relayRaceDAO: RelayRaceDAO, calisthenicsService: CalisthenicsService) extends UserUtil {
   private implicit val ec: ExecutionContext = executionContext
   private val supportedActivities = Seq("RUNNING", "CYCLING")
 
@@ -59,6 +60,16 @@ class ActivityController @Inject() (override val userDAO: UserDAO, executionCont
       Future {
         relayRaceDAO.stop(userId)
         response.ok("")
+      }
+    }
+  }
+
+  put("/calisthenics") { request: Request =>
+    withUserAsync(request) { userId =>
+      Future {
+        val body = readFromString[CalisthenicsPutBody](request.contentString)
+        calisthenicsService.record(userId, body.vector)
+        response.ok()
       }
     }
   }
