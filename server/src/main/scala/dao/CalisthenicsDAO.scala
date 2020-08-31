@@ -1,17 +1,17 @@
 package dao
 
-import java.sql.Timestamp
 
 import javax.inject.Inject
 import org.joda.time.DateTime
 import scalikejdbc.{ConnectionPool, _}
-import util.TimeUtil
 
 class CalisthenicsDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
   def store(row: CalisthenicsRow): Unit = {
     withSession(pool) { implicit session: DBSession =>
       sql"insert into public.calisthenics (user_id, calisthenics_type, vector, timestamp, processed) values (${row.userId}, ${row.calisthenicsType}, ${row.vector.toArray}, ${row.timestamp}, ${row.processed})"
+        .execute()
+        .apply()
     }
   }
 
@@ -48,6 +48,20 @@ class CalisthenicsDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
       sql"UPDATE public.calisthenics SET processed = true where user_id = {u} and timestamp = {t}".batchByName(user2Time.map { case(userId, timestamp) =>
         Seq("u" -> userId, "t" -> timestamp)
       }: _*).apply()
+    }
+  }
+
+  def getBetween(user: Int, start: DateTime, end: DateTime): Seq[CalisthenicsRow] = {
+    withReadOnlySession(pool) { implicit session: DBSession =>
+      sql"select user_id, calisthenics_type, vector, timestamp, processed from public.calisthenics where user_id = $user and timestamp between $start and $end".map{ row =>
+        CalisthenicsRow(
+          row.int("user_id"),
+          row.int("calisthenics_type"),
+          row.array("vector").getArray.asInstanceOf[Array[java.lang.Float]].toSeq.map(_.floatValue()),
+          toDateTime(row.timestamp("timestamp").toZonedDateTime),
+          row.boolean("processed")
+        )
+      }.list().apply()
     }
   }
 
