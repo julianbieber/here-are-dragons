@@ -7,6 +7,16 @@ object ExperienceCalculator {
     (duration.getMinutes.toDouble * activityToMultiplier(activityId).find{ case ((min, max), _) => min >= kmPerH && max < kmPerH}.map(_._2).getOrElse(0.0)).toLong
   }
 
+  def forCalisthenics(count: Int, calisthenicsType: Int): Long = {
+    if (calisthenicsType == 3) {
+      count * 15
+    } else if (calisthenicsType == 4) {
+      count * 30
+    } else {
+      0
+    }
+  }
+
   private val activityToMultiplier = Map(
     1 -> Map(
       (1, 8) -> 1.0,
@@ -17,8 +27,7 @@ object ExperienceCalculator {
       (1, 15) -> 0.5,
       (15, 25) -> 0.75,
       (25, Int.MaxValue) -> 1.0
-    ), // Cycling
-    3 -> Map( (1, Int.MaxValue) -> 0.75) // Other
+    )
   )
 
 

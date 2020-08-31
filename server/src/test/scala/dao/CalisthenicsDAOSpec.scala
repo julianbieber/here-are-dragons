@@ -8,7 +8,7 @@ import util.TimeUtil
 
 class CalisthenicsDAOSpec extends AnyFlatSpec with Matchers {
 
-  "CalisthenicsDAO" must "record start and sp of activities" in withPool { pool =>
+  "CalisthenicsDAO" must "set process" in withPool { pool =>
     val userDAO = new UserDAO(pool)
     val activityDAO = new CalisthenicsDAO(pool)
 
@@ -25,6 +25,25 @@ class CalisthenicsDAOSpec extends AnyFlatSpec with Matchers {
     activityDAO.setProcessed(Seq(userId -> timestamp))
 
     activityDAO.getNotProcessed() must be(empty)
+
+  }
+
+  it must "retrieve rows between two timestamps" in withPool { pool =>
+    val activityDAO = new CalisthenicsDAO(pool)
+
+    val userId = 1
+    val timestamp = TimeUtil.now
+    activityDAO.store(CalisthenicsRow(
+      userId,
+      1,
+      Seq(0.01f),
+      timestamp,
+      false
+    ))
+
+    activityDAO.getBetween(userId, timestamp.minusSeconds(1), timestamp.plusSeconds(1)) must have length 1
+    activityDAO.getBetween(userId, timestamp.minusSeconds(2), timestamp.minusSeconds(1)) must have length 0
+
 
   }
 
