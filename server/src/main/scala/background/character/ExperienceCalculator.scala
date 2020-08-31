@@ -19,14 +19,14 @@ object ExperienceCalculator {
 
   private val activityToMultiplier = Map(
     1 -> Map(
-      (1, 8) -> 1.0,
-      (8, 12) -> 1.25,
-      (12, Int.MaxValue) -> 1.5
+      (1, 5) -> 3.0,
+      (5, 9) -> 9,
+      (9, Int.MaxValue) -> 12
     ), // Running
     2 -> Map(
-      (1, 15) -> 0.5,
-      (15, 25) -> 0.75,
-      (25, Int.MaxValue) -> 1.0
+      (1, 12) -> 5,
+      (12, 25) -> 8,
+      (25, Int.MaxValue) -> 12
     )
   )
 
