@@ -11,7 +11,7 @@ ADD gunincorn.sh /opt/
 ADD train.py /opt/
 ADD api.py /opt/
 
-EXPOSE 5000
+EXPOSE 5001
 
 RUN pip freeze
 
