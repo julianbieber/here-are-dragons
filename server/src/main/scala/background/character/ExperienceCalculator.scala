@@ -4,7 +4,7 @@ import org.joda.time.Period
 
 object ExperienceCalculator {
   def forActivity(activityId: Int, duration: Period, kmPerH: Double): Long = {
-    (duration.getMinutes.toDouble * activityToMultiplier(activityId).find{ case ((min, max), _) => min >= kmPerH && max < kmPerH}.map(_._2).getOrElse(0.0)).toLong
+    (duration.getMinutes.toDouble * activityToMultiplier(activityId).find{ case ((min, max), _) => min >= kmPerH && max < kmPerH}.map(_._2).getOrElse(0)).toLong
   }
 
   def forCalisthenics(count: Int, calisthenicsType: Int): Long = {
@@ -19,7 +19,7 @@ object ExperienceCalculator {
 
   private val activityToMultiplier = Map(
     1 -> Map(
-      (1, 5) -> 3.0,
+      (1, 5) -> 3,
       (5, 9) -> 9,
       (9, Int.MaxValue) -> 12
     ), // Running

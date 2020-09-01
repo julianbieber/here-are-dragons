@@ -44,7 +44,16 @@ object Difficulty {
   )
 
   val minDifficultyPerPattern = Seq(
-    1 -> EnemyPattern(1, Seq(SkillDAO.skills(0)), 15, 0)
+    1 -> EnemyPattern(1f, Seq(SkillDAO.skills(0)), 15, 0), // Air elemental
+    1 -> EnemyPattern(0.75f, Seq(), 20, 1), // Animated sword
+    1 -> EnemyPattern(0.75f, Seq(), 20, 2), // fire dragon
+    1 -> EnemyPattern(0.75f, Seq(), 20, 3), // fire drake
+    1 -> EnemyPattern(0.75f, Seq(), 20, 4), // submerged orc
+    1 -> EnemyPattern(0.75f, Seq(), 20, 5), // untitled
+    1 -> EnemyPattern(0.75f, Seq(), 20, 6), // goblin
+    1 -> EnemyPattern(0.75f, Seq(), 20, 7), // ice dragon
+    1 -> EnemyPattern(0.75f, Seq(), 20, 8), // ice drake
+    1 -> EnemyPattern(0.75f, Seq(), 20, 9) // snake
   )
 }
 
