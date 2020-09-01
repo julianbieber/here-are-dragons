@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Linq;
 
 public class ActivityAPI
 {
@@ -29,4 +30,17 @@ public class ActivityAPI
         query.Add("type", activityType);
         API.delete<string>(Global.baseUrl + "relay", query);
     }
+
+    public static void recordCalisthenics(float[] vector) {
+        var query = new Dictionary<string, string>();
+        var data = new CalisthenicsPutBody {
+            vector = vector.ToList()
+        };
+        API.put<CalisthenicsPutBody, string>("/calisthenics", data, query);
+    }
+}
+
+[Serializable]
+public class CalisthenicsPutBody {
+    public List<float> vector;
 }
