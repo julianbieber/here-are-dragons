@@ -5,6 +5,15 @@ import service.Status
 
 object SkillDAO {
   val skills = IndexedSeq(
+    // Always unlocked
+    SkillBuilder
+      .create("Walk")
+      .withTargetPattern("101")
+      .withCost(1)
+      .movesTo(0)
+      .build(),
+
+    // Sorcerer
     SkillBuilder
       .create("Smolder")
       .withTargetPattern("11111")
@@ -35,24 +44,125 @@ object SkillDAO {
       .withWet(5)
       .withCost(2)
       .build(),
-    SkillBuilder
-      .create("Walk")
+    SkillBuilder.create("Ice Shards")
+      .withTargetPattern("111")
+      .withSpellPower(2.0f)
+      .withCost(2)
+      .withCD(2)
+      .withWet(2)
+      .build(),
+    SkillBuilder.create("Fireball")
+      .withTargetPattern("11011")
+      .withBurn(2)
+      .withEffectPattern("11111")
+      .withSpellPower(2.5f)
+      .withCost(4)
+      .withCD(2)
+      .build(),
+    SkillBuilder.create("Lightning")
+      .withTargetPattern("11011")
+      .withCost(2)
+      .withStun(1)
+      .withCD(3)
+      .withSpellPower(2.0f)
+      .build(),
+
+
+    // Warrior
+    SkillBuilder.create("Slice")
       .withTargetPattern("101")
-      .withCost(1)
-      .movesTo(0)
+      .withCost(2)
+      .withStrength(1f)
+      .withCD(1)
+      .build(),
+    SkillBuilder.create("Flurry")
+      .withTargetPattern("101")
+      .withCost(3)
+      .withCD(2)
+      .withStrength(2.0f)
+      .build(),
+    SkillBuilder.create("Thrust")
+      .withTargetPattern("11011")
+      .withCost(2)
+      .withCD(3)
+      .withStrength(2.0f)
       .build(),
 
     SkillBuilder.create("Stun")
       .withTargetPattern("101")
-      .withCost(1)
+      .withCost(4)
       .withStun(1)
+      .withCD(4)
+      .withStrength(0.6f)
       .build(),
-
-    SkillBuilder.create("KD")
+    SkillBuilder.create("Swipe Legs")
       .withTargetPattern("101")
       .withKD(1)
-      .withCost(2)
+      .withCD(4)
+      .withCost(4)
       .withStrength(0.5f)
+      .build(),
+    SkillBuilder.create("Charge")
+      .withTargetPattern("1110111")
+      .movesTo(1)
+      .withKD(1)
+      .withCost(4)
+      .withStrength(1.0f)
+      .build(),
+    SkillBuilder.create("Throw Sword")
+      .withStun(2)
+      .withCD(4)
+      .withCost(6)
+      .withStrength(2.0f)
+      .build(),
+
+    // Ranger
+    SkillBuilder.create("Shoot")
+      .withDexterity(1.5f)
+      .withCost(2)
+      .withCD(1)
+      .withTargetPattern("1110111")
+      .build(),
+    SkillBuilder.create("Quickshot")
+      .withDexterity(1.0f)
+      .withCost(1)
+      .withTargetPattern("11011")
+      .build(),
+    SkillBuilder.create("Shock Shot")
+      .withDexterity(0.7f)
+      .withCost(2)
+      .withShock(1)
+      .withTargetPattern("11011")
+      .withCD(2)
+      .build(),
+    SkillBuilder.create("Snipe")
+      .withDexterity(2.0f)
+      .withCost(3)
+      .withTargetPattern("111101111")
+      .withCD(1)
+      .build(),
+    SkillBuilder.create("Rain of Arrows")
+      .withDexterity(0.8f)
+      .withCost(4)
+      .withTargetPattern("1110111")
+      .withEffectPattern("111")
+      .withCD(2)
+      .build(),
+    SkillBuilder.create("Burning Arrow")
+      .withDexterity(0.4f)
+      .withCost(2)
+      .withBurn(2)
+      .withTargetPattern("11011")
+      .withEffectPattern("111")
+      .withCD(2)
+      .build(),
+    SkillBuilder.create("Explosive Shot")
+      .withDamage(20)
+      .withTargetPattern("11011")
+      .withEffectPattern("111")
+      .withKD(1)
+      .withCost(4)
+      .withCD(2)
       .build()
   )
 
