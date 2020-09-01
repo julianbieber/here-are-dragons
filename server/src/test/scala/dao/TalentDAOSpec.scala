@@ -8,7 +8,7 @@ import testUtil.SQLSpec._
 class TalentDAOSpec extends AnyFlatSpec with Matchers {
   "TalentDAO" must "retrieve all talents" in withPool { pool =>
     val dao = new TalentDAO(pool)
-    dao.getTalents() must have size 5
+    dao.getTalents() must have size 20
   }
 
 }

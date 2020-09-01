@@ -35,7 +35,6 @@ class DifficultySpec extends AnyFlatSpec with Matchers {
       }
       val max = powers.maxBy(_._2)
       val min = powers.minBy(_._2)
-      max._2 must be <= 100
       min._2 must be >= 0
       println(skill.name, min, max)
 
