@@ -12,7 +12,7 @@ public class DungeonUnit : MonoBehaviour
     public GameObject targettable;
     public List<GameObject> empties;
     public List<GameObject> npcs;
-    public GameObject player;
+    public List<GameObject> player;
     public Unit Self;
     public int index;
     public TextMesh hpText;
@@ -31,7 +31,18 @@ public class DungeonUnit : MonoBehaviour
         reset();
         if (unit is PlayerUnit) {
             var p = unit as PlayerUnit;
-            player.SetActive(true);
+            if (p.skills.Count > 0) {
+                var firstSkill = p.skills[0];
+                if (firstSkill.dexterityScaling >= firstSkill.strengthScaling && firstSkill.dexterityScaling >= firstSkill.spellPowerScaling) {
+                    player[0].SetActive(true);
+                } else if (firstSkill.strengthScaling >= firstSkill.dexterityScaling && firstSkill.strengthScaling >= firstSkill.spellPowerScaling) {
+                    player[1].SetActive(true);
+                } else if (firstSkill.spellPowerScaling >= firstSkill.dexterityScaling && firstSkill.spellPowerScaling >= firstSkill.strengthScaling) {
+                    player[2].SetActive(true);
+                }
+            } else {
+                player[0].SetActive(true);
+            }
             displayStatus(p.status);
             hpText.text = p.health.ToString();
         } 
@@ -55,7 +66,9 @@ public class DungeonUnit : MonoBehaviour
         shock.SetActive(false);
         stun.SetActive(false);
         setNotTargettable();
-        player.SetActive(false);
+        foreach(var o in player) {
+            o.SetActive(false);
+        }
         hpText.text = "";
         foreach(var o in npcs) {
             o.SetActive(false);
