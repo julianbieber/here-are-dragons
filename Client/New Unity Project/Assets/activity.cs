@@ -4,12 +4,12 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using System.Text;
+using System;
 
 public class Activity : MonoBehaviour
 {
-
     public Button self;
-    public Button other;
+    public List<Button> others;
     public Text countDownText;
     public string activity;
     private bool isRecording = false;
@@ -22,8 +22,9 @@ public class Activity : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Guid uuid = Guid.NewGuid();
         self.GetComponent<Image>().color = Color.green;
-        output = new StreamWriter(Application.persistentDataPath + "/"+ activity+".csv", true);
+        output = new StreamWriter(Application.persistentDataPath + "/"+ activity + "_" + uuid.ToString() +".csv", true);
     }
 
     // Update is called once per frame
@@ -78,7 +79,11 @@ public class Activity : MonoBehaviour
         if (!isRecording) {
             countdownStop = Time.time + 3;
             nextFrame = countdownStop + 1;
-            other.gameObject.SetActive(false);
+            foreach (var other in others)
+            {
+                other.gameObject.SetActive(false);    
+            }
+            
             isRecording = true;
             self.GetComponent<Image>().color = Color.red;
             vibrated = false;
@@ -87,7 +92,10 @@ public class Activity : MonoBehaviour
             nextFrame = countdownStop;
             isRecording = false;
             self.GetComponent<Image>().color = Color.green;
-            other.gameObject.SetActive(true);
+            foreach (var other in others)
+            {
+                other.gameObject.SetActive(true);    
+            }
         }
         
     }
