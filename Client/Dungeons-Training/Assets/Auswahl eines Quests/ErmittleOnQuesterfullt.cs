@@ -9,6 +9,8 @@ using Mapbox.Unity.Utilities;
 public class ErmittleOnQuesterfullt : MonoBehaviour
 {
     private int nextUpdate;
+    
+    public GroupMemberController groupMemberController;
     public GameObject Player;
 
     public Text text;
@@ -29,6 +31,11 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
         {
             Quest q = new Quest(Global.ausgewahlterQuest, Player);
             bool Questerfullt = q.istPlayerAnPositionVonAusgewahltemQuest();
+            var memberGameobjects = groupMemberController.memberObjects;
+            foreach(var groupMember in memberGameobjects){
+                Quest qu = new Quest(Global.ausgewahlterQuest, groupMember.Value);
+                Questerfullt = Questerfullt && qu.istPlayerAnPositionVonAusgewahltemQuest();
+            }
             nextUpdate++;
             if (Questerfullt && q.ausgewählterQuest.isSome&&!Global.ausgewahlterQuest.value.erledigt)
             {

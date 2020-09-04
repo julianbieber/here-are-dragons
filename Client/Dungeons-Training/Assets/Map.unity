@@ -1201,6 +1201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e01a48427bfa34928a1ac72f1251176c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  groupMemberController: {fileID: 1977587044}
   Player: {fileID: 1567228527}
   text: {fileID: 756036583}
 --- !u!1 &704471389
