@@ -12,7 +12,7 @@ public class GroupMemberController : MonoBehaviour
 
     public List<Position> members;
 
-    private Dictionary<int, GameObject> memberObjects; 
+    public Dictionary<int, GameObject> memberObjects; 
     private int nextUpdate=1;
     // Start is called before the first frame update
     void Start()
@@ -30,7 +30,7 @@ public class GroupMemberController : MonoBehaviour
             var map = LocationProviderFactory.Instance.mapManager;
             members = await GroupAPI.getGroup();
             var currentMemberIds = new List<int>();
-            foreach (var position in members)
+            foreach (var position in members)   
             {
                 if (position.userID != Global.userId.value) {
                     if (!memberObjects.ContainsKey(position.userID)) {
@@ -41,7 +41,7 @@ public class GroupMemberController : MonoBehaviour
                     memberObjects[position.userID].transform.localPosition = worldPosition;
                     currentMemberIds.Add(position.userID);
                 }
-                
+    
             }
 
             var memberObjectKeys = new int[(memberObjects.Keys.Count)];

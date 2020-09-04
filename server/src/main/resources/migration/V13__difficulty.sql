@@ -3,6 +3,7 @@ create table public.difficulty (
     userID int not null,
     unlockedInGroup boolean not null,
     dungeon boolean not null default false,
-    "timestamp" timestamp not null default (now() at time zone 'utc')
+    "timestamp" timestamp not null default (now() at time zone 'utc'),
+    groupMembers int[] default '{}'
 );
 

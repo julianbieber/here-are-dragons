@@ -7,12 +7,13 @@ import scalikejdbc._
 
 import scala.collection.immutable.List
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 class DifficultyDAO @Inject()(val pool: ConnectionPool)  extends SQLUtil{
 
-  def setDifficulty(user: Int, difficulty:Int, group:Boolean): Unit = {
+  def setDifficulty(user: Int, difficulty:Int, group:Boolean,members:ListBuffer[Int]): Unit = {
     withSession(pool) { implicit session =>
-      sql"INSERT INTO public.difficulty (difficulty, userID, unlockedInGroup) VALUES ($difficulty, $user,$group)".executeUpdate().apply()
+      sql"INSERT INTO public.difficulty (difficulty, userID, unlockedInGroup,groupMembers) VALUES ($difficulty, $user,$group,${members.toArray})".executeUpdate().apply()
     }
   }
 
