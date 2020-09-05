@@ -16,8 +16,14 @@ public class FulleListeMitQuests : MonoBehaviour
     public Dropdown d;
     //newList ist die Liste der Quests, von denen in diesem Moment ausgewählt werden kann.
     public GameObject panel;
+    private bool activeQuest= false;
     private List<DAOQuest> newList = new List<DAOQuest>();
     private List<long> questIds = new List<long>();
+
+    private bool waitParameter = false;
+    public Text text;
+
+    private int timeOfText;
 
 
     public GameObject Player;
@@ -50,6 +56,13 @@ public class FulleListeMitQuests : MonoBehaviour
         int selectedQuestIndex = d.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> questOptions = d.GetComponent<Dropdown>().options;
 
+        var activeQuestInGroup = await QuestAPI.getActiveQuestInGroup();
+        if (activeQuestInGroup.activ){
+            questOptions[0].text = "Gruppenmitglied hat bereits Quest ausgewählt";
+        }else{
+            questOptions[0].text = "kein Quest";
+        }
+        activeQuest = activeQuestInGroup.activ;
         for (int i = 1 ; i<questOptions.Count && newList.Count>0 && i != selectedQuestIndex ; i++){
 
             DAOQuest q = newList[i-1];
@@ -73,14 +86,18 @@ public class FulleListeMitQuests : MonoBehaviour
     {
         //TODO: Erstelle eine Funktion, mit der nurnoch Quests ausgewählt werden, in einem anulus von der Position des Spielers
         List<String> Quets = new List<String>();
+        waitParameter=true;
         var I = await QuestAPI.getListOfQuestsNearby(900000000);
         newList = I.quests;
+        waitParameter=false;
         questIds.Clear();
         questIds.Add(-1);
         foreach (DAOQuest q in newList)
         {
             Quest quest = new Quest(Option<DAOQuest>.Some(q),Player);
+            waitParameter=true;
             var diffi = await QuestAPI.getDifficulty(q.questID);
+            waitParameter=false;
             double distance = diffi.difficulty;
 
             if (questInBestimmtenAbstand(q)& q.tag != null)
@@ -138,15 +155,20 @@ public class FulleListeMitQuests : MonoBehaviour
         ausgewählt, wird null übergeben.
     */
     async void Update()
-    {
-        Global.ausgewahlterQuest = getSelectedQuest();
-        int menuIndex = d.GetComponent<Dropdown>().value;
-        List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;
-        string value = menuOptions[menuIndex].text;
-        if (Global.erledigt.value)
+    {       
+        if(!Global.erledigt.value&&!waitParameter&&!activeQuest){
+            Global.ausgewahlterQuest = getSelectedQuest();
+        }
+
+        
+       
+        
+        //int menuIndex = d.GetComponent<Dropdown>().value;
+        //List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;
+        //string value = menuOptions[menuIndex].text;
+        if (Global.erledigt.value&&!waitParameter)
         {
             Global.erledigt = Option<bool>.Some(false);
-            await getFilling();
             FillList();
         }
     }
@@ -155,6 +177,7 @@ public class FulleListeMitQuests : MonoBehaviour
     */
     private Option<DAOQuest> getSelectedQuest()
     {
+        
         int menuIndex = d.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;
         string value = menuOptions[menuIndex].text;

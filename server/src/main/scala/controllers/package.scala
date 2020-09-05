@@ -1,5 +1,5 @@
 import com.github.plokhotnyuk.jsoniter_scala.macros.{CodecMakerConfig, JsonCodecMaker}
-import dao.{AttributesTable, DifficultyRow, TalentRow}
+import dao.{ActiveInGroup, AttributesTable}
 import model.Account.{CreateResponse, LoginRequest, LoginResponse}
 import model.Activity.{ActivityStart, CalisthenicsPutBody}
 import model.Character.{Attributes, Character, Talent, TalentResponse}
@@ -39,4 +39,5 @@ package object controllers {
   implicit val difficultyCodec = JsonCodecMaker.make[Difficulty]
   implicit val calisthenicsPutBodyCodec = JsonCodecMaker.make[CalisthenicsPutBody]
   implicit val difficultyResponseCoded = JsonCodecMaker.make[DifficultyResponse]
+  implicit val activeInGroupCodec = JsonCodecMaker.make[ActiveInGroup]
 }

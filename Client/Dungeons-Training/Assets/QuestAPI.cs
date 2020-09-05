@@ -36,6 +36,18 @@ public class QuestAPI : MonoBehaviour
         await API.post<string, string>(Global.baseUrl + "activateQuest", "", que);
     }
 
+    async public static Task<ActiveInGroup> getActiveQuestInGroup()
+    {
+        var que = new Dictionary<string, string>();
+        var response = await API.get<ActiveInGroup>(Global.baseUrl + "activeQuestInGroup", que);
+        if(response.isSome) return response.value;
+        else {
+            Debug.Log("No Information about Quests in Group");
+            return new ActiveInGroup { activ = false };
+        }
+
+    }
+
 
 
     async public static Task<nextPosition> getNextQuestPosition()
@@ -90,4 +102,9 @@ public class nextPosition
 public class Difficulty
 {
     public int difficulty;
+}
+[Serializable]
+public class ActiveInGroup
+{
+    public bool activ;
 }
