@@ -44,16 +44,16 @@ object Difficulty {
   )
 
   val minDifficultyPerPattern = Seq(
-    1 -> EnemyPattern(1f, Seq(SkillDAO.skills(0)), 15, 0), // Air elemental
-    1 -> EnemyPattern(0.75f, Seq(), 20, 1), // Animated sword
-    1 -> EnemyPattern(0.75f, Seq(), 20, 2), // fire dragon
-    1 -> EnemyPattern(0.75f, Seq(), 20, 3), // fire drake
-    1 -> EnemyPattern(0.75f, Seq(), 20, 4), // submerged orc
-    1 -> EnemyPattern(0.75f, Seq(), 20, 5), // untitled
-    1 -> EnemyPattern(0.75f, Seq(), 20, 6), // goblin
-    1 -> EnemyPattern(0.75f, Seq(), 20, 7), // ice dragon
-    1 -> EnemyPattern(0.75f, Seq(), 20, 8), // ice drake
-    1 -> EnemyPattern(0.75f, Seq(), 20, 9) // snake
+    10 -> EnemyPattern(1f, Seq(SkillDAO.skills(3), SkillDAO.skills(7)), 100, 0), // Air elemental
+    1 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(12)), 150, 1), // Animated sword
+    70 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(2), SkillDAO.skills(6)), 200, 2), // fire dragon
+    10 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(1), SkillDAO.skills(19)), 130, 3), // fire drake
+    1 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(8), SkillDAO.skills(9)), 60, 4), // submerged orc
+    10 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(10), SkillDAO.skills.last), 100, 5), // untitled
+    20 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(9), SkillDAO.skills(21)), 20, 6), // goblin
+    70 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(5)), 200, 7), // ice dragon
+    10 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(4)), 130, 8), // ice drake
+    1 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(11)), 148, 9) // snake
   )
 }
 

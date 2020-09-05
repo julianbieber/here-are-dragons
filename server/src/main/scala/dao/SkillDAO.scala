@@ -159,6 +159,7 @@ object SkillDAO {
       .build(),
     SkillBuilder.create("Explosive Shot")
       .withDamage(20)
+      .withDexterity(1.0f)
       .withTargetPattern("11011")
       .withEffectPattern("111")
       .withKD(1)
