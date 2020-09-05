@@ -27,7 +27,7 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
             text.text=" ";
         }
         if(i>1) i =i-1;
-        if (Time.time > nextUpdate * 10)
+        if (Time.time > nextUpdate * 15)
         {
             Quest q = new Quest(Global.ausgewahlterQuest, Player);
             bool Questerfullt = q.istPlayerAnPositionVonAusgewahltemQuest();

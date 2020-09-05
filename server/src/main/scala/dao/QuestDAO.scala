@@ -6,7 +6,20 @@ import scalikejdbc._
 import scala.collection.immutable.List
 import com.github.dmarcous.s2utils.geo.GeographyUtilities
 
+import scala.collection.mutable.ListBuffer
+
 class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
+
+  def getActiveQuestInGroup(userIds: ListBuffer[Int],userId:Int):ActiveInGroup = {
+    withSession(pool) {implicit  sessions =>
+      val usersWithoutSelf = userIds.filterNot(_==userId)
+      val activeQuestInGroup : Int =
+        sql"""SELECT COUNT(*) FROM public.quest WHERE userID = any(${usersWithoutSelf.toArray}) AND activ = true """.map{countQuestsForUser =>
+          countQuestsForUser.int(1)
+        }.first().apply().getOrElse(0)
+      ActiveInGroup(activeQuestInGroup>=1)
+    }
+  }
 
 
   def fillDatabaseFromPoIs(listOfPoIs: List[DAOPoI], userID: Int): Unit = {
@@ -237,5 +250,6 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
 case class DAOQuest(questID: Long,questIDs :Seq[Long], longitude: Float, latitude: Float,priority: Float, tag:Option[String])
 case class Position(longitude: Double, latitude: Double)
+case class ActiveInGroup(activ: Boolean)
 
 

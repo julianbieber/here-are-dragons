@@ -3,7 +3,7 @@ package controllers
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 import javax.inject.Inject
-import dao.{PositionDAO, QuestDAO, UserDAO}
+import dao.{ActiveInGroup, GroupDAO, PositionDAO, QuestDAO, UserDAO}
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._
 
@@ -11,7 +11,7 @@ import scala.util.control.NonFatal
 import scala.concurrent.ExecutionContext
 import scala.util.control.NonFatal
 
-class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO, override val userDAO: UserDAO, executionContext: ExecutionContext) extends UserUtil {
+class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO,groupDAO:GroupDAO, override val userDAO: UserDAO, executionContext: ExecutionContext) extends UserUtil {
 
   private implicit val ec: ExecutionContext = executionContext
 
@@ -67,6 +67,16 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
       questDAO.setProgress(activeQuest,userId)
       val nextPosition = questDAO.getPositionOfNextQuest(activeQuest,userId)
       response.ok(writeToString(model.Quest.nextPosition(nextPosition)))
+    }
+  }
+
+  get("/activeQuestInGroup"){ request: Request =>
+    withUser(request) { userId =>
+      val activeQuestInGroup:ActiveInGroup=
+      groupDAO.getGroup(userId).map{ internalGroup =>
+        questDAO.getActiveQuestInGroup(internalGroup.members,userId)
+      }.getOrElse(ActiveInGroup(false))
+      response.ok(writeToString(activeQuestInGroup))
     }
   }
 
