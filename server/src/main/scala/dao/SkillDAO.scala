@@ -1,5 +1,6 @@
 package dao
 
+import model.Character.Attributes
 import model.Dungeon.Skill
 import service.Status
 
@@ -196,7 +197,9 @@ case class SkillBuilder(
   knockDownDuration: Int = 0,
   moves: Boolean = false,
   movementOffset: Int = 0,
-  coolDown: Int = 1
+  coolDown: Int = 1,
+  attributeOffset: Attributes = Attributes.empty,
+  attributesOffsetDuration: Int = 0
 ) {
   def withTargetPattern(p: String): SkillBuilder = copy(targetPattern = p)
   def withEffectPattern(p: String): SkillBuilder = copy(effectPattern = p)
@@ -212,6 +215,13 @@ case class SkillBuilder(
   def withKD(d: Int): SkillBuilder = copy(knockDownDuration = d)
   def movesTo(offset: Int): SkillBuilder = copy(moves = true, movementOffset = offset)
   def withCD(cd: Int): SkillBuilder = copy(coolDown = cd)
+  def withStrengthOffset(o: Int): SkillBuilder = copy(attributeOffset = attributeOffset.add(Attributes.empty.copy(strength = o)))
+  def withConstitutionOffset(o: Int): SkillBuilder = copy(attributeOffset = attributeOffset.add(Attributes.empty.copy(constitution = o)))
+  def withSpellPowerOffset(o: Int): SkillBuilder = copy(attributeOffset = attributeOffset.add(Attributes.empty.copy(spellPower = o)))
+  def withWillPowerOffset(o: Int): SkillBuilder = copy(attributeOffset = attributeOffset.add(Attributes.empty.copy(willPower = o)))
+  def withDexterityOffset(o: Int): SkillBuilder = copy(attributeOffset = attributeOffset.add(Attributes.empty.copy(dexterity = o)))
+  def withEvasionOffset(o: Int): SkillBuilder = copy(attributeOffset = attributeOffset.add(Attributes.empty.copy(evasion = o)))
+  def withAttributesDuration(d: Int): SkillBuilder = copy(attributesOffsetDuration = d)
 
   def build(): Skill = {
     Skill(
@@ -234,7 +244,9 @@ case class SkillBuilder(
       moves,
       movementOffset,
       coolDown,
-      0
+      0,
+      attributeOffset,
+      attributesOffsetDuration
     )
   }
 

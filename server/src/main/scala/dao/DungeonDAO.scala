@@ -27,7 +27,7 @@ object DungeonDAO {
     PlayerUnit(
       id = id,
       userId = userId,
-      health = attributes.constitution * 10,
+      healthOffset = 0,
       ap = 4,
       maxAP = 6,
       apGain = 4,

@@ -64,8 +64,8 @@ class DungeonController @Inject() (
 
   private def unitToResponse(unit: DungeonUnit): UnitResponse = {
     unit match {
-      case PlayerUnit(_, userId, health, _, _, _, status, _, skills) => UnitResponse(tyype = "player", userId = Option(userId), health = Option(health), prefabId = None, status = status, skills)
-      case NPC(_, prefabId, health, skills, _, _, _, status, _) => UnitResponse(tyype = "npc", userId = None, health = Option(health), prefabId = Option(prefabId), status = status, skills)
+      case PlayerUnit(_, userId, healthOffset, _, _, _, status, attributes, skills) => UnitResponse(tyype = "player", userId = Option(userId), health = Option((attributes.constitution + unit.attributesOffsets.map(_._1.constitution).sum) * 10 - healthOffset), prefabId = None, status = status, skills)
+      case NPC(_, prefabId, healthOffset, skills, _, _, _, status, attributes) => UnitResponse(tyype = "npc", userId = None, health = Option((attributes.constitution + unit.attributesOffsets.map(_._1.constitution).sum) * 10 - healthOffset), prefabId = Option(prefabId), status = status, skills)
       case Empty(_, prefabId, status) =>UnitResponse(tyype = "empty", userId = None, health = None, prefabId = Option(prefabId), status = status, Seq())
     }
   }

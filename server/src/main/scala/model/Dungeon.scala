@@ -1,6 +1,7 @@
 package model
 
 import dao.DifficultyRow
+import model.Character.Attributes
 import service.Status
 
 object Dungeon {
@@ -53,7 +54,9 @@ object Dungeon {
     moves: Boolean,
     movementOffset: Int,
     coolDown: Int,
-    remainingCoolDown: Int
+    remainingCoolDown: Int,
+    attributesOffset: Attributes,
+    attributesOffsetDuration: Int
   )
 
   case class SkillBar(
