@@ -159,13 +159,6 @@ public class FulleListeMitQuests : MonoBehaviour
         if(!Global.erledigt.value&&!waitParameter&&!activeQuest){
             Global.ausgewahlterQuest = getSelectedQuest();
         }
-
-        
-       
-        
-        //int menuIndex = d.GetComponent<Dropdown>().value;
-        //List<Dropdown.OptionData> menuOptions = d.GetComponent<Dropdown>().options;
-        //string value = menuOptions[menuIndex].text;
         if (Global.erledigt.value&&!waitParameter)
         {
             Global.erledigt = Option<bool>.Some(false);

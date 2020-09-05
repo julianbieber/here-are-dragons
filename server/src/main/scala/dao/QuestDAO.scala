@@ -82,9 +82,9 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
-  def makeUnActive(questID: Long, userId: Int): Unit = {
+  def makeUnActive(userId: Int): Unit = {
     withSession(pool) { implicit session =>
-      sql"UPDATE public.quest SET activ = false WHERE id = $questID AND userID = $userId".executeUpdate().apply()
+      sql"UPDATE public.quest SET activ = false,difficulty =0,progres =0 WHERE userID = $userId".executeUpdate().apply()
     }
   }
 

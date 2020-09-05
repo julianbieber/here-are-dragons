@@ -16,6 +16,7 @@ public static class Global
 
 
     //public static string baseUrl = "http://127.0.0.1:8888/";
+    //public static string baseUrl ="http://192.168.178.202:8888/";
     //public static string baseUrl = "http://192.168.0.171:8888/";
     public static string baseUrl = "http://hesse.guru:8888/";
 }

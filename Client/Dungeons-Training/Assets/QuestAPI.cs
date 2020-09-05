@@ -28,6 +28,12 @@ public class QuestAPI : MonoBehaviour
         await API.post<string, string>(Global.baseUrl + "unactivateQuest", "", que);
     }
 
+        async public static void postUnactivateQuest1()
+    {
+        var que = new Dictionary<string, string>();
+        await API.post<string, string>(Global.baseUrl + "unactivateQuest1", "", que);
+    }
+
     async public static void postActiveQuest(long questID,int difficulty)
     {
         var que = new Dictionary<string, string>();
