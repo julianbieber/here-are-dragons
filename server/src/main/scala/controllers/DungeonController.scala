@@ -7,13 +7,12 @@ import javax.inject.Inject
 import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, SkillUsage, UnitResponse}
 import service.{Dungeon, DungeonService, DungeonUnit, Empty, NPC, PlayerUnit}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 class DungeonController @Inject() (
   override val userDAO: UserDAO,
   executionContext: ExecutionContext,
   service: DungeonService,
-  groupDAO: GroupDAO,
   difficultyDAO: DifficultyDAO,
   attributesDAO: AttributesDAO,
   skillbarDAO: SkillbarDAO
@@ -28,20 +27,21 @@ class DungeonController @Inject() (
   }
 
   put("/dungeon") { request: Request =>
-    withUserAuto(request) { userId =>
-      val openRequest = readFromString[OpenRequest](request.getContentString())
-
-      //questDAO.getQuests(openRequest.questId).map { quest =>
-        // TODO if user has completed quest
-      val userIds = groupDAO.getGroup(userId).map{ group =>
-        group.members
-      }.getOrElse(Seq(userId))
-
-      val selectedAttributes = userIds.map(attributesDAO.readAttributes(_).selected)
-      val skills = userIds.map(skillbarDAO.getSkillBar(_).map(_.selected.map(SkillDAO.skills(_))).getOrElse(Seq()))
-      val (id, dungeon) = service.newDungeon(userIds, openRequest.questId, selectedAttributes, skills)
-      dungeonToResponse(id, userId, dungeon)
-      //}
+    withUserAsyncAutoOption(request) { userId =>
+      Future{
+        val openRequest = readFromString[OpenRequest](request.getContentString())
+        difficultyDAO.getDifficultyById(openRequest.difficultyId).flatMap{ difficulty =>
+          val userIds = difficulty.groupMembers.+:(difficulty.userId)
+          if (userIds.contains(userId)) {
+            val selectedAttributes = userIds.map(attributesDAO.readAttributes(_).selected)
+            val skills = userIds.map(skillbarDAO.getSkillBar(_).map(_.selected.map(SkillDAO.skills(_))).getOrElse(Seq()))
+            val (id, dungeon) = service.newDungeon(userIds, difficulty.difficulty, selectedAttributes, skills)
+            Option(dungeonToResponse(id, userId, dungeon))
+          } else {
+            None
+          }
+        }
+      }
     }
   }
 

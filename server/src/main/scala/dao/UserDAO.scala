@@ -41,6 +41,14 @@ class UserDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
+  def resolveNames(ids: Seq[Int]): Seq[DAOUser] = {
+    withReadOnlySession(pool) { implicit session =>
+      sql"SELECT id, name, hash FROM public.users WHERE id = any(${ids.toArray})".map { col =>
+        DAOUser(col.int("id"), col.string("name"), col.string("hash"))
+      }.list().apply()
+    }
+  }
+
   def deleteUser(name: String): Unit = {
     withSession(pool) { implicit session =>
       sql"DELETE FROM public.users WHERE name = $name".execute().apply()

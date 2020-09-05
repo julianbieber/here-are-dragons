@@ -1,12 +1,13 @@
 package model
 
+import dao.DifficultyRow
 import service.Status
 
 object Dungeon {
 
   case class AvailableDungeons(ids: Seq[Int])
 
-  case class OpenRequest(questId: Int)
+  case class OpenRequest(difficultyId: Int)
 
   case class DungeonResponse(
     dungeonId: Int,
@@ -65,6 +66,16 @@ object Dungeon {
     userId: Int,
     selected: Seq[Skill],
     unlocked: Seq[Skill]
+  )
+
+  case class DifficultyResponse (
+    difficulties: Seq[ExtendedDifficultyRow]
+  )
+
+  case class ExtendedDifficultyRow (
+    id: Int,
+    difficulty: Int,
+    members: Seq[String]
   )
 
 }

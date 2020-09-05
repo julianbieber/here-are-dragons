@@ -1,12 +1,12 @@
 import com.github.plokhotnyuk.jsoniter_scala.macros.{CodecMakerConfig, JsonCodecMaker}
-import dao.{AttributesTable, TalentRow}
+import dao.{AttributesTable, DifficultyRow, TalentRow}
 import model.Account.{CreateResponse, LoginRequest, LoginResponse}
 import model.Activity.{ActivityStart, CalisthenicsPutBody}
 import model.Character.{Attributes, Character, Talent, TalentResponse}
 import model.Dungeon._
 import model.Group.{Group, JoinRequest}
 import model.Position.{PositionRequest, UserPosition}
-import model.Quest.{QuestsResponse,nextPosition,Difficulty}
+import model.Quest.{Difficulty, QuestsResponse, nextPosition}
 import service.Status
 
 package object controllers {
@@ -38,4 +38,5 @@ package object controllers {
   implicit val nextQuestPositionCodec = JsonCodecMaker.make[nextPosition]
   implicit val difficultyCodec = JsonCodecMaker.make[Difficulty]
   implicit val calisthenicsPutBodyCodec = JsonCodecMaker.make[CalisthenicsPutBody]
+  implicit val difficultyResponseCoded = JsonCodecMaker.make[DifficultyResponse]
 }

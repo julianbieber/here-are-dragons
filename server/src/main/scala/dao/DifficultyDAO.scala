@@ -38,6 +38,21 @@ class DifficultyDAO @Inject()(val pool: ConnectionPool)  extends SQLUtil{
     }
   }
 
+  def getDifficultyById(id: Int): Option[DifficultyRow] = {
+    withReadOnlySession(pool) { implicit session =>
+      sql"SELECT id, user_id, group_members, difficulty FROM public.difficulty WHERE id = $id".map{ row =>
+        row.int("difficulty")
+
+        DifficultyRow(
+          row.int("id"),
+          row.int("user_id"),
+          row.array("group_members").getArray.asInstanceOf[Array[Integer]].toSeq.map(_.intValue()),
+          row.int("difficulty")
+        )
+      }.first().apply()
+    }
+  }
+
 
 }
 
