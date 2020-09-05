@@ -15,10 +15,10 @@ class RelayRaces @Inject()(activityDAO: ActivityDAO, positionDAO: PositionDAO, r
       groupTalentUnlockDAO.getUnlocks(race.users).flatMap(_.currentlyUnlocking).map { unlocking =>
         val unlockingTalent = groupTalentDAO.getTalents(Seq(unlocking)).head
         val unlocked = unlockingTalent match {
-          case GroupTalentRow(_, _, _, _, _, _, Some(distance), None, None) => forDistance(distance, route).nonEmpty
-          case GroupTalentRow(_, _, _, _, _, _, None, Some(speed), None) => averageSpeed(route) >= speed
-          case GroupTalentRow(_, _, _, _, _, _, None, None, Some(time)) => new Period(route.head.timestamp, route.last.timestamp).getMinutes >= time
-          case GroupTalentRow(_, _, _, _, _, _, Some(distance), Some(speed), None) =>getMaxSpeedForDistance(distance, route) >= speed
+          case GroupTalentRow(_, _, _, _, _, Some(distance), None, None) => forDistance(distance, route).nonEmpty
+          case GroupTalentRow(_, _, _, _, _, None, Some(speed), None) => averageSpeed(route) >= speed
+          case GroupTalentRow(_, _, _, _, _, None, None, Some(time)) => new Period(route.head.timestamp, route.last.timestamp).getMinutes >= time
+          case GroupTalentRow(_, _, _, _, _, Some(distance), Some(speed), None) =>getMaxSpeedForDistance(distance, route) >= speed
         }
         if (unlocked) {
           groupTalentUnlockDAO.unlock(race.users)

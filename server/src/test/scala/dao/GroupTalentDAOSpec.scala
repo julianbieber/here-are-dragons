@@ -8,6 +8,6 @@ class GroupTalentDAOSpec extends AnyFlatSpec with Matchers {
 
   "GroupTalentDAO" must "retrieve all talents" in withPool { pool =>
     val dao = new GroupTalentDAO(pool)
-    dao.getTalents() must have size 0
+    dao.getTalents() must have size 6
   }
 }

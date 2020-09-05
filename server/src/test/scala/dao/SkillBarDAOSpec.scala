@@ -1,6 +1,5 @@
 package dao
 
-import model.Account.LoginResponse
 import model.Dungeon.SkillBar
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
