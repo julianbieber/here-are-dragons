@@ -21,4 +21,8 @@ class DifficultyController @Inject()(val difficultyDAO: DifficultyDAO, groupDAO:
     }
   }
 
+  get("/difficulty") { request: Request =>
+
+  }
+
 }

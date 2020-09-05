@@ -1,9 +1,10 @@
 create table public.difficulty (
+    id serial primary key,
     difficulty int not null,
-    userID int not null,
-    unlockedInGroup boolean not null,
+    user_id int not null,
+    unlocked_in_group boolean not null,
     dungeon boolean not null default false,
     "timestamp" timestamp not null default (now() at time zone 'utc'),
-    groupMembers int[] default '{}'
+    group_members int[] default '{}'
 );
 

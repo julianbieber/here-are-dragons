@@ -2,7 +2,7 @@ package controllers
 
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.twitter.finagle.http.Request
-import dao.{AttributesDAO, DungeonDAO, GroupDAO, QuestDAO, SkillDAO, SkillbarDAO, UserDAO}
+import dao.{AttributesDAO, DifficultyDAO, DungeonDAO, GroupDAO, QuestDAO, SkillDAO, SkillbarDAO, UserDAO}
 import javax.inject.Inject
 import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, SkillUsage, UnitResponse}
 import service.{Dungeon, DungeonService, DungeonUnit, Empty, NPC, PlayerUnit}
@@ -14,14 +14,11 @@ class DungeonController @Inject() (
   executionContext: ExecutionContext,
   service: DungeonService,
   groupDAO: GroupDAO,
-  questDAO: QuestDAO,
+  difficultyDAO: DifficultyDAO,
   attributesDAO: AttributesDAO,
   skillbarDAO: SkillbarDAO
 ) extends UserUtil {
   private implicit val ec: ExecutionContext = executionContext
-
-
-
 
   get("/dungeons") { request: Request =>
     withUserAuto(request) { userId =>
@@ -33,6 +30,7 @@ class DungeonController @Inject() (
   put("/dungeon") { request: Request =>
     withUserAuto(request) { userId =>
       val openRequest = readFromString[OpenRequest](request.getContentString())
+
       //questDAO.getQuests(openRequest.questId).map { quest =>
         // TODO if user has completed quest
       val userIds = groupDAO.getGroup(userId).map{ group =>
