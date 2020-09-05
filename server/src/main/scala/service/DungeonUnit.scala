@@ -3,6 +3,9 @@ package service
 import model.Character.Attributes
 import model.Dungeon.Skill
 
+import scala.collection.mutable
+import scala.util.Random
+
 sealed trait DungeonUnit {
   def countDownCDs(): DungeonUnit
 
@@ -12,12 +15,15 @@ sealed trait DungeonUnit {
 
   var status: Status
   val attributes: Attributes
+  var attributesOffsets: mutable.Buffer[(Attributes, Int)] = mutable.Buffer()
 
-  def applySkill(status: Status, damage: Int): DungeonUnit
+  def applySkill(status: Status, damage: Int, newOffset: Option[Attributes], offsetDuration: Int): DungeonUnit
 
   def gainAP(): DungeonUnit
 
   def applyStatus(): DungeonUnit
+
+  def countDownOffsets(): Unit = attributesOffsets = attributesOffsets.map(o => o._1 -> (o._2 - 1)).filter(_._2 > 0)
 
 }
 
@@ -26,7 +32,7 @@ sealed trait DungeonUnit {
 case class PlayerUnit(
   id: Int,
   userId: Int,
-  health: Int,
+  healthOffset: Int,
   override val ap: Int,
   maxAP: Int,
   apGain: Int,
@@ -34,13 +40,18 @@ case class PlayerUnit(
   attributes: Attributes,
   skills: Seq[Skill]
 ) extends DungeonUnit {
-  override def applySkill(status: Status, damage: Int): DungeonUnit = {
-    this.status.add(status)
-    val newHealth = health - damage
+  override def applySkill(status: Status, damage: Int, newOffset: Option[Attributes], offsetDuration: Int): DungeonUnit = {
+    if ((1.0f - (attributes.willPower + attributesOffsets.map(_._1.willPower).sum).toFloat) / 100.0f < Random.nextFloat()) {
+      this.status.add(status)
+    }
+    newOffset.foreach{ o =>
+      attributesOffsets.append((o, offsetDuration))
+    }
+    val newHealth = attributes.constitution * 10 + healthOffset - damage
     if (newHealth <= 0) {
-      Empty(id, 0, status)
+      Empty(id, 0, status.locationBased)
     } else {
-      copy(health = newHealth)
+      copy(healthOffset = healthOffset - damage)
     }
   }
 
@@ -49,16 +60,16 @@ case class PlayerUnit(
   }
 
   override def applyStatus(): DungeonUnit = {
-    val newHealth = if (status.burning > 0) {
-      health - 10
+    val newHealthOffset = if (status.burning > 0) {
+      healthOffset - 10
     } else {
-      health
+      healthOffset
     }
     status.countDown()
-    if (newHealth > 0) {
-      copy(health = newHealth)
+    if ((attributes.constitution + attributesOffsets.map(_._1.constitution).sum) + newHealthOffset > 0) {
+      copy(healthOffset = newHealthOffset)
     } else {
-      Empty(id, 0, status)
+      Empty(id, 0, status.locationBased)
     }
   }
 
@@ -70,15 +81,20 @@ case class PlayerUnit(
   }
 }
 
-case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], ap: Int, maxAP: Int, apGain: Int, var status: Status, attributes: Attributes) extends DungeonUnit {
-  override def applySkill(status: Status, damage: Int): DungeonUnit = {
-    this.status.add(status)
+case class NPC(id: Int, prefabId: Int, healthOffset: Int, skills: Seq[Skill], ap: Int, maxAP: Int, apGain: Int, var status: Status, attributes: Attributes) extends DungeonUnit {
+  override def applySkill(status: Status, damage: Int, newOffset: Option[Attributes], offsetDuration: Int): DungeonUnit = {
+    if (1.0f - ((attributes.willPower + attributesOffsets.map(_._1.willPower).sum).toFloat / 100.0f) < Random.nextFloat()) {
+      this.status.add(status)
+    }
 
-    val newHealth = health - damage
+    newOffset.foreach{ o =>
+      attributesOffsets.append((o, offsetDuration))
+    }
+    val newHealth = attributes.constitution * 10 + healthOffset - damage
     if (newHealth <= 0) {
-      Empty(id, 0, status)
+      Empty(id, 0, status.locationBased)
     } else {
-      copy(health = newHealth)
+      copy(healthOffset = healthOffset - damage)
     }
   }
 
@@ -87,16 +103,16 @@ case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], ap: Int,
   }
 
   override def applyStatus(): DungeonUnit = {
-    val newHealth = if (status.burning > 0) {
-      health - 10
+    val newHealthOffset = if (status.burning > 0) {
+      healthOffset - 10
     } else {
-      health
+      healthOffset
     }
     status.countDown()
-    if (newHealth > 0) {
-      copy(health = newHealth)
+    if ((attributes.constitution + attributesOffsets.map(_._1.constitution).sum) + newHealthOffset > 0) {
+      copy(healthOffset = newHealthOffset)
     } else {
-      Empty(id, 0, status)
+      Empty(id, 0, status.locationBased)
     }
   }
 
@@ -111,7 +127,7 @@ case class NPC(id: Int, prefabId: Int, health: Int, skills: Seq[Skill], ap: Int,
 case class Empty(id: Int, prefabId: Int, var status: Status) extends DungeonUnit {
   val ap = 0
   val attributes: Attributes = Attributes.empty
-  override def applySkill(status: Status, damage: Int): DungeonUnit = {
+  override def applySkill(status: Status, damage: Int, newOffset: Option[Attributes], offsetDuration: Int): DungeonUnit = {
     status.add(status.locationBased)
     this
   }

@@ -15,9 +15,9 @@ case class Dungeon(
     currentTurnUnit.id == unitId
   }
 
-  def provideAP(unitId: Int): Unit = {
+  private def provideAP(): Unit = {
     units(currentLevel).transform { unit =>
-      if (unit.id == unitId) {
+      if (isCurrentTurn(unit.id)) {
         unit.gainAP()
       } else {
         unit
@@ -25,7 +25,7 @@ case class Dungeon(
     }
   }
 
-  def applyStatuses(): Unit = {
+  private def applyStatuses(): Unit = {
     units(currentLevel).transform{ unit =>
       if (isCurrentTurn(unit.id)) {
         unit.applyStatus()
@@ -33,6 +33,23 @@ case class Dungeon(
         unit
       }
     }
+  }
+
+  private def countDownOffsets(): Unit = {
+    units(currentLevel).transform{ unit =>
+      if (isCurrentTurn(unit.id)) {
+        unit.countDownOffsets()
+      }
+      unit
+    }
+  }
+
+  def endTurnActions(): Unit = {
+    provideAP()
+    countDownCDs()
+    applyStatuses()
+    countDownOffsets()
+    moveTurnPointer()
   }
 
   def moveTurnPointer(): Unit = {
@@ -95,7 +112,7 @@ case class Dungeon(
     val hitUnitIds = hitPositions.map(units(currentLevel)(_).id)
     units(currentLevel).transform { unit =>
       if (hitUnitIds.contains(unit.id)) {
-        unit.applySkill(skill.status, DamageCalc(findUnitById(casterId)._1, unit, skill))
+        unit.applySkill(skill.status, DamageCalc(findUnitById(casterId)._1, unit, skill), skill.attributesOffset.toOption, skill.attributesOffsetDuration)
       } else {
         unit
       }

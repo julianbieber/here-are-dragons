@@ -16,10 +16,7 @@ class DungeonService @Inject()(ai: AI) {
 
   def endTurn(unitId: Int, dungeon: Dungeon): Option[Dungeon] = {
     if (dungeon.isCurrentTurn(unitId)) {
-      dungeon.provideAP(unitId)
-      dungeon.countDownCDs()
-      dungeon.applyStatuses()
-      dungeon.moveTurnPointer()
+      dungeon.endTurnActions()
       executeNPCS(dungeon)
       dungeon.conditionallyMoveToNetFloor()
       Option(dungeon)
@@ -37,12 +34,9 @@ class DungeonService @Inject()(ai: AI) {
             dungeon.applySkill(npc.id, actionO.get.skill, actionO.get.targetPosition)
             actionO = ai.decideAction(npc, dungeon)
           }
-          dungeon.provideAP(npc.id)
         case _ =>
       }
-      dungeon.countDownCDs()
-      dungeon.applyStatuses()
-      dungeon.moveTurnPointer()
+      dungeon.endTurnActions()
       dungeon.conditionallyMoveToNetFloor()
     }
   }
