@@ -18,7 +18,7 @@ class GroupTalentDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   def getTalents(talents: Seq[Int]): Seq[GroupTalentRow] = {
     if (talents.nonEmpty) {
       withReadOnlySession(pool) { implicit session =>
-        sql"select id, name, skill_unlock, next_talents, activity_id, distance, speed, time from public.group_talents where id = any (${talents})"
+        sql"select id, name, skill_unlock, next_talents, activity_id, distance, speed, time from public.group_talents where id = any (${talents.toArray})"
           .map(readRow)
           .list()
           .apply()
@@ -31,7 +31,6 @@ class GroupTalentDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   private def readRow(row: WrappedResultSet): GroupTalentRow = {
     GroupTalentRow(
       id = row.int("id"),
-      users = row.array("users").getArray.asInstanceOf[Array[Integer]].toSeq.map(_.intValue()),
       name = row.string("name"),
       skillUnlock = row.int("skill_unlock"),
       nextTalents = row.array("next_talents").getArray().asInstanceOf[Array[Integer]].map(_.intValue()).toSeq,
@@ -44,7 +43,7 @@ class GroupTalentDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
 }
 
-case class GroupTalentRow(id: Int, users: Seq[Int], name: String, skillUnlock: Int, nextTalents: Seq[Int], activityId: Int, distance: Option[Int], speed: Option[Int], time: Option[Int])
+case class GroupTalentRow(id: Int, name: String, skillUnlock: Int, nextTalents: Seq[Int], activityId: Int, distance: Option[Int], speed: Option[Int], time: Option[Int])
 
 object GroupTalentTree {
   def findRoots(rows: Seq[GroupTalentRow]): Seq[GroupTalentRow] = rows.filterNot(r => rows.flatMap(_.nextTalents).contains(r.id))

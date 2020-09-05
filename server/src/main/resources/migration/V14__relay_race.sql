@@ -9,7 +9,7 @@ create table public.relay_race (
 );
 
 create table public.group_talents (
-    id int primary key,
+    id serial primary key,
     name varchar,
     skill_unlock int,
     next_talents int[],
@@ -25,3 +25,9 @@ create table public.group_talent_unlocks (
    unlocked int[] default '{}'
 );
 
+insert into public.group_talents (name, skill_unlock, next_talents, activity_id, distance, time) VALUES ('Strength in Numbers', 21, '{2}', 1, 3000, 12);
+insert into public.group_talents (name, skill_unlock, next_talents, activity_id, distance, time) VALUES ('Take Cover!', 22, '{3}', 1, 4000, 16);
+insert into public.group_talents (name, skill_unlock, next_talents, activity_id, distance, time) VALUES ('Focus him!', 23, '{4}', 1, 5000, 20);
+insert into public.group_talents (name, skill_unlock, next_talents, activity_id, distance, time) VALUES ('Recover!', 24, '{5}', 1, 6000, 23);
+insert into public.group_talents (name, skill_unlock, next_talents, activity_id, distance, time) VALUES ('Taunt', 25, '{6}', 1, 7000, 26);
+insert into public.group_talents (name, skill_unlock, next_talents, activity_id, distance, time) VALUES ('Weakling!', 26, '{}', 1, 8000, 30);
