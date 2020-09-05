@@ -147,14 +147,35 @@ case class Dungeon(
   }
 
   private def executeMovement(originalPosition: Int, target: Int, offset: Int): Unit = {
-    val newPosition = if (originalPosition < target) {
-      target - offset
+    if (offset == 0) {
+      if (units(currentLevel)(target).isInstanceOf[Empty]) {
+        swap(originalPosition, target)
+      }
     } else {
-      target + offset
+      val newPosition = if (originalPosition < target) {
+        target - offset
+      } else {
+        target + offset
+      }
+      val copy = units(currentLevel)(originalPosition)
+      units(currentLevel).append(copy)
+      ((newPosition) until (units(currentLevel).length -1) ).reverse.map(i => i -> (i + 1)).foreach{ case (a, b) =>
+        simpleSwap(a, b)
+      }
+
+      if (originalPosition < newPosition) {
+        units(currentLevel).remove(originalPosition)
+      } else {
+        units(currentLevel).remove(originalPosition + 1)
+      }
+
     }
-    if (units(currentLevel)(newPosition).isInstanceOf[Empty]) {
-      swap(originalPosition, newPosition)
-    }
+  }
+
+  private def simpleSwap(a: Int, b: Int): Unit = {
+    val tmp = units(currentLevel)(a)
+    units(currentLevel)(a) = units(currentLevel)(b)
+    units(currentLevel)(b) = tmp
   }
 
 }
