@@ -33,6 +33,13 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
     }
   }
 
+  post("/unactivateQuest1") {request: Request =>
+    withUser(request) { userId =>
+      questDAO.makeUnActive(userId)
+      response.ok
+    }
+  }
+
 
 
   get("/getListOfQuests") { request: Request =>
