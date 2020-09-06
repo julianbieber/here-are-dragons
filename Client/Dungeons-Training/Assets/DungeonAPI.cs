@@ -17,8 +17,8 @@ public static class DungeonAPI
         }
     }
 
-    public static async Task<Option<Dungeon>> openDungeon(int questId) {
-        var request = new OpenDungeonRequest{ questId = questId };
+    public static async Task<Option<Dungeon>> openDungeon(int difficultyId) {
+        var request = new OpenDungeonRequest{ difficultyId = difficultyId };
         var response = await API.put<OpenDungeonRequest, DungeonResponse>(Global.baseUrl + "dungeon", request, new Dictionary<string, string>());
 
         if (response.isSome) {
@@ -104,7 +104,7 @@ public class AvailableDungeonsResponse {
 
 [Serializable]
 public class OpenDungeonRequest {
-    public int questId;
+    public int difficultyId;
 }
 
 [Serializable]
