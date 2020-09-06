@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.StrictMode;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -25,14 +27,14 @@ public class Tracker {
     private static PendingIntent mActivityTransitionsPendingIntent;
     private static PendingIntent mLocationUpdatePendingIntent;
 
-    private static String logMessage = "";
+    private static String logMessage = "FOO";
 
     private static final String activityAction = "DungeonsAndTrainingActivityTracking";
     private static final String locationAction = "DungeonsAndTrainingLocationTracking";
 
     static String getLog() {
         if (TransitionsReceiver.receiverLogMessage != null) {
-            return TransitionsReceiver.receiverLogMessage + " | " + logMessage;
+            return TransitionsReceiver.receiverLogMessage + " | " + logMessage + " | " + LocationReceiver.receiverLogMessage;
         } else {
             return logMessage;
         }
@@ -76,7 +78,7 @@ public class Tracker {
                 // Register for Transitions Updates.
 
                 IntentFilter locationFilter = new IntentFilter();
-                activityFilter.addAction(locationAction);
+                locationFilter.addAction(locationAction);
                 unityContext.registerReceiver(new LocationReceiver(url, user, token), locationFilter);
 
                 locationClient = LocationServices.getFusedLocationProviderClient(unityContext);
@@ -93,13 +95,15 @@ public class Tracker {
                 locationtask.addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void result) {
-                        logMessage += "Transitions Api was successfully registered.";
+                        Log.d("Tracker", "Location Api was successfully registered.");
+                        logMessage += "Locatio Api was successfully registered.";
                     }
                 });
 
                 task.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        Log.d("Tracker", "Location Api was successfully NOT registered." + e.getMessage());
                         logMessage += "Transitions Api could NOT be registered: " + e;
                     }
                 });

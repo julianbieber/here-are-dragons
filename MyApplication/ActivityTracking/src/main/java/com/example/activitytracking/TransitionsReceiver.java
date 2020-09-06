@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.ActivityTransition;
@@ -20,6 +21,10 @@ import java.util.List;
 import java.util.Optional;
 
 public class TransitionsReceiver extends BroadcastReceiver {
+
+    public TransitionsReceiver() {
+
+    };
 
     public static String receiverLogMessage;
 
