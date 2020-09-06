@@ -30,12 +30,18 @@ class DungeonController @Inject() (
     withUserAsyncAutoOption(request) { userId =>
       Future{
         val openRequest = readFromString[OpenRequest](request.getContentString())
+        println("OpenDungeon",openRequest)
         difficultyDAO.getDifficultyById(openRequest.difficultyId).flatMap{ difficulty =>
           val userIds = difficulty.groupMembers.+:(difficulty.userId)
+          println("userIds:",userIds)
           if (userIds.contains(userId)) {
             val selectedAttributes = userIds.map(attributesDAO.readAttributes(_).selected)
+            println("selechtedAttributes:",selectedAttributes)
             val skills = userIds.map(skillbarDAO.getSkillBar(_).map(_.selected.map(SkillDAO.skills(_))).getOrElse(Seq()))
+            println("skills:",skills)
             val (id, dungeon) = service.newDungeon(userIds, difficulty.difficulty, selectedAttributes, skills)
+            println("id",id)
+            println("dungeon:",dungeon)
             Option(dungeonToResponse(id, userId, dungeon))
           } else {
             None

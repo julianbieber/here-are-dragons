@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
+using UnityEngine.Networking;
+using Mapbox.Unity.Utilities;
+using Mapbox.Utils;
+using Mapbox.Unity.Location;
+using System.Linq;
 
 public class DungeonController : MonoBehaviour
 {
@@ -15,6 +21,8 @@ public class DungeonController : MonoBehaviour
     public GameObject openButton;
     public InputField questIdInputField;
     public GameObject questIdInputObject;
+
+    public Dropdown dropdown;
 
     public GameObject endObject;
     public Image endBackground;
@@ -57,7 +65,7 @@ public class DungeonController : MonoBehaviour
         leaveButton.SetActive(false);
     }
 
-    public async void openDungeon() {
+    /*public async void openDungeon() {
         var dungeonO = await DungeonAPI.openDungeon(Int32.Parse(questIdInputField.text));
         if (dungeonO.isSome) {
             var dungeon = dungeonO.value;
@@ -66,7 +74,23 @@ public class DungeonController : MonoBehaviour
             openButton.SetActive(false);
             questIdInputObject.SetActive(false);
         }
+    }*/
+    public async void openDungeon() {
+        int menuIndex = dropdown.GetComponent<Dropdown>().value;
+        List<Dropdown.OptionData> menuOptions = dropdown.GetComponent<Dropdown>().options;
+        string value = menuOptions[menuIndex].text;
+        Debug.Log(Int32.Parse(value.Substring(0,value.IndexOf("|"))));
+        var dungeonO = await DungeonAPI.openDungeon(Int32.Parse(value.Substring(0,value.IndexOf("|"))));
+        if (dungeonO.isSome) {
+            var dungeon = dungeonO.value;
+            setDungeon(dungeon);
+            joinButton.SetActive(false);
+            openButton.SetActive(false);
+            questIdInputObject.SetActive(false);
+        }
+    dropdown.gameObject.SetActive(false);
     }
+
 
     public async void joinDungeon() {
         // TODO 
