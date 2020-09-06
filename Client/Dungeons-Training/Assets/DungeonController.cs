@@ -78,8 +78,7 @@ public class DungeonController : MonoBehaviour
     public async void openDungeon() {
         int menuIndex = dropdown.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = dropdown.GetComponent<Dropdown>().options;
-        string value = menuOptions[menuIndex].text;
-        Debug.Log(Int32.Parse(value.Substring(0,value.IndexOf("|"))));
+        string value = menuOptions[menuIndex].text
         var dungeonO = await DungeonAPI.openDungeon(Int32.Parse(value.Substring(0,value.IndexOf("|"))));
         if (dungeonO.isSome) {
             var dungeon = dungeonO.value;
