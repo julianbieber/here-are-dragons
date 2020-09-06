@@ -71,13 +71,13 @@ public class Tracker {
                 });
 
                 isRunning = true;
-                final Intent locationIntent = new Intent().setAction(activityAction);
+                final Intent locationIntent = new Intent().setAction(locationAction);
                 mLocationUpdatePendingIntent = PendingIntent.getBroadcast(unityActivity, 0, locationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 // Register for Transitions Updates.
 
                 IntentFilter locationFilter = new IntentFilter();
                 activityFilter.addAction(locationAction);
-                unityContext.registerReceiver(new TransitionsReceiver(url, user, token), locationFilter);
+                unityContext.registerReceiver(new LocationReceiver(url, user, token), locationFilter);
 
                 locationClient = LocationServices.getFusedLocationProviderClient(unityContext);
                 locationRequest = new LocationRequest();
