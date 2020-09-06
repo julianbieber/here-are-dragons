@@ -106,7 +106,7 @@ public class TransitionsReceiver extends BroadcastReceiver {
         URL u = null;
         if (type == DetectedActivity.RUNNING) {
             try {
-                u = new URL(url + "?type=RUNNING");
+                u = new URL(url + "activity?type=RUNNING");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
@@ -114,7 +114,7 @@ public class TransitionsReceiver extends BroadcastReceiver {
 
         if (type == DetectedActivity.ON_BICYCLE) {
             try {
-                u = new URL(url + "?type=CYCLING");
+                u = new URL(url + "activity?type=CYCLING");
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }

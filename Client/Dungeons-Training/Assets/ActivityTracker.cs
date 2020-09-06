@@ -18,7 +18,7 @@ public class ActivityTracker : MonoBehaviour
             AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             AndroidJavaObject context = activity.Call<AndroidJavaObject>("getApplicationContext");
             pluginClass = new AndroidJavaClass("com.example.activitytracking.Tracker");
-            pluginClass.CallStatic("initialize", context, activity, Global.baseUrl + "activity", Global.userId.value, Global.token.value);
+            pluginClass.CallStatic("initialize", context, activity, Global.baseUrl, Global.userId.value, Global.token.value);
         } catch (Exception e) {
         }
     }
