@@ -237,6 +237,26 @@ class QuestDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
     }
   }
 
+  def getActiveQuest(userID:Int): Option[DAOQuest] ={
+    withSession(pool) { implicit session =>
+      val activeQuest :Option[DAOQuest] = {
+          sql"""SELECT id,ids,progres FROM public.quest WHERE userID= $userID AND activ = true """.map { rowQuest =>
+            sql"""SELECT longitude, latitude, priority, tags FROM public.poi  WHERE id = ${rowQuest.long("id")}""".map(rowPoi =>
+              DAOQuest(
+                rowQuest.long("id"),
+                rowQuest.array("ids").getArray.asInstanceOf[Array[java.lang.Long]].toSeq.map(_.longValue()),
+                rowPoi.float("longitude"),
+                rowPoi.float("latitude"),
+                rowPoi.float("priority"),
+                rowPoi.stringOpt("tags")
+              )
+            ).first().apply()
+          }.first().apply().flatten
+      }
+      activeQuest
+    }
+  }
+
   def setProgress(questId:Long,userId:Int):Unit ={
     withSession(pool) { implicit session =>
       val progress: Int =

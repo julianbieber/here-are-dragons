@@ -87,4 +87,10 @@ class QuestController @Inject()(val questDAO: QuestDAO, positionDAO: PositionDAO
     }
   }
 
+  get("/activeQuest"){request: Request =>
+    withUserAutoOption(request){userId =>
+      questDAO.getActiveQuest(userId)
+    }
+  }
+
 }

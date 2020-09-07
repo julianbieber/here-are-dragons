@@ -20,7 +20,6 @@ public static class DungeonAPI
     public static async Task<Option<Dungeon>> openDungeon(int difficultyId) {
         var request = new OpenDungeonRequest{ difficultyId = difficultyId };
         var response = await API.put<OpenDungeonRequest, DungeonResponse>(Global.baseUrl + "dungeon", request, new Dictionary<string, string>());
-
         if (response.isSome) {
             return Option<Dungeon>.Some(convertDungeonResponse(response.value));
         } else {

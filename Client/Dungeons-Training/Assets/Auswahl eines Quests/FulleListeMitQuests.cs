@@ -143,11 +143,11 @@ public class FulleListeMitQuests : MonoBehaviour
     private bool questInBestimmtenAbstand(DAOQuest q)
     {
         Quest a = new Quest(Option<DAOQuest>.Some(q), Player);
-        //if (a.anulus())
-        //{
+        if (a.anulus())
+        {
             return true;
-        //}
-        //return false;
+        }
+        return false;
     }
 
     /*

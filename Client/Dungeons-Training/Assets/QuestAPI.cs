@@ -66,7 +66,7 @@ public class QuestAPI : MonoBehaviour
             return new nextPosition { latlong = new float[0] };
         }
     }
-        async public static Task<Difficulty> getDifficulty(long questID)
+    async public static Task<Difficulty> getDifficulty(long questID)
     {
         var que = new Dictionary<string, string>();
         que.Add("questID", questID.ToString());
@@ -76,6 +76,10 @@ public class QuestAPI : MonoBehaviour
             Debug.Log("Difficulty konnte nicht berechnet werden");
             return new Difficulty { difficulty = -1 };
         }
+    }
+
+    async public static Task<Option<DAOQuest>> getActiveQuest(){
+        return await API.get<DAOQuest>(Global.baseUrl + "activeQuest",new Dictionary<string, string>());
     }
 
 

@@ -16,9 +16,12 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
     public Text text;
 
     private int i = 0;
-    void Start()
+    async void Start()
     {
         nextUpdate = 1;
+        Global.ausgewahlterQuest = await QuestAPI.getActiveQuest();
+        var difficulty= await DifficultyAPI.getDifficulty();
+        if(difficulty.isSome)Global.difficulty= Option<int>.Some(difficulty.value.difficulty);
     }
     async void Update()
     {

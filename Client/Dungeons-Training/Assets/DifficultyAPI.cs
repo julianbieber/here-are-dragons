@@ -15,6 +15,11 @@ public class DifficultyAPI : MonoBehaviour
         await API.post<string, string>(Global.baseUrl + "difficulty", "", que);
     }
 
+    async public static Task<Option<Difficulty>> getDifficulty()
+    {
+        return await API.get<Difficulty>(Global.baseUrl + "getDifficulty",new Dictionary<string, string>());
+    }
+
     async public static Task<DifficultyResponse> getAvailableDungeons(){
         var response = await API.get<DifficultyResponse>(Global.baseUrl + "difficulty", new Dictionary<string, string>());
         if (response.isSome) {
