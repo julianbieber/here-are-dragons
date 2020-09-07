@@ -9,6 +9,7 @@ using Mapbox.Unity.Utilities;
 using Mapbox.Utils;
 using Mapbox.Unity.Location;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 public class DungeonController : MonoBehaviour
 {
@@ -18,7 +19,6 @@ public class DungeonController : MonoBehaviour
     public Text apText;
 
     public GameObject joinButton;
-    public GameObject openButton;
     public InputField questIdInputField;
     public GameObject questIdInputObject;
 
@@ -78,13 +78,12 @@ public class DungeonController : MonoBehaviour
     public async void openDungeon() {
         int menuIndex = dropdown.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = dropdown.GetComponent<Dropdown>().options;
-        string value = menuOptions[menuIndex].text
+        string value = menuOptions[menuIndex].text;
         var dungeonO = await DungeonAPI.openDungeon(Int32.Parse(value.Substring(0,value.IndexOf("|"))));
         if (dungeonO.isSome) {
             var dungeon = dungeonO.value;
             setDungeon(dungeon);
             joinButton.SetActive(false);
-            openButton.SetActive(false);
             questIdInputObject.SetActive(false);
         }
     dropdown.gameObject.SetActive(false);
@@ -92,7 +91,7 @@ public class DungeonController : MonoBehaviour
 
 
     public async void joinDungeon() {
-        // TODO 
+        SceneManager.LoadScene("Map");
     }
 
     // Update is called once per frame

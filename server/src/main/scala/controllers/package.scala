@@ -40,4 +40,6 @@ package object controllers {
   implicit val calisthenicsPutBodyCodec = JsonCodecMaker.make[CalisthenicsPutBody]
   implicit val difficultyResponseCoded = JsonCodecMaker.make[DifficultyResponse]
   implicit val activeInGroupCodec = JsonCodecMaker.make[ActiveInGroup]
+  implicit val activeQuestCodec = JsonCodecMaker.make[Option[dao.DAOQuest]]
+  implicit val activeDifficultyCodec = JsonCodecMaker.make[Option[Difficulty]]
 }

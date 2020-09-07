@@ -43,4 +43,10 @@ class DifficultyController @Inject()(val difficultyDAO: DifficultyDAO, groupDAO:
     }
   }
 
+  get("/getDifficulty"){request: Request =>
+    withUserAutoOption(request){userId =>
+      difficultyDAO.getActiveDifficulty(userId)
+    }
+  }
+
 }

@@ -3,6 +3,7 @@ package dao
 import java.util.UUID
 
 import javax.inject.Inject
+import model.Quest.Difficulty
 import scalikejdbc._
 
 import scala.collection.immutable.List
@@ -10,6 +11,18 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 class DifficultyDAO @Inject()(val pool: ConnectionPool)  extends SQLUtil{
+
+  def getActiveDifficulty(userId: Int): Option[Difficulty] = {
+    withSession(pool) { implicit session =>
+      val difficulty :Option[Difficulty] = {
+        sql"""SELECT difficulty FROM public.quest WHERE userID= $userId AND activ = true """.map { rowQuest =>
+              Difficulty(rowQuest.int("difficulty"))
+        }.first().apply()
+      }
+      difficulty
+    }
+  }
+
 
   def setDifficulty(user: Int, difficulty:Int, group:Boolean,members:ListBuffer[Int]): Unit = {
     withSession(pool) { implicit session =>
