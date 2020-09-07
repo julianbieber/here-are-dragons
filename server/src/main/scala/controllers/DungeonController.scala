@@ -21,8 +21,12 @@ class DungeonController @Inject() (
 
   get("/dungeons") { request: Request =>
     withUserAuto(request) { userId =>
-      val spDungeon = DungeonDAO.getDungeonForUser(userId).map(_._1)
-      AvailableDungeons(spDungeon.toSeq)
+      val dungeons = DungeonDAO.getDungeonForUser(userId)
+      val ids = dungeons.filter{ case (_, dungeon) =>
+        val (won, lost) = dungeon.completed
+        won || lost
+      }.map(_._1)
+      AvailableDungeons(ids.toSeq)
     }
   }
 
@@ -32,7 +36,13 @@ class DungeonController @Inject() (
         val openRequest = readFromString[OpenRequest](request.getContentString())
         difficultyDAO.getDifficultyById(openRequest.difficultyId).flatMap{ difficulty =>
           val userIds = difficulty.groupMembers.+:(difficulty.userId)
-          if (userIds.contains(userId)) {
+          if (userIds.contains(userId) && userIds.forall{ id =>
+            DungeonDAO.getDungeonForUser(id).forall { case (_, d) =>
+              val (won, lost) = d.completed
+              won || lost
+            }
+          }) {
+            difficultyDAO.setDungeon(difficulty.id)
             val selectedAttributes = userIds.map(attributesDAO.readAttributes(_).selected)
             val skills = userIds.map(skillbarDAO.getSkillBar(_).map(_.selected.map(SkillDAO.skills(_))).getOrElse(Seq()))
             val (id, dungeon) = service.newDungeon(userIds, difficulty.difficulty, selectedAttributes, skills)

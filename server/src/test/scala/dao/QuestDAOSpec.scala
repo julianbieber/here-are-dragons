@@ -64,7 +64,7 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
     val computedResult1 = dao.checkIfActive(poiId,0).get
     computedResult1 should be (true)
 
-    dao.makeUnActive(poiId,0)
+    dao.makeUnActive(0)
     val computedResult2 = dao.checkIfActive(poiId,0).get
     computedResult2 should be (false)
 
@@ -85,7 +85,7 @@ class QuestDAOSpec extends AnyFlatSpec with Matchers {
     val p = DAOP.getPoIs(long,lat)
     dao.fillDatabaseFromPoIs(p,0)
 
-    dao.makeUnActive(poiId,0)
+    dao.makeUnActive(0)
 
     val computedResult = dao.getListOfActivataibleQuestsNerby(long, lat, 999f,0).length
 
