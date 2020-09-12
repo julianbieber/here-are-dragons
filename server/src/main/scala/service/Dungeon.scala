@@ -63,6 +63,7 @@ case class Dungeon(
       currentLevel += 1
       units(currentLevel).prependAll(players)
       turnOrder = units(currentLevel).map(_.id)
+      currentTurn = 0
     }
   }
 
@@ -77,7 +78,8 @@ case class Dungeon(
   }
 
   def completed: (Boolean, Boolean) = {
-    !units.forall(_.exists(_.isInstanceOf[NPC])) -> !units.forall(_.exists(_.isInstanceOf[PlayerUnit]))
+    println("completed", !units.forall(_.exists(_.isInstanceOf[NPC])) -> !units.exists(_.exists(_.isInstanceOf[PlayerUnit])))
+    !units.forall(_.exists(_.isInstanceOf[NPC])) -> !units.exists(_.exists(_.isInstanceOf[PlayerUnit]))
   }
 
   def isAllowedToUse(unitId: Int, skillUsage: SkillUsage): Boolean = {

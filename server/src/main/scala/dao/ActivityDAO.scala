@@ -37,7 +37,6 @@ class ActivityDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
   def stopActivity(user: Int, start: DateTime): Unit = {
     withSession(pool) { implicit session: DBSession =>
       val time: DateTime = TimeUtil.now
-    println("stop time", time)
       sql"update public.activity set end_timestamp = $time where userid = $user and start_timestamp = $start".executeUpdate().apply()
     }
   }

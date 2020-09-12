@@ -106,7 +106,7 @@ case class EnemyPattern(
     val warriorPercentage = fixedSkills.map(_.strengthScaling).sum / totalScaling
     val sorcererPercentage = fixedSkills.map(_.spellPowerScaling).sum / totalScaling
     val rangerPercentage = fixedSkills.map(_.dexterityScaling).sum / totalScaling
-
+    println("#######''", attributePoints)
     val attributes = Attributes(
       strength = (attributePoints * warriorPercentage * offensiveScale).toInt + 1,
       constitution = (attributePoints * warriorPercentage * (1- offensiveScale)).toInt + 1,
@@ -127,13 +127,13 @@ case class EnemyPattern(
     NPC(
       id,
       prefabId,
-      attributes.constitution * 10,
+      0,
       skills,
       4,
       6,
       2,
       Status.empty,
-      attributes: Attributes
+      attributes
     )
   }
 }

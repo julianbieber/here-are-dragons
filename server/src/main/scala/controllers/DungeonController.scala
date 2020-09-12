@@ -2,12 +2,14 @@ package controllers
 
 import com.github.plokhotnyuk.jsoniter_scala.core._
 import com.twitter.finagle.http.Request
-import dao.{AttributesDAO, DifficultyDAO, DungeonDAO, GroupDAO, QuestDAO, SkillDAO, SkillbarDAO, UserDAO}
+import dao.{AttributesDAO, DifficultyDAO, DifficultyRow, DungeonDAO, GroupDAO, QuestDAO, SkillDAO, SkillbarDAO, UserDAO}
 import javax.inject.Inject
 import model.Dungeon.{AvailableDungeons, DungeonResponse, OpenRequest, SkillUsage, UnitResponse}
+import model.Quest.Difficulty
 import service.{Dungeon, DungeonService, DungeonUnit, Empty, NPC, PlayerUnit}
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 class DungeonController @Inject() (
   override val userDAO: UserDAO,
@@ -22,7 +24,7 @@ class DungeonController @Inject() (
   get("/dungeons") { request: Request =>
     withUserAuto(request) { userId =>
       val dungeons = DungeonDAO.getDungeonForUser(userId)
-      val ids = dungeons.filter{ case (_, dungeon) =>
+      val ids = dungeons.filterNot{ case (_, dungeon) =>
         val (won, lost) = dungeon.completed
         won || lost
       }.map(_._1)
@@ -35,6 +37,7 @@ class DungeonController @Inject() (
       Future{
         val openRequest = readFromString[OpenRequest](request.getContentString())
         difficultyDAO.getDifficultyById(openRequest.difficultyId).flatMap{ difficulty =>
+        //val difficulty = DifficultyRow(0, userId, Seq(), openRequest.difficultyId) // tmp
           val userIds = difficulty.groupMembers.+:(difficulty.userId)
           if (userIds.contains(userId) && userIds.forall{ id =>
             DungeonDAO.getDungeonForUser(id).forall { case (_, d) =>
@@ -62,11 +65,8 @@ class DungeonController @Inject() (
       currentLevel = dungeon.currentLevel,
       levels = dungeon.units.length,
       units = dungeon.units(dungeon.currentLevel).map(unitToResponse),
-      myTurn = dungeon.findUser(userId)._1.id == dungeon.currentTurn,
-      ap = dungeon.units(dungeon.currentLevel).find{
-        case PlayerUnit(_, u, _, _, _, _, _, _, _) => u == userId
-        case _ => false
-      }.map(_.asInstanceOf[PlayerUnit].ap).getOrElse(0),
+      myTurn = Try(dungeon.findUser(userId)._1.id == dungeon.currentTurn).getOrElse(false),
+      ap = Try(dungeon.findUser(userId)._1.ap).getOrElse(0),
       won,
       lost
     )

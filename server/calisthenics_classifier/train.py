@@ -13,7 +13,7 @@ class Model:
             Conv2D(8, 3, input_shape=(30, 3, 1)),
             MaxPooling2D(pool_size=1),
             Flatten(),
-            Dense(64, activation='relu'),
+            Dense(8, activation='relu'),
             Dense(3, activation='softmax'),
         ])
         self.model.compile(
