@@ -125,5 +125,7 @@ public class Skill {
     public int movementOffset;
     public int coolDown;
     public int remainingCoolDown;
+    public Attributes attributesOffset;
+    public int attributesOffsetDuration;
 
 }
