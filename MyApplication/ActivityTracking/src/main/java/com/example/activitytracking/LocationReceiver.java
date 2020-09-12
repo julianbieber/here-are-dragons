@@ -41,9 +41,7 @@ public class LocationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         try {
-            receiverLogMessage += "aaab";
             LocationResult result = LocationResult.extractResult(intent);
-            receiverLogMessage += "received Location";
             if (result != null) {
                 List<Location> locations = result.getLocations();
                 for (Location location: locations) {
@@ -58,14 +56,14 @@ public class LocationReceiver extends BroadcastReceiver {
 
 
     private void sendLocation(double longitude, double latitude) {
-        new BackgroundRequest().execute(url, String.valueOf(longitude), String.valueOf(latitude));
+        new BackgroundRequest().execute(String.valueOf(longitude), String.valueOf(latitude));
     }
 
     private class BackgroundRequest extends AsyncTask<String , Void, Void> {
         @Override
         protected Void doInBackground(String... urls) {
             try {
-                URL u = new URL(urls[0] + "Position");
+                URL u = new URL(url + "Position");
                 HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
                 urlConnection.setRequestMethod("POST");
                 urlConnection.setRequestProperty("X-userId", user);
@@ -73,9 +71,9 @@ public class LocationReceiver extends BroadcastReceiver {
                 urlConnection.setDoOutput(true);
                 OutputStreamWriter wr = new OutputStreamWriter(urlConnection.getOutputStream());
                 wr.write("{\"longitude\":");
-                wr.write(urls[1]);
+                wr.write(urls[0]);
                 wr.write(",\"latitude\":");
-                wr.write(urls[2]);
+                wr.write(urls[1]);
                 wr.write("}");
                 wr.flush();
 
@@ -86,11 +84,9 @@ public class LocationReceiver extends BroadcastReceiver {
                     urlConnection.disconnect();
                     wr.close();
                 }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-                receiverLogMessage += e.getClass().getName();
             } catch (IOException e) {
                 receiverLogMessage += e.getClass().getName();
+                receiverLogMessage += e.getMessage();
             }
             return null;
         }

@@ -13,7 +13,7 @@ public class ModifyUnityAndroidAppManifestSample : IPostGenerateGradleAndroidPro
 
         var androidManifest = new AndroidManifest(GetManifestPath(basePath));
 
-        androidManifest.SetMicrophonePermission();
+        androidManifest.UpdateToIncludeActivityRecognitionPermissions();
 
         // Add your XML manipulation routines
 
@@ -75,11 +75,9 @@ internal class AndroidXmlDocument : XmlDocument
 
 internal class AndroidManifest : AndroidXmlDocument
 {
-    private readonly XmlElement ApplicationElement;
-
     public AndroidManifest(string path) : base(path)
     {
-        ApplicationElement = SelectSingleNode("/manifest/application") as XmlElement;
+        
     }
 
     private XmlAttribute CreateAndroidAttribute(string key, string value)
@@ -89,43 +87,41 @@ internal class AndroidManifest : AndroidXmlDocument
         return attr;
     }
 
-    internal XmlNode GetActivityWithLaunchIntent()
+    internal void UpdateToIncludeActivityRecognitionPermissions()
     {
-        return SelectSingleNode("/manifest/application/activity[intent-filter/action/@android:name='android.intent.action.MAIN' and " +
-                "intent-filter/category/@android:name='android.intent.category.LAUNCHER']", nsMgr);
-    }
-
-    internal void SetApplicationTheme(string appTheme)
-    {
-        ApplicationElement.Attributes.Append(CreateAndroidAttribute("theme", appTheme));
-    }
-
-    internal void SetStartingActivityName(string activityName)
-    {
-        GetActivityWithLaunchIntent().Attributes.Append(CreateAndroidAttribute("name", activityName));
-    }
-
-
-    internal void SetHardwareAcceleration()
-    {
-        GetActivityWithLaunchIntent().Attributes.Append(CreateAndroidAttribute("hardwareAccelerated", "true"));
-    }
-
-    internal void SetMicrophonePermission()
-    {
-        var manifest = SelectSingleNode("/manifest/application");
+        var application = SelectSingleNode("/manifest/application");
         XmlAttribute netSecAttribute = CreateAndroidAttribute("networkSecurityConfig", "@xml/network_security_config");
-        manifest.Attributes.Append(netSecAttribute);
+        application.Attributes.Append(netSecAttribute);
+
         XmlElement child = CreateElement("receiver");
-        
-        XmlAttribute newAttribute = CreateAndroidAttribute("name", "com.example.activitytracking.TransitionsReceiver");
+        XmlAttribute newAttribute = CreateAndroidAttribute("name", "com.example.activitytracking.ActivityReceiver");
         child.Attributes.Append(newAttribute);
-        manifest.AppendChild(child);
+        application.AppendChild(child);
 
         XmlElement child2 = CreateElement("receiver");
-        
         XmlAttribute newAttribute2 = CreateAndroidAttribute("name", "com.example.activitytracking.LocationReceiver");
         child2.Attributes.Append(newAttribute2);
-        manifest.AppendChild(child2);
+        application.AppendChild(child2);
+
+        XmlElement service = CreateElement("service");
+        service.Attributes.Append(CreateAndroidAttribute("name", "com.example.activitytracking.SimpleService"));
+        service.Attributes.Append(CreateAndroidAttribute("enabled", "true"));
+        service.Attributes.Append(CreateAndroidAttribute("exported", "false"));
+
+        application.AppendChild(service);
+
+        var manifest = SelectSingleNode("/manifest");
+        
+        XmlElement permission = CreateElement("uses-permission");
+        XmlAttribute permissionAttribute = CreateAndroidAttribute("name", "android.permission.FOREGROUND_SERVICE");
+        permission.Attributes.Append(permissionAttribute);
+        manifest.AppendChild(permission);
+
+
+        XmlElement permission2 = CreateElement("uses-permission");
+        XmlAttribute permissionAttribute2 = CreateAndroidAttribute("name", "android.permission.WAKE_LOCK");
+        permission2.Attributes.Append(permissionAttribute2);
+        manifest.AppendChild(permission2);
+        
     }
 }

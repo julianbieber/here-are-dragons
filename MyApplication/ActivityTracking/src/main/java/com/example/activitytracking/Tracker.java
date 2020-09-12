@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.StrictMode;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -27,14 +26,14 @@ public class Tracker {
     private static PendingIntent mActivityTransitionsPendingIntent;
     private static PendingIntent mLocationUpdatePendingIntent;
 
-    private static String logMessage = "FOO";
+    private static String logMessage = "";
 
     private static final String activityAction = "DungeonsAndTrainingActivityTracking";
     private static final String locationAction = "DungeonsAndTrainingLocationTracking";
 
     static String getLog() {
-        if (TransitionsReceiver.receiverLogMessage != null) {
-            return TransitionsReceiver.receiverLogMessage + " | " + logMessage + " | " + LocationReceiver.receiverLogMessage;
+        if (ActivityReceiver.receiverLogMessage != null) {
+            return ActivityReceiver.receiverLogMessage + " | " + logMessage + " | " + LocationReceiver.receiverLogMessage;
         } else {
             return logMessage;
         }
@@ -49,6 +48,11 @@ public class Tracker {
     static public void initialize(Context unityContext, Activity unityActivity, String url, String user, String token) {
         try {
             if (!isRunning) {
+                SimpleService.context = unityContext;
+                Intent notificationIntent = new Intent(unityContext, SimpleService.class);
+                unityActivity.startForegroundService(notificationIntent);
+
+
                 isRunning = true;
                 final Intent intent = new Intent().setAction(activityAction);
                 mActivityTransitionsPendingIntent = PendingIntent.getBroadcast(unityActivity, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -56,7 +60,7 @@ public class Tracker {
 
                 IntentFilter activityFilter = new IntentFilter();
                 activityFilter.addAction(activityAction);
-                unityContext.registerReceiver(new TransitionsReceiver(url, user, token), activityFilter);
+                unityContext.registerReceiver(new ActivityReceiver(url, user, token), activityFilter);
                 Task<Void> task = ActivityRecognition.getClient(unityActivity).requestActivityUpdates(1, mActivityTransitionsPendingIntent);
                 task.addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -114,8 +118,6 @@ public class Tracker {
             logMessage = e.getMessage();
         }
     }
-
-
 
 
 }
