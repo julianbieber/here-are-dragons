@@ -7,13 +7,13 @@ using System.Linq;
 
 public static class DungeonAPI
 {
-    public static async Task<List<string>> getAvailableDungeonIds() {
+    public static async Task<List<int>> getAvailableDungeonIds() {
         var response = await API.get<AvailableDungeonsResponse>(Global.baseUrl + "dungeons", new Dictionary<string, string>());
         if (response.isSome) {
             return response.value.ids;
         } else {
             Debug.Log("Failed to retrieve available dungeons");
-            return new List<string>();
+            return new List<int>();
         }
     }
 
@@ -98,7 +98,7 @@ public static class DungeonAPI
 
 [Serializable]
 public class AvailableDungeonsResponse {
-    public List<string> ids;
+    public List<int> ids;
 }
 
 [Serializable]

@@ -18,7 +18,6 @@ public class DungeonController : MonoBehaviour
 
     public Text apText;
 
-    public GameObject joinButton;
     public InputField questIdInputField;
     public GameObject questIdInputObject;
 
@@ -63,6 +62,8 @@ public class DungeonController : MonoBehaviour
         screenHeight = topLeft.y - lowerLeft.y;
         endObject.SetActive(false);
         leaveButton.SetActive(false);
+        joinDungeon();
+        //openDungeon();
     }
 
     /*public async void openDungeon() {
@@ -79,19 +80,28 @@ public class DungeonController : MonoBehaviour
         int menuIndex = dropdown.GetComponent<Dropdown>().value;
         List<Dropdown.OptionData> menuOptions = dropdown.GetComponent<Dropdown>().options;
         string value = menuOptions[menuIndex].text;
-        var dungeonO = await DungeonAPI.openDungeon(Int32.Parse(value.Substring(0,value.IndexOf("|"))));
+        //var dungeonO = await DungeonAPI.openDungeon(Int32.Parse(value.Substring(0,value.IndexOf("|"))));
+        var dungeonO = await DungeonAPI.openDungeon(90);
         if (dungeonO.isSome) {
             var dungeon = dungeonO.value;
             setDungeon(dungeon);
-            joinButton.SetActive(false);
             questIdInputObject.SetActive(false);
+            dropdown.gameObject.SetActive(false);
         }
-    dropdown.gameObject.SetActive(false);
     }
 
 
     public async void joinDungeon() {
-        SceneManager.LoadScene("Map");
+        var ids = await DungeonAPI.getAvailableDungeonIds();
+        Debug.Log("available dungeons" + ids.Count);
+        if (ids.Count > 0) {
+            var dungeon = await DungeonAPI.getDungeon(ids[0]);
+            if (dungeon.isSome) {
+                setDungeon(dungeon.value);
+                questIdInputObject.SetActive(false);
+                dropdown.gameObject.SetActive(false);
+            }
+        }
     }
 
     // Update is called once per frame

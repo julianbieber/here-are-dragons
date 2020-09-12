@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
+import android.util.Log;
 
 import com.google.android.gms.location.ActivityRecognitionResult;
 import com.google.android.gms.location.ActivityTransition;
@@ -12,6 +14,7 @@ import com.google.android.gms.location.DetectedActivity;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,7 +22,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class TransitionsReceiver extends BroadcastReceiver {
+public class ActivityReceiver extends BroadcastReceiver {
+
+    public ActivityReceiver() {
+
+    };
 
     public static String receiverLogMessage;
 
@@ -32,7 +39,7 @@ public class TransitionsReceiver extends BroadcastReceiver {
     private String user;
     private String token;
 
-    public TransitionsReceiver(String url, String user, String token) {
+    public ActivityReceiver(String url, String user, String token) {
         if (receiverLogMessage == null) {
             receiverLogMessage = "";
             supportedActivities.add(DetectedActivity.ON_BICYCLE);
@@ -48,6 +55,7 @@ public class TransitionsReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         try {
             if (ActivityRecognitionResult.hasResult(intent)) {
+                receiverLogMessage += "Actiovity";
                 ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
                 Optional<DetectedActivity> newActivity = extractCurrentActivity(result);
                 if (newActivity.isPresent()){
@@ -86,43 +94,16 @@ public class TransitionsReceiver extends BroadcastReceiver {
     }
 
     private void stopActivity() {
-        try{
-            HttpURLConnection urlConnection = (HttpURLConnection) new URL(url).openConnection();
-            urlConnection.setRequestMethod("DELETE");
-            urlConnection.setRequestProperty("X-userId", user);
-            urlConnection.setRequestProperty("X-token", token);
-            try {
-                InputStream s = urlConnection.getInputStream();
-                s.close();
-            } finally {
-                urlConnection.disconnect();
-            }
-        } catch (IOException e) {
-            receiverLogMessage += e.getMessage();
-        }
+        new BackgroundDeleteRequest().execute();
     }
 
-    private void startActivty(int type) {
-        URL u = null;
-        if (type == DetectedActivity.RUNNING) {
+    private class BackgroundDeleteRequest extends AsyncTask<Void , Void, Void> {
+        @Override
+        protected Void doInBackground(Void... urls) {
             try {
-                u = new URL(url + "?type=RUNNING");
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (type == DetectedActivity.ON_BICYCLE) {
-            try {
-                u = new URL(url + "?type=CYCLING");
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-        }
-        if (u != null) {
-            try{
+                URL u = new URL(url + "activity");
                 HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
-                urlConnection.setRequestMethod("PUT");
+                urlConnection.setRequestMethod("DELETE");
                 urlConnection.setRequestProperty("X-userId", user);
                 urlConnection.setRequestProperty("X-token", token);
                 try {
@@ -131,9 +112,61 @@ public class TransitionsReceiver extends BroadcastReceiver {
                 } finally {
                     urlConnection.disconnect();
                 }
+
+                try {
+                    InputStream s = urlConnection.getInputStream();
+                    s.close();
+                } finally {
+                    urlConnection.disconnect();
+                }
             } catch (IOException e) {
+                receiverLogMessage += e.getClass().getName();
                 receiverLogMessage += e.getMessage();
             }
+            return null;
+        }
+    }
+
+    private void startActivty(int type) {
+        new BackgrounPutRequest().execute(Integer.valueOf(type));
+    }
+
+    private class BackgrounPutRequest extends AsyncTask<Integer , Void, Void> {
+        @Override
+        protected Void doInBackground(Integer... urls) {
+            URL u = null;
+            if (urls[0].intValue() == DetectedActivity.RUNNING) {
+                try {
+                    u = new URL(url + "activity?type=RUNNING");
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if (urls[0].intValue() == DetectedActivity.ON_BICYCLE) {
+                try {
+                    u = new URL(url + "activity?type=CYCLING");
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (u != null) {
+                try{
+                    HttpURLConnection urlConnection = (HttpURLConnection) u.openConnection();
+                    urlConnection.setRequestMethod("PUT");
+                    urlConnection.setRequestProperty("X-userId", user);
+                    urlConnection.setRequestProperty("X-token", token);
+                    try {
+                        InputStream s = urlConnection.getInputStream();
+                        s.close();
+                    } finally {
+                        urlConnection.disconnect();
+                    }
+                } catch (IOException e) {
+                    receiverLogMessage += e.getMessage();
+                }
+            }
+            return null;
         }
     }
 

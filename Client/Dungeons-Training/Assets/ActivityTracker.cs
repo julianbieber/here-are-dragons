@@ -9,6 +9,7 @@ public class ActivityTracker : MonoBehaviour
 {
    
     private AndroidJavaClass pluginClass;
+    public Text debug;
 
     // Start is called before the first frame update
     void Start()
@@ -18,19 +19,17 @@ public class ActivityTracker : MonoBehaviour
             AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
             AndroidJavaObject context = activity.Call<AndroidJavaObject>("getApplicationContext");
             pluginClass = new AndroidJavaClass("com.example.activitytracking.Tracker");
-            pluginClass.CallStatic("initialize", context, activity, Global.baseUrl + "activity", Global.userId.value, Global.token.value);
+            
+            pluginClass.CallStatic("initialize", context, activity, Global.baseUrl, Global.userId.value.ToString(), Global.token.value);
         } catch (Exception e) {
+            debug.text += e.ToString();
         }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (pluginClass != null) {
-            try{
-            } catch (Exception e) {
-            } 
-        } 
+        debug.text = pluginClass.CallStatic<string>("getLog");
     }
     
 }
