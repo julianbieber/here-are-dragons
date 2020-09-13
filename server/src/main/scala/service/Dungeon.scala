@@ -78,7 +78,6 @@ case class Dungeon(
   }
 
   def completed: (Boolean, Boolean) = {
-    println("completed", !units.forall(_.exists(_.isInstanceOf[NPC])) -> !units.exists(_.exists(_.isInstanceOf[PlayerUnit])))
     !units.forall(_.exists(_.isInstanceOf[NPC])) -> !units.exists(_.exists(_.isInstanceOf[PlayerUnit]))
   }
 

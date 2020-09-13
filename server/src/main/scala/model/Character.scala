@@ -61,6 +61,7 @@ object Character {
 
   object Attributes {
     def empty: Attributes = Attributes(0, 0, 0, 0, 0, 0)
+    def all(n: Int) = Attributes(n,n,n,n,n,n)
   }
 
   object Levels {

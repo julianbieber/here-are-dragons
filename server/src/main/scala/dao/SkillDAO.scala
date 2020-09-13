@@ -53,7 +53,7 @@ object SkillDAO {
       .withWet(2)
       .build(),
     SkillBuilder.create("Fireball")
-      .withTargetPattern("11011")
+      .withTargetPattern("1110111")
       .withBurn(2)
       .withEffectPattern("11111")
       .withSpellPower(2.5f)
