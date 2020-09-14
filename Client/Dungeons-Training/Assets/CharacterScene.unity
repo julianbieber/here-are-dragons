@@ -825,13 +825,13 @@ RectTransform:
   - {fileID: 473884744}
   - {fileID: 465467102}
   - {fileID: 689081711}
+  - {fileID: 1342044850}
   - {fileID: 706338671}
   - {fileID: 1958872435}
   - {fileID: 1110006631}
   - {fileID: 1681770614}
   - {fileID: 1685553737}
   - {fileID: 945535452}
-  - {fileID: 1342044850}
   - {fileID: 1891079975}
   - {fileID: 1244597496}
   - {fileID: 1301069492}
@@ -1525,7 +1525,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Running Relay Race
+  m_Text: Calisthenics
 --- !u!222 &618464386
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3441,7 +3441,7 @@ RectTransform:
   m_Children:
   - {fileID: 288499161}
   m_Father: {fileID: 311968047}
-  m_RootOrder: 11
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}

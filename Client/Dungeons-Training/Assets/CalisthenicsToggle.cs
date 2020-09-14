@@ -13,6 +13,7 @@ public class CalisthenicsToggle : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Input.gyro.enabled = true;
         active = false;
         self.GetComponent<Image>().color = Color.green;
     }
@@ -21,12 +22,24 @@ public class CalisthenicsToggle : MonoBehaviour
     void Update()
     {
         if (active && Time.time >= nextFrame) {
+
+            data.Add(Input.gyro.userAcceleration.x);
+            data.Add(Input.gyro.userAcceleration.y);
+            data.Add(Input.gyro.userAcceleration.z);
+
+            data.Add(Input.gyro.attitude.x);
+            data.Add(Input.gyro.attitude.y);
+            data.Add(Input.gyro.attitude.z);
+            data.Add(Input.gyro.attitude.w);
+
             data.Add(Input.acceleration.x);
             data.Add(Input.acceleration.y);
             data.Add(Input.acceleration.z);
+
+
             nextFrame += 0.1f;
-            if (data.Count == 90) {
-                float[] dataCopy = new float[90];
+            if (data.Count == 300) {
+                float[] dataCopy = new float[300];
                 data.CopyTo(dataCopy);
                 ActivityAPI.recordCalisthenics(dataCopy);
                 data = new List<float>();
