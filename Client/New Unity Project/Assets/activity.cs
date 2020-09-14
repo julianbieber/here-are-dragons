@@ -22,6 +22,7 @@ public class Activity : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Input.gyro.enabled = true;
         Guid uuid = Guid.NewGuid();
         self.GetComponent<Image>().color = Color.green;
         output = new StreamWriter(Application.persistentDataPath + "/"+ activity + "_" + uuid.ToString() +".csv", true);
