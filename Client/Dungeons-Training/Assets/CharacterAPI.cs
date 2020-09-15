@@ -17,9 +17,10 @@ public class CharacterAPI
         }
     }
 
-    public static async void selectSkill(int id) {
+    public static async void selectSkill(int id, int slot) {
         var query = new Dictionary<string, string>();
         query.Add("skill", id.ToString());
+        query.Add("slot", slot.ToString());
         var response = await API.post<string, PlayerSkillBar>(Global.baseUrl + "character/skills/select", "", query);
         if (!response.isSome) {
             Debug.Log("Failed to select skill");
