@@ -90,7 +90,9 @@ public class DungeonController : MonoBehaviour
         }
     }
 
-
+    public void backToMap(){
+        SceneManager.LoadScene("Map");
+    }
     public async void joinDungeon() {
         var ids = await DungeonAPI.getAvailableDungeonIds();
         Debug.Log("available dungeons" + ids.Count);

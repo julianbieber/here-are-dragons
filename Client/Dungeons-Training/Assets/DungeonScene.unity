@@ -370,7 +370,7 @@ GameObject:
   - component: {fileID: 266050180}
   - component: {fileID: 266050179}
   m_Layer: 5
-  m_Name: JoinDungeonButton
+  m_Name: BackToMapButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -440,7 +440,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 942243729}
-        m_MethodName: joinDungeon
+        m_MethodName: backToMap
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1588,7 +1588,6 @@ MonoBehaviour:
   unitPrefab: {fileID: 8373780742609230896, guid: 5c6584c22508ce245b805eb2c243d4a1,
     type: 3}
   apText: {fileID: 837606101}
-  joinButton: {fileID: 266050177}
   questIdInputField: {fileID: 983884362}
   questIdInputObject: {fileID: 983884361}
   dropdown: {fileID: 1759229472}
