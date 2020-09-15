@@ -26,7 +26,14 @@ object Character {
     dexterity: Int, // Ranger offensive
     evasion: Int // Ranger defensive
   ) {
-    def check(level: Int): Boolean = strength + constitution + spellPower + willPower + dexterity + evasion <= Levels.maxAttributes(level)
+    def check(level: Int): Boolean = strength + constitution + spellPower + willPower + dexterity + evasion - 6 <= Levels.maxAttributes(level) &&
+      strength >= 1 &&
+      constitution >= 1 &&
+      spellPower >= 1 &&
+      willPower >= 1 &&
+      dexterity >= 1 &&
+      evasion >= 1
+
     def check(cap: Attributes): Boolean = {
       strength <= cap.strength &&
       constitution <= cap.constitution &&
@@ -61,12 +68,12 @@ object Character {
 
   object Attributes {
     def empty: Attributes = Attributes(0, 0, 0, 0, 0, 0)
-    def all(n: Int) = Attributes(n,n,n,n,n,n)
+    def all(n: Int): Attributes = Attributes(n,n,n,n,n,n)
   }
 
   object Levels {
-    val requirements = IndexedSeq(0L, 1000L, 2000L, 6000L, 12000L)
-    val maxAttributes = IndexedSeq(0, 2, 5, 10, 15)
+    val requirements = IndexedSeq(0L, 300L, 900L, 2640L, 9300L, 14880L, 18600L)
+    val maxAttributes = IndexedSeq(0, 2,    5,    10,    15,    20,     28)
   }
 
   case class Talent(

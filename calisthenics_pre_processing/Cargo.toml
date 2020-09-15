@@ -1,5 +1,5 @@
 [package]
-name = "dragons_post_processing"
+name = "calisthenics_pre_processing"
 version = "0.1.0"
 authors = ["Julian Bieber <j.bieber@patagona.de>"]
 edition = "2018"

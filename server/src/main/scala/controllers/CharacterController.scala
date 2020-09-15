@@ -115,7 +115,7 @@ class CharacterController @Inject() (override val userDAO: UserDAO, executionCon
 
   private def isAllowedToLevelUp(currentLevel: Int, userExperience: UserExperience): Boolean = {
     if (currentLevel + 1 < Levels.requirements.length) {
-      val requirement = Levels.requirements(currentLevel + 1)
+      val requirement = Levels.requirements.take(currentLevel + 1).sum
       requirement <= userExperience.ranger ||
       requirement <= userExperience.sorcerer ||
       requirement <= userExperience.warrior

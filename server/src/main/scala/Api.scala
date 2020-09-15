@@ -50,7 +50,7 @@ object Api extends HttpServer {
       .add[DifficultyController]
   }
 
-  /*val experienceJob = new BackgroundExecutor(new Activity(new ActivityDAO(pool), new ExperienceDAO(pool), new PositionDAO(pool), new TalentUnlockDAO(pool), new TalentDAO(pool), new CalisthenicsDAO(pool)),10000)
+  val experienceJob = new BackgroundExecutor(new Activity(new ActivityDAO(pool), new ExperienceDAO(pool), new PositionDAO(pool), new TalentUnlockDAO(pool), new TalentDAO(pool), new CalisthenicsDAO(pool)),10000)
   val QuestJob = new BackgroundExecutor(new QuestUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)
-  val PoIJob = new BackgroundExecutor(new PoIUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)*/
+  val PoIJob = new BackgroundExecutor(new PoIUpdater(new PoIDAO(pool),new QuestDAO(pool), new PositionDAO(pool),new UserDAO(pool)),10000)
 }

@@ -28,7 +28,7 @@ class CalisthenicsService @Inject() (calisthenicsDAO: CalisthenicsDAO, @Named("c
   }
 
   private def classify(vector: Seq[Float]): Option[Int] = {
-    if (vector.length != 90) {
+    if (vector.length != 300) {
       None
     } else {
       val request = basicRequest.get(uri"$classifierUrl".querySegment(QuerySegment.KeyValue("data", vector.mkString(","))))
@@ -39,9 +39,9 @@ class CalisthenicsService @Inject() (calisthenicsDAO: CalisthenicsDAO, @Named("c
         case Right(value) =>
           val classifierResult: ClassifierResult = readFromString(value)
 
-          if (classifierResult.push > 0.75) {
+          if (classifierResult.push > classifierResult.pull && classifierResult.push > classifierResult.other) {
             Option(CalisthenicsService.push)
-          } else if (classifierResult.pull > 0.75) {
+          } else if (classifierResult.pull > classifierResult.push && classifierResult.pull > classifierResult.other) {
             Option(CalisthenicsService.pull)
           } else {
             None
