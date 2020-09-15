@@ -23,7 +23,7 @@ object RouteUtil {
       val fullDistance = positions.tail.foldLeft((0.0, positions.head)) { case ((distance, point), nextPoint) =>
         distance + GeographyUtilities.haversineDistance(point.longitude, point.latitude, nextPoint.longitude, nextPoint.latitude) -> nextPoint
       }
-      (fullDistance._1 / 1000.0) / (duration.getSeconds / 3600)
+      (fullDistance._1 / 1000.0) / (duration.toStandardSeconds.getSeconds.toDouble / 3600)
     }
   }
 
@@ -34,7 +34,7 @@ object RouteUtil {
       distance += GeographyUtilities.haversineDistance(point.longitude, point.latitude, nextPoint.longitude, nextPoint.latitude)
       point = nextPoint
       distance < distanceInMeters
-    }
+    }.toList
     if (distance < distanceInMeters) {
       Seq()
     } else {

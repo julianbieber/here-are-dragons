@@ -106,7 +106,6 @@ case class EnemyPattern(
     val warriorPercentage = fixedSkills.map(_.strengthScaling).sum / totalScaling
     val sorcererPercentage = fixedSkills.map(_.spellPowerScaling).sum / totalScaling
     val rangerPercentage = fixedSkills.map(_.dexterityScaling).sum / totalScaling
-    println("#######''", attributePoints)
     val attributes = Attributes(
       strength = (attributePoints * warriorPercentage * offensiveScale).toInt + 1,
       constitution = (attributePoints * warriorPercentage * (1- offensiveScale)).toInt + 1,
@@ -115,6 +114,7 @@ case class EnemyPattern(
       dexterity = (attributePoints * rangerPercentage * offensiveScale).toInt + 1,
       evasion = (attributePoints * rangerPercentage * (1 - offensiveScale)).toInt + 1
     )
+    print("generated attributes", attributes)
 
     val remainingSkills = SkillDAO.skills.without(fixedSkills, _.id, (_:Skill).id)
 

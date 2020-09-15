@@ -29,8 +29,8 @@ logging.config.dictConfig({
 
 app = Flask(__name__)
 
-model = Model()
-model.load("/models/activity")
+model = Model(10)
+model.load("/")
 
 
 @app.route("/classify", methods=["GET"])
