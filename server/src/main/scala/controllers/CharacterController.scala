@@ -127,7 +127,8 @@ class CharacterController @Inject() (override val userDAO: UserDAO, executionCon
   post("/character/skills/select") { request: Request =>
     withUserAuto(request) { userId =>
       val skillId = request.params("skill").toInt
-      skillbarDAO.selectSkill(userId, skillId)
+      val skillSlot = request.params("slot").toInt
+      skillbarDAO.selectSkill(userId, skillId, skillSlot)
       skillbarDAO.getSkillBar(userId).map(extend).getOrElse(ExtendedSkillBar(userId, Seq(), Seq()))
     }
   }

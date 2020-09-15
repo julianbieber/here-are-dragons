@@ -18,7 +18,7 @@ class DungeonService @Inject()(ai: AI) {
     if (dungeon.isCurrentTurn(unitId)) {
       dungeon.endTurnActions()
       executeNPCS(dungeon)
-      dungeon.conditionallyMoveToNetFloor()
+      dungeon.conditionallyMoveToNextFloor()
       Option(dungeon)
     } else {
       None
@@ -37,7 +37,7 @@ class DungeonService @Inject()(ai: AI) {
         case _ =>
       }
       dungeon.endTurnActions()
-      dungeon.conditionallyMoveToNetFloor()
+      dungeon.conditionallyMoveToNextFloor()
     }
   }
 

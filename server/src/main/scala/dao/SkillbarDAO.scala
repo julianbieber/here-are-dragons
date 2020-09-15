@@ -6,11 +6,17 @@ import scalikejdbc.{ConnectionPool, DBSession, _}
 
 class SkillbarDAO @Inject()(val pool: ConnectionPool) extends SQLUtil {
 
-  def selectSkill(userId: Int, skill: Int): Unit = {
+  def selectSkill(userId: Int, skill: Int, slot: Int): Unit = {
     withSession(pool){ implicit session =>
       getSkillBarQuery(userId).map{ currentSkillBar =>
         if (!currentSkillBar.selected.contains(skill) && currentSkillBar.unlocked.contains(skill)) {
-          write(currentSkillBar.copy(selected = currentSkillBar.selected ++ Seq(skill)))
+          val selected = currentSkillBar.selected.toBuffer
+          if (slot >= selected.length) {
+            selected.append(skill)
+          } else {
+            selected(slot) = skill
+          }
+          write(currentSkillBar.copy(selected = selected.toList))
         }
       }
     }
