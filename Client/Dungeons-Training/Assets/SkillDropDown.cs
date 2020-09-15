@@ -10,6 +10,7 @@ public class SkillDropDown : MonoBehaviour
     public Character character;
 
     private Dropdown dropdown;
+    private int slot;
     void Start()
     {
         dropdown = GetComponent<Dropdown>();
@@ -29,8 +30,13 @@ public class SkillDropDown : MonoBehaviour
         } 
     }
 
+    public void activateFor(int slot) {
+        this.gameObject.SetActive(true);
+        this.slot = slot;
+    }
+
     public void selectSkill(int i) {
         var option = character.player.value.skillBar.unlocked[i - 1];
-        CharacterAPI.selectSkill(option.id);
+        CharacterAPI.selectSkill(option.id, slot);
     }
 }
