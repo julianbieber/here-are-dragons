@@ -4,6 +4,7 @@ import dao.SkillDAO
 import model.Character.Attributes
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.must.Matchers
+import pprint.pprintln
 import service.Difficulty.difficultyRangeToMobRange
 
 class DifficultySpec extends AnyFlatSpec with Matchers {
@@ -49,6 +50,14 @@ class DifficultySpec extends AnyFlatSpec with Matchers {
            Difficulty.totalAttributes(difficulty, mobs) must be <= 40
          }
        }
+    }
+  }
+
+  it must "generate reasonable attributes" in {
+    Difficulty.minDifficultyPerPattern.foreach{ case (_, pattern) =>
+      val difficulty = 50
+      val playerCount = 1
+      pprintln(pattern.generate(1, (difficulty / 100.0f * 30).toInt * math.pow(playerCount, 1.4).toInt).attributes)
     }
   }
 

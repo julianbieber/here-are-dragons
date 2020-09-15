@@ -26,7 +26,7 @@ class AI @Inject()() {
             targetable -> score
           }.maxBy(_._2)
           skill -> bestTarget
-        }.shuffle.maxBy(_._2._2)
+        }.filter(_._2._2 >= 0).shuffle.maxBy(_._2._2)
 
         Some(SkillUsage(target, skill))
       }

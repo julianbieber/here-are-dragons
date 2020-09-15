@@ -15,7 +15,7 @@ object Difficulty {
 
     val allowedPatterns = minDifficultyPerPattern.filter(_._1 <= difficulty).map(_._2)
 
-    DungeonGenerator(mobs, allowedPatterns, (difficulty / 100.0f * 15).toInt * math.pow(playerCount, 1.4).toInt)
+    DungeonGenerator(mobs, allowedPatterns, (difficulty / 100.0f * 30).toInt * math.pow(playerCount, 1.4).toInt)
   }
 
   /**
@@ -44,7 +44,7 @@ object Difficulty {
   )
 
   val minDifficultyPerPattern = Seq(
-    10 -> EnemyPattern(1f, Seq(SkillDAO.skills(3), SkillDAO.skills(7)), 100, 0), // Air elemental
+    10 -> EnemyPattern(0.9f, Seq(SkillDAO.skills(3), SkillDAO.skills(7)), 100, 0), // Air elemental
     1 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(12)), 150, 1), // Animated sword
     70 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(2), SkillDAO.skills(6)), 200, 2), // fire dragon
     10 -> EnemyPattern(0.75f, Seq(SkillDAO.skills(1), SkillDAO.skills(19)), 130, 3), // fire drake
@@ -106,15 +106,26 @@ case class EnemyPattern(
     val warriorPercentage = fixedSkills.map(_.strengthScaling).sum / totalScaling
     val sorcererPercentage = fixedSkills.map(_.spellPowerScaling).sum / totalScaling
     val rangerPercentage = fixedSkills.map(_.dexterityScaling).sum / totalScaling
+
+    val strength = (attributePoints * warriorPercentage * offensiveScale).toInt + 1
+    val constitution = (attributePoints * (warriorPercentage + 0.2) * (1- offensiveScale)).toInt + 1
+    val spellPower = (attributePoints * sorcererPercentage * offensiveScale).toInt + 1
+    val willPower = (attributePoints * (sorcererPercentage + 0.2) * (1 - offensiveScale)).toInt + 1
+    val dexterity = (attributePoints * rangerPercentage * offensiveScale).toInt + 1
+    val evasion = (attributePoints * (rangerPercentage + 0.2) * (1 - offensiveScale)).toInt + 1
+
+    val sum = strength + constitution + spellPower + willPower + dexterity + evasion
+    val remaining = math.max(0, attributePoints - sum + 6)
+
+
     val attributes = Attributes(
-      strength = (attributePoints * warriorPercentage * offensiveScale).toInt + 1,
-      constitution = (attributePoints * warriorPercentage * (1- offensiveScale)).toInt + 1,
-      spellPower = (attributePoints * sorcererPercentage * offensiveScale).toInt + 1,
-      willPower = (attributePoints * sorcererPercentage * (1 - offensiveScale)).toInt + 1,
-      dexterity = (attributePoints * rangerPercentage * offensiveScale).toInt + 1,
-      evasion = (attributePoints * rangerPercentage * (1 - offensiveScale)).toInt + 1
+      strength = strength,
+      constitution = constitution + remaining / 3,
+      spellPower = spellPower,
+      willPower = willPower + remaining / 3,
+      dexterity = dexterity,
+      evasion = evasion + remaining / 3
     )
-    print("generated attributes", attributes)
 
     val remainingSkills = SkillDAO.skills.without(fixedSkills, _.id, (_:Skill).id)
 

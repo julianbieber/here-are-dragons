@@ -57,7 +57,7 @@ case class Dungeon(
     currentTurn = (currentTurn + 1) % turnOrder.length
   }
 
-  def conditionallyMoveToNetFloor(): Unit = {
+  def conditionallyMoveToNextFloor(): Unit = {
     if (!units(currentLevel).exists(_.isInstanceOf[NPC]) && currentLevel < units.length - 1) {
       val players = units(currentLevel).filter(_.isInstanceOf[PlayerUnit])
       currentLevel += 1
@@ -78,7 +78,9 @@ case class Dungeon(
   }
 
   def completed: (Boolean, Boolean) = {
-    !units.forall(_.exists(_.isInstanceOf[NPC])) -> !units.exists(_.exists(_.isInstanceOf[PlayerUnit]))
+    val remainingNPCs = units.map(_.count(_.isInstanceOf[NPC])).sum
+    val remainingPlayers = units.map(_.count(_.isInstanceOf[PlayerUnit])).sum
+    (remainingNPCs == 0) -> (remainingPlayers == 0)
   }
 
   def isAllowedToUse(unitId: Int, skillUsage: SkillUsage): Boolean = {

@@ -12,10 +12,10 @@ class Model:
         self.input_size = input_size
         self.model = Sequential([
             Reshape((10, input_size, 3), input_shape=(input_size * 30,)),
-            Conv2D(8, (input_size, 3), input_shape=(10, input_size, 3)),
+            Conv2D(16, (input_size, 3), input_shape=(10, input_size, 3)),
             MaxPooling2D(pool_size=1),
             Flatten(),
-            Dense(8, activation='relu'),
+            Dense(16, activation='relu'),
             Dense(3, activation='softmax'),
         ])
         self.model.compile(
@@ -31,7 +31,7 @@ class Model:
         self.model.fit(
             train_data,
             train_labels,
-            epochs=10,
+            epochs=25,
             batch_size=1,
             validation_data=(test_data, test_labels),
         )

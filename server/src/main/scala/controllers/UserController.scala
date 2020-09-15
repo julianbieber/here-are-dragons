@@ -31,8 +31,8 @@ class UserController @Inject()(userDao: UserDAO, executionContext: ExecutionCont
       val user = readFromString[LoginRequest](request.contentString)
       userDao.createUser(user.name, user.password)
         .map { userId =>
-          attributesDAO.storeAttributes(userId, Attributes.all(1), Attributes.all(1), 0)
-          skillbarDAO.unlock(userId, SkillDAO.skills.head.id)
+          attributesDAO.storeAttributes(userId, Attributes.all(100), Attributes.all(100), 0)
+          SkillDAO.skills.foreach(s => skillbarDAO.unlock(userId, s.id))
           writeToString(CreateResponse(userId))
         }
         .map(response.ok)

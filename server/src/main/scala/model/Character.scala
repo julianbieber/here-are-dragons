@@ -72,7 +72,7 @@ object Character {
   }
 
   object Levels {
-    val requirements = IndexedSeq(0L, 300L, 900L, 2640L, 9300L, 14880L, 18600L)
+    val requirements = IndexedSeq(5L, 300L, 900L, 2640L, 9300L, 14880L, 18600L)
     val maxAttributes = IndexedSeq(0, 2,    5,    10,    15,    20,     28)
   }
 

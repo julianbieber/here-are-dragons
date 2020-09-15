@@ -47,7 +47,7 @@ case class PlayerUnit(
     newOffset.foreach{ o =>
       attributesOffsets.append((o, offsetDuration))
     }
-    val newHealth = attributes.constitution * 10 + healthOffset - damage
+    val newHealth = (attributes.constitution + attributesOffsets.map(_._1.constitution).sum) * 10 - damage
     if (newHealth <= 0) {
       Empty(id, 0, status.locationBased)
     } else {
@@ -90,7 +90,7 @@ case class NPC(id: Int, prefabId: Int, healthOffset: Int, skills: Seq[Skill], ap
     newOffset.foreach{ o =>
       attributesOffsets.append((o, offsetDuration))
     }
-    val newHealth = attributes.constitution * 10 + healthOffset - damage
+    val newHealth = (attributes.constitution + attributesOffsets.map(_._1.constitution).sum) * 10 - damage
     if (newHealth <= 0) {
       Empty(id, 0, status.locationBased)
     } else {

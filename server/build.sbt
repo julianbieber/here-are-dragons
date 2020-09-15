@@ -22,7 +22,8 @@ libraryDependencies ++= Seq(
   "org.scalacheck" %% "scalacheck" % "1.14.1" % Test,
   "org.flywaydb" % "flyway-core" % "6.4.1" % Test,
   "com.softwaremill.sttp.client" %% "core" % "2.2.0",
-  "com.github.dmarcous" % "s2utils_2.12" % "1.1.1"
+  "com.github.dmarcous" % "s2utils_2.12" % "1.1.1",
+  "com.lihaoyi" %% "pprint" % "0.5.6"
 )
 
 fork := true
