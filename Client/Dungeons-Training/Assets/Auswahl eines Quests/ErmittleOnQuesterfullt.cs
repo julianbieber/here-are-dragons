@@ -40,8 +40,8 @@ public class ErmittleOnQuesterfullt : MonoBehaviour
                 Questerfullt = Questerfullt && qu.istPlayerAnPositionVonAusgewahltemQuest();
             }
             nextUpdate++;
-            if (Questerfullt && q.ausgewählterQuest.isSome&&!Global.ausgewahlterQuest.value.erledigt)
-            {
+            if (Questerfullt && q.ausgewählterQuest.isSome&&!Global.ausgewahlterQuest.value.erledigt&&!Global.erledigt.value)
+            {   
                 var b = await QuestAPI.getNextQuestPosition();
                 if(b.latlong==null || !(b.latlong.GetLength(0)).Equals(2) ){
                     text.text = "Quest abgeschlossen ! :)";

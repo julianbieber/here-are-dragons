@@ -22,7 +22,7 @@ public class SendPosition : MonoBehaviour
         {
             nextUpdate = Mathf.FloorToInt(Time.time) + 1;
             var pos = fp.CurrentLocation.LatitudeLongitude;
-            //PositionAPI.setPosition((float)pos.y, (float)pos.x);
+            PositionAPI.setPosition((float)pos.y, (float)pos.x);
         }
     }
     public async void Create()

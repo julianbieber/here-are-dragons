@@ -29,7 +29,7 @@ public class ActivityTracker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        debug.text = pluginClass.CallStatic<string>("getLog");
+       // debug.text = pluginClass.CallStatic<string>("getLog");
     }
     
 }
