@@ -12,10 +12,10 @@ public class ActivityAPI
         await API.put<string, string>(Global.baseUrl + "activity", "", query); 
     }
 
-    public static void stopActivity(string activityType) {
+    public static async void stopActivity(string activityType) {
         var query = new Dictionary<string, string>();
         query.Add("type", activityType);
-        API.delete<string>(Global.baseUrl + "activity", query);
+        await API.delete<string>(Global.baseUrl + "activity", query);
     }
 
     public static async void startRelayRace(string activityType) {
@@ -25,18 +25,18 @@ public class ActivityAPI
     }
 
     
-    public static void stopRelayRace(string activityType) {
+    public static async void stopRelayRace(string activityType) {
         var query = new Dictionary<string, string>();
         query.Add("type", activityType);
-        API.delete<string>(Global.baseUrl + "relay", query);
+        await API.delete<string>(Global.baseUrl + "relay", query);
     }
 
-    public static void recordCalisthenics(float[] vector) {
+    public static async void recordCalisthenics(float[] vector) {
         var query = new Dictionary<string, string>();
         var data = new CalisthenicsPutBody {
             vector = vector.ToList()
         };
-        API.put<CalisthenicsPutBody, string>("/calisthenics", data, query);
+        var response = await API.put<CalisthenicsPutBody, string>(Global.baseUrl + "calisthenics", data, query);
     }
 }
 
