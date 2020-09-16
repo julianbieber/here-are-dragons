@@ -29,7 +29,7 @@ object Api extends HttpServer {
     override def configure(): Unit = {
       bind[ExecutionContext].toInstance(ExecutionContext.global)
       bind[ConnectionPool].toInstance(pool)
-      bind[String].annotatedWithName("classifierUrl").toInstance("calisthenis:5001/classify")
+      bind[String].annotatedWithName("classifierUrl").toInstance("http://calisthenics:5001/classify")
     }
   })
 

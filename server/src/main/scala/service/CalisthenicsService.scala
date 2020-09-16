@@ -37,8 +37,9 @@ class CalisthenicsService @Inject() (calisthenicsDAO: CalisthenicsDAO, @Named("c
           println(s"error occured during classification of calisthenics $value")
           None
         case Right(value) =>
+          println(vector, "####")
           val classifierResult: ClassifierResult = readFromString(value)
-
+          println(classifierResult, "result #####")
           if (classifierResult.push > classifierResult.pull && classifierResult.push > classifierResult.other) {
             Option(CalisthenicsService.push)
           } else if (classifierResult.pull > classifierResult.push && classifierResult.pull > classifierResult.other) {

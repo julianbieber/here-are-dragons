@@ -44,6 +44,7 @@ public class ActivityReceiver extends BroadcastReceiver {
             receiverLogMessage = "";
             supportedActivities.add(DetectedActivity.ON_BICYCLE);
             supportedActivities.add(DetectedActivity.RUNNING);
+            supportedActivities.add(DetectedActivity.ON_FOOT);
             currentActivity = Optional.empty();
             this.url = url;
             this.user = user;
@@ -86,7 +87,13 @@ public class ActivityReceiver extends BroadcastReceiver {
                 .stream()
                 .filter( a -> supportedActivities.contains(a.getType()))
                 .filter(a -> a.getConfidence() >= confidenceThreshold )
-                .max((a1, a2) -> Integer.compare(a1.getConfidence(), a2.getConfidence()));
+                .max((a1, a2) -> Integer.compare(a1.getConfidence(), a2.getConfidence())).map(a -> {
+                    if (a.getType() == DetectedActivity.ON_FOOT) {
+                        return new DetectedActivity(DetectedActivity.RUNNING, a.getConfidence()) ;
+                    } else {
+                        return a;
+                    }
+                });
     }
 
     private boolean hasNewActivityBeenStarted(DetectedActivity newActivity) {
