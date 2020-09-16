@@ -54,9 +54,9 @@ object Character {
       )
     }
 
-    def warriorCosts: Long = (math.pow(2, strength) + math.pow(2, constitution)).toLong - 2
-    def sorcererCosts: Long = (math.pow(2, spellPower) + math.pow(2, willPower)).toLong - 2
-    def rangerCosts: Long = (math.pow(2, dexterity) + math.pow(2, evasion)).toLong - 2
+    def warriorCosts: Long = (math.pow(2, strength - 1) + math.pow(2, constitution - 1)).toLong - 2
+    def sorcererCosts: Long = (math.pow(2, spellPower - 1) + math.pow(2, willPower - 1)).toLong - 2
+    def rangerCosts: Long = (math.pow(2, dexterity - 1) + math.pow(2, evasion - 1)).toLong - 2
 
     def toOption: Option[Attributes] = {
       this match {
