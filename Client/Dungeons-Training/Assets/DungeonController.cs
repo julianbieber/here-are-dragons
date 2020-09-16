@@ -81,6 +81,7 @@ public class DungeonController : MonoBehaviour
         List<Dropdown.OptionData> menuOptions = dropdown.GetComponent<Dropdown>().options;
         string value = menuOptions[menuIndex].text;
         var dungeonO = await DungeonAPI.openDungeon(Int32.Parse(value.Substring(0,value.IndexOf("|"))));
+        //var dungeonO = await DungeonAPI.openDungeon(90);
         if (dungeonO.isSome) {
             var dungeon = dungeonO.value;
             setDungeon(dungeon);

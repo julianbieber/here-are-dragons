@@ -49,9 +49,9 @@ public class CalisthenicsToggle : MonoBehaviour
 
     public void toggle() {
         if (active) {
-            self.GetComponent<Image>().color = Color.red;
-        } else {
             self.GetComponent<Image>().color = Color.green;
+        } else {
+            self.GetComponent<Image>().color = Color.red;
         }
         active = !active;
         data = new List<float>();
